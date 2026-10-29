@@ -11,6 +11,7 @@ export const CONCEPTS = {
   descomponer: { name: 'Descomponer un problema en pasos', short: 'Descomponer' },
   algoritmo: { name: 'Algoritmos y orden de ejecución', short: 'Algoritmos' },
   operadores: { name: 'Operadores y expresiones', short: 'Operadores' },
+  expresiones: { name: 'Cómo evalúa Python una expresión', short: 'Expresiones' },
 };
 
 export const MODULES = [
@@ -32,7 +33,7 @@ export const MODULES = [
     prerequisites: ['Módulo 1 recomendado (no obligatorio en la demo)'],
     lessons: [
       { id: 'variables', title: 'Variables: dar nombre a los datos' },
-      { title: 'Expresiones y operadores aritméticos' },
+      { id: 'expresiones', title: 'Expresiones y operadores aritméticos' },
       { title: 'Tipos, conversiones y entrada de datos' },
       { title: 'Reto del módulo: ticket de compra', challenge: 'ch-iva' },
     ],

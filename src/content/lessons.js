@@ -1,8 +1,9 @@
 // Registro de lecciones disponibles, en el orden del curso.
 import { LESSONS_M1 } from './module1.js';
 import { LESSON_VARIABLES } from './lesson-variables.js';
+import { LESSON_EXPRESIONES } from './lesson-expresiones.js';
 
-const ALL = [...LESSONS_M1, LESSON_VARIABLES];
+const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES];
 
 export const LESSONS = Object.fromEntries(ALL.map((l) => [l.id, l]));
 export const LESSON_ORDER = ALL.map((l) => l.id);

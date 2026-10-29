@@ -40,6 +40,38 @@ export const REVIEW_ITEMS = [
     question: '¿Qué muestra este programa?',
     explain: 'Primero la multiplicación (2 × 5 = 10) y después la suma: 12.',
   },
+  // ---- Módulo 2 · expresiones
+  {
+    id: 'r-compuesta', concept: 'reasignacion', mode: 'text', code: 'x = 5\nx += 2\nx *= 3\nprint(x)', answer: '21',
+    question: '¿Qué muestra este programa?',
+    explain: '5 + 2 = 7 y 7 × 3 = 21. `x += 2` es lo mismo que `x = x + 2`.',
+  },
+  {
+    id: 'r-signo-potencia', concept: 'expresiones', mode: 'text', code: 'print(-2 ** 2)', answer: '-4',
+    question: '¿Qué muestra este programa?',
+    explain: 'La potencia va antes que el signo: -(2 ** 2) = -4.',
+  },
+  {
+    id: 'r-izq-der', concept: 'expresiones', mode: 'text', code: 'print(20 / 4 * 2)', answer: '10.0',
+    question: '¿Qué muestra este programa?',
+    explain: 'Misma prioridad, de izquierda a derecha: 20 / 4 = 5.0 y 5.0 × 2 = 10.0.',
+  },
+  {
+    id: 'r-tipo-mezcla', concept: 'tipos', mode: 'text', code: 'print(4 * 2.5)', answer: '10.0',
+    question: '¿Qué muestra este programa?',
+    explain: 'Si uno de los dos es float, el resultado también: 10.0.',
+  },
+  {
+    id: 'r-ultima-cifra', concept: 'operadores', mode: 'text', code: 'n = 538\nprint(n % 10, n // 10)', answer: '8 53',
+    question: '¿Qué muestra este programa?',
+    explain: '`% 10` da la última cifra (8) y `// 10` la quita (53).',
+  },
+  {
+    id: 'r-media', concept: 'expresiones', mode: 'choice',
+    question: '¿Qué expresión calcula la media de a, b y c?',
+    options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
+    explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
+  },
   // ---- Módulo 2 · variables
   {
     id: 'r-concat', concept: 'tipos', mode: 'text', code: 'print("5" + "3")', answer: '53',
