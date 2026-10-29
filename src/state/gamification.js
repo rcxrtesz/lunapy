@@ -9,6 +9,7 @@ const CODE_ACTIVITIES = Object.values(ACTIVITIES).filter((a) => a.type === 'code
 const M1_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm1');
 const M2_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm2');
 const M3_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm3');
+const M4_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm4');
 
 export const ACHIEVEMENTS = [
   { id: 'first-run', name: 'Hola, mundo', desc: 'Ejecuta tu primer programa', icon: 'play', test: (s) => Object.values(s.daily).some((d) => (d.runs || 0) > 0 || d.labRuns > 0) },
@@ -21,6 +22,7 @@ export const ACHIEVEMENTS = [
   { id: 'module-1', name: 'Pensamiento computacional', desc: 'Completa el Módulo 1', icon: 'brain', test: (s) => M1_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'module-2', name: 'Dueña de los datos', desc: 'Completa las lecciones del Módulo 2', icon: 'layers', test: (s) => M2_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'module-3', name: 'Arquitecta de funciones', desc: 'Completa las lecciones del Módulo 3', icon: 'puzzle', test: (s) => M3_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-4', name: 'Código con estilo', desc: 'Completa las lecciones del Módulo 4', icon: 'pencil', test: (s) => M4_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'streak-3', name: 'Constancia', desc: 'Mantén una racha de 3 días', icon: 'flame', test: (s) => streak(s).days >= 3 },
   { id: 'reviewer', name: 'Memoria a largo plazo', desc: 'Completa una sesión de repaso', icon: 'repeat', test: (s) => Object.values(s.daily).some((d) => (d.reviewSessions || 0) > 0) },
 ];

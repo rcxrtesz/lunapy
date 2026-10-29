@@ -412,6 +412,21 @@ def explain(exc, code, names):
             title = "Multiplicación con texto"
             expl = f"Estás multiplicando un texto por un {tipo_es(m_mul.group(1))}. Seguramente uno de los valores es un número guardado como texto."
             sug = "input() siempre devuelve texto: usa float(input(...)) o int(input(...)) para obtener un número."
+        elif m_args := (re.search(r"(\w+)\(\) missing (\d+) required positional arguments?: (.+)", msg)
+                        or re.search(r"(\w+)\(\) takes (?:exactly )?(\w+) (?:positional )?arguments? but (\d+) (?:was|were) given", msg)
+                        or re.search(r"(\w+)\(\) takes (?:exactly )?(\w+) arguments? \((\d+) given\)", msg)):
+            fn = m_args.group(1)
+            title = "Número de argumentos incorrecto"
+            if "missing" in msg:
+                faltan = m_args.group(3).replace("'", "").replace(" and ", " y ")
+                expl = f"Has llamado a {fn}() sin darle valor a: {faltan}. Cada parámetro sin valor por defecto necesita su argumento."
+            else:
+                expl = f"{fn}() recibe {m_args.group(2).replace('one', '1')} argumento(s), pero le has pasado {m_args.group(3)}."
+            sug = f"Compara la llamada con la cabecera de {fn}(): debe haber un argumento por cada parámetro, en el mismo orden."
+        elif m_kw := re.search(r"(\w+)\(\) got an unexpected keyword argument '(\w+)'", msg):
+            title = "Argumento con un nombre que no existe"
+            expl = f"{m_kw.group(1)}() no tiene ningún parámetro llamado «{m_kw.group(2)}»."
+            sug = "Revisa cómo se llaman los parámetros en la cabecera de la función (el def)."
         elif "object is not callable" in low:
             t = re.search(r"'(\w+)' object is not callable", msg)
             title = "Se está usando un valor como si fuera una función"

@@ -72,6 +72,41 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 4 · diseño de funciones
+  {
+    id: 'r-generalizar', concept: 'diseno', mode: 'choice',
+    question: 'Tienes `def linea_de_10(): print("-" * 10)`. ¿Qué significa generalizarla?',
+    options: [{ text: 'Cambiar el 10 por un parámetro: linea(n)', correct: true }, { text: 'Darle un nombre más largo' }, { text: 'Llamarla más veces' }],
+    explain: 'Generalizar es sustituir valores fijos por parámetros para que la función sirva en más casos.',
+  },
+  {
+    id: 'r-defecto', concept: 'parametros', mode: 'text', code: 'def f(a, b=3):\n    return a * b\n\nprint(f(2), f(2, 5))', answer: '6 10',
+    question: '¿Qué muestra este programa?',
+    explain: 'Sin segundo argumento, b vale 3 por defecto: 2 × 3 = 6. Con 5: 2 × 5 = 10.',
+  },
+  {
+    id: 'r-nombrados', concept: 'parametros', mode: 'text', code: 'def div(a, b):\n    return a // b\n\nprint(div(b=2, a=9))', answer: '4',
+    question: '¿Qué muestra este programa?',
+    explain: 'Por nombre: a = 9 y b = 2, así que 9 // 2 = 4.',
+  },
+  {
+    id: 'r-salto', concept: 'diseno', mode: 'choice', code: 'print(("ab" + "\\n") * 2, end="")', answer: 'ab\nab',
+    question: '¿Qué muestra este programa?',
+    options: [{ text: 'ab en dos líneas', correct: true }, { text: 'abab en una línea' }, { text: 'ab\\nab tal cual' }],
+    explain: '"\\n" es un salto de línea: "ab" aparece en dos líneas.',
+  },
+  {
+    id: 'r-refactor', concept: 'diseno', mode: 'choice',
+    question: 'Refactorizar un programa significa…',
+    options: [{ text: 'Mejorar cómo está escrito sin cambiar lo que hace', correct: true }, { text: 'Añadirle funciones nuevas' }, { text: 'Hacer que dé un resultado mejor' }],
+    explain: 'Si cambia lo que hace, ya no es refactorizar.',
+  },
+  {
+    id: 'r-constante', concept: 'diseno', mode: 'choice',
+    question: '¿Cómo se escribe por convención un valor que no cambia, como el IVA?',
+    options: [{ text: 'IVA = 0.21', correct: true }, { text: 'iva = 0.21' }, { text: 'Iva = 0.21' }],
+    explain: 'Las constantes se escriben en MAYÚSCULAS al principio del programa.',
+  },
   // ---- Módulo 3 · parámetros y return
   {
     id: 'r-param-orden', concept: 'parametros', mode: 'text', code: 'def resta(a, b):\n    return a - b\n\nprint(resta(2, 10))', answer: '-8',

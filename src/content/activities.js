@@ -11,6 +11,9 @@ import { ACTIVITIES_ENTRADA } from './lesson-entrada.js';
 import { ACTIVITIES_LLAMAR_FUNCIONES } from './lesson-llamar-funciones.js';
 import { ACTIVITIES_DEFINIR_FUNCIONES } from './lesson-definir-funciones.js';
 import { ACTIVITIES_PARAMETROS } from './lesson-parametros.js';
+import { ACTIVITIES_ENCAPSULAR } from './lesson-encapsular.js';
+import { ACTIVITIES_INTERFACES } from './lesson-interfaces.js';
+import { ACTIVITIES_REFACTORIZAR } from './lesson-refactorizar.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -419,7 +422,8 @@ print("Precio con IVA:", round(total, 2))`,
 
 for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
 
-export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS };
+export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS,
+  ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

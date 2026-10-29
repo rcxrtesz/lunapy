@@ -247,7 +247,7 @@ export const ACTIVITIES_DEFINIR_FUNCIONES = {
     id: 'def-build', type: 'code', variant: 'build', kindLabel: 'Construye desde cero', topic: TOPIC,
     title: 'La tarjeta de felicitación', difficulty: 2, xp: 25, concepts: ['funciones', 'descomponer'],
     unlock: { any: ['def-predict', 'def-complete', 'def-fix'], count: 2, text: 'Supera al menos 2 de las actividades anteriores de la lección' },
-    statement: 'Define dos funciones:\n\n- `borde()`, que muestra una línea de **20 asteriscos**.\n- `tarjeta()`, que muestra el borde, el texto `¡Feliz cumpleaños!` y otra vez el borde, **llamando a `borde()`**.\n\nAl comprobar, LunaPy llamará a tus funciones. Puedes llamarlas tú también para probarlas.',
+    statement: 'Define dos funciones:\n\n• `borde()`, que muestra una línea de **20 asteriscos**.\n\n• `tarjeta()`, que muestra el borde, el texto `¡Feliz cumpleaños!` y otra vez el borde, **llamando a `borde()`**.\n\nAl comprobar, LunaPy llamará a tus funciones. Puedes llamarlas tú también para probarlas.',
     expected: '********************\n¡Feliz cumpleaños!\n********************',
     plan: [
       {

@@ -15,6 +15,7 @@ export const CONCEPTS = {
   funciones: { name: 'Llamar y definir funciones', short: 'Funciones' },
   modulos: { name: 'Importar módulos (math)', short: 'Módulos' },
   parametros: { name: 'Parámetros, return y variables locales', short: 'Parámetros' },
+  diseno: { name: 'Diseñar y refactorizar funciones', short: 'Diseño' },
 };
 
 export const MODULES = [
@@ -53,7 +54,7 @@ export const MODULES = [
     book: ['Cap. 4 · Funciones e interfaces'], cisco: 'PE1 · Módulo 4',
     objectives: ['Diseñar funciones con interfaces claras', 'Encapsular y generalizar', 'Refactorizar código repetido'],
     prerequisites: ['Módulo 3'],
-    lessons: [{ title: 'Encapsulación y generalización' }, { title: 'Diseño de interfaces' }, { title: 'Refactorización' }],
+    lessons: [{ id: 'encapsular', title: 'Encapsulación y generalización' }, { id: 'interfaces', title: 'Diseño de interfaces' }, { id: 'refactorizar', title: 'Refactorización' }],
   },
   {
     id: 'm5', num: 5, title: 'Condicionales, lógica booleana y recursión',

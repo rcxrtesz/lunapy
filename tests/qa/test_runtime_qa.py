@@ -505,6 +505,13 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def area(b, h):\n    return b * altura", self.SPEC)
         self.assertEqual((r["status"], r["category"]), ("fail", "ejecucion"))
 
+    def test_argument_count_errors_are_explained(self):
+        for code in ("def f(a, b):\n    return a\nf(1)", "def f():\n    pass\nf(3)", "print(len('a', 'b'))", "print(abs(-3, -4))"):
+            r = runtime.check(code, {"cases": [{}]})
+            self.assertEqual(r["title"], "Número de argumentos incorrecto", code)
+        r = runtime.check("def f(a):\n    return a\nf(b=2)", {"cases": [{}]})
+        self.assertEqual(r["title"], "Argumento con un nombre que no existe")
+
     def test_none_operand_points_to_return(self):
         r = runtime.check("def f(x):\n    print(x)\n\ny = f(2) + 1", {"cases": [{}]})
         self.assertIn("return", r["error"]["suggestion"])
