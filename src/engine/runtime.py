@@ -402,7 +402,9 @@ def explain(exc, code, names):
             op, a, b = m_op.groups()
             title = "Operación entre tipos incompatibles"
             expl = f"No se puede usar «{op}» entre un {tipo_es(a)} y un {tipo_es(b)}."
-            if "str" in (a, b):
+            if "NoneType" in (a, b):
+                sug = "Uno de los valores es None. Suele venir de una función que muestra el resultado con print() pero no lo devuelve: usa return."
+            elif "str" in (a, b):
                 sug = "Si el valor viene de input(), recuerda que input() SIEMPRE devuelve texto: conviértelo con int() o float() antes de operar."
             else:
                 sug = "Comprueba qué tipo de dato tiene cada variable (puedes usar type())."

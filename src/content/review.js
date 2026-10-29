@@ -72,6 +72,34 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 3 · parámetros y return
+  {
+    id: 'r-param-orden', concept: 'parametros', mode: 'text', code: 'def resta(a, b):\n    return a - b\n\nprint(resta(2, 10))', answer: '-8',
+    question: '¿Qué muestra este programa?',
+    explain: 'Los argumentos se asignan por posición: a = 2 y b = 10, así que 2 − 10 = −8.',
+  },
+  {
+    id: 'r-return-none', concept: 'parametros', mode: 'text', code: 'def f(x):\n    x * 2\n\nprint(f(4))', answer: 'None',
+    question: '¿Qué muestra este programa?',
+    explain: 'La función calcula x * 2 pero no lo devuelve: sin return, devuelve None.',
+  },
+  {
+    id: 'r-return-usar', concept: 'parametros', mode: 'text', code: 'def cuadrado(n):\n    return n * n\n\nprint(cuadrado(3) + cuadrado(4))', answer: '25',
+    question: '¿Qué muestra este programa?',
+    explain: '9 + 16 = 25: cada llamada vale lo que devuelve.',
+  },
+  {
+    id: 'r-local', concept: 'parametros', mode: 'text', code: 'n = 1\n\ndef f():\n    n = 50\n\nf()\nprint(n)', answer: '1',
+    question: '¿Qué muestra este programa?',
+    explain: 'La n de dentro es local: no cambia la n de fuera.',
+  },
+  {
+    id: 'r-faltan-args', concept: 'errores', mode: 'choice', code: 'def suma(a, b):\n    return a + b\n\nprint(suma(1))',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'TypeError: falta un argumento', correct: true }, { text: 'Muestra 1' }, { text: 'Muestra 2' }],
+    explain: 'suma necesita dos argumentos y solo recibe uno.',
+    expectError: 'TypeError',
+  },
   // ---- Módulo 3 · definir funciones
   {
     id: 'r-def-sin-llamar', concept: 'funciones', mode: 'text', code: 'def f():\n    print("dentro")\n\nprint("fuera")', answer: 'fuera',

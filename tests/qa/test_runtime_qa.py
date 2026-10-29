@@ -505,6 +505,10 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def area(b, h):\n    return b * altura", self.SPEC)
         self.assertEqual((r["status"], r["category"]), ("fail", "ejecucion"))
 
+    def test_none_operand_points_to_return(self):
+        r = runtime.check("def f(x):\n    print(x)\n\ny = f(2) + 1", {"cases": [{}]})
+        self.assertIn("return", r["error"]["suggestion"])
+
     def test_hardcoded_answer_fails_second_case(self):
         self.assertEqual(runtime.check("def area(b, h):\n    return 12", self.SPEC)["status"], "fail")
 

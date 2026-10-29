@@ -82,8 +82,8 @@ tests/         test_runtime.py · test_pwa.py · qa/
 
 ## Estado
 
-- **Hecho:** demo aprobada (lección 2.1 «Variables», 5 actividades y 3 desafíos, laboratorio, pistas, repaso, progreso, logros, 7 paletas con modo día y noche, perfil), auditoría QA con todas las correcciones aplicadas app instalable sin conexión y Módulo 1 completo (lecciones 1.1 «Algoritmos», 1.2 «Python como calculadora» y 1.3 «Tu primer programa», 9 actividades y 7 preguntas de repaso) y Módulo 2 completo (2.1 «Variables», 2.2 «Expresiones y operadores aritméticos» y 2.3 «Tipos, conversiones y entrada de datos»).
-- **Siguiente:** módulos 3–13; después, cuenta y sincronización con una API PHP 8.4 y MySQL en Dinahosting.
+- **Hecho:** demo aprobada (lección 2.1 «Variables», 5 actividades y 3 desafíos, laboratorio, pistas, repaso, progreso, logros, 7 paletas con modo día y noche, perfil), auditoría QA con todas las correcciones aplicadas app instalable sin conexión y Módulo 1 completo (lecciones 1.1 «Algoritmos», 1.2 «Python como calculadora» y 1.3 «Tu primer programa», 9 actividades y 7 preguntas de repaso) y Módulo 2 completo (2.1 «Variables», 2.2 «Expresiones y operadores aritméticos» y 2.3 «Tipos, conversiones y entrada de datos») y Módulo 3 completo (3.1 «Llamar a funciones», 3.2 «Definir tus propias funciones» y 3.3 «Parámetros y variables locales»).
+- **Siguiente:** módulos 4–13; después, cuenta y sincronización con una API PHP 8.4 y MySQL en Dinahosting.
 - **Publicación:** pendiente de confirmación expresa. Antes de subir la app al hosting o generar paquetes para tiendas, se avisará.
 
 Las pistas y el análisis de errores son deterministas: no hay ningún modelo de IA conectado.
