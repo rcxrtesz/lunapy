@@ -45,7 +45,7 @@ export const MODULES = [
     book: ['Cap. 3 · Funciones'], cisco: 'PE1 · Módulo 4',
     objectives: ['Definir funciones propias', 'Pasar información mediante parámetros', 'Entender el ámbito de las variables'],
     prerequisites: ['Módulo 2'],
-    lessons: [{ id: 'llamar-funciones', title: 'Llamar a funciones' }, { title: 'Definir tus propias funciones' }, { title: 'Parámetros y variables locales' }],
+    lessons: [{ id: 'llamar-funciones', title: 'Llamar a funciones' }, { id: 'definir-funciones', title: 'Definir tus propias funciones' }, { title: 'Parámetros y variables locales' }],
   },
   {
     id: 'm4', num: 4, title: 'Funciones, interfaces y organización de programas',

@@ -9,6 +9,7 @@ import { ACTIVITIES_M1 } from './module1.js';
 import { ACTIVITIES_EXPRESIONES } from './lesson-expresiones.js';
 import { ACTIVITIES_ENTRADA } from './lesson-entrada.js';
 import { ACTIVITIES_LLAMAR_FUNCIONES } from './lesson-llamar-funciones.js';
+import { ACTIVITIES_DEFINIR_FUNCIONES } from './lesson-definir-funciones.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -417,7 +418,7 @@ print("Precio con IVA:", round(total, 2))`,
 
 for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
 
-export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES };
+export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

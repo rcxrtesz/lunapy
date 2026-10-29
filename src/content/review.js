@@ -72,6 +72,30 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 3 · definir funciones
+  {
+    id: 'r-def-sin-llamar', concept: 'funciones', mode: 'text', code: 'def f():\n    print("dentro")\n\nprint("fuera")', answer: 'fuera',
+    question: '¿Qué muestra este programa?',
+    explain: 'Definir no ejecuta: f no se llama nunca, así que solo se muestra «fuera».',
+  },
+  {
+    id: 'r-def-llamadas', concept: 'funciones', mode: 'text', code: 'def f():\n    print("ok", end=" ")\n\nf()\nf()\nf()', answer: 'ok ok ok',
+    question: '¿Qué muestra este programa?',
+    explain: 'Cada llamada ejecuta el cuerpo: tres llamadas, tres «ok».',
+  },
+  {
+    id: 'r-def-partes', concept: 'funciones', mode: 'choice',
+    question: '¿Cuál es la cabecera correcta de una función?',
+    options: [{ text: '`def saludar():`', correct: true }, { text: '`def saludar()`' }, { text: '`saludar():`' }],
+    explain: 'def, el nombre, los paréntesis y los dos puntos al final.',
+  },
+  {
+    id: 'r-def-antes', concept: 'errores', mode: 'choice', code: 'f()\ndef f():\n    print("hola")',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'NameError', correct: true }, { text: 'Muestra hola' }, { text: 'SyntaxError' }],
+    explain: 'La llamada ocurre antes de que Python haya leído la definición.',
+    expectError: 'NameError',
+  },
   // ---- Módulo 3 · llamar a funciones
   {
     id: 'r-len', concept: 'funciones', mode: 'text', code: 'print(len("luna py"))', answer: '7',
