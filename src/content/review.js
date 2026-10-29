@@ -72,6 +72,44 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 5 · condicionales y recursión
+  {
+    id: 'r-igual', concept: 'booleanos', mode: 'choice',
+    question: '¿Qué operador pregunta si dos valores son iguales?',
+    options: [{ text: '==', correct: true }, { text: '=' }, { text: '===' }],
+    explain: '`=` asigna; `==` compara.',
+  },
+  {
+    id: 'r-and-or', concept: 'booleanos', mode: 'text', code: 'x = 7\nprint(x > 5 and x < 10, x < 0 or x > 6)', answer: 'True True',
+    question: '¿Qué muestra este programa?',
+    explain: 'Las dos partes del and se cumplen; en el or, basta con x > 6.',
+  },
+  {
+    id: 'r-not', concept: 'booleanos', mode: 'text', code: 'print(not 3 > 5)', answer: 'True',
+    question: '¿Qué muestra este programa?',
+    explain: 'La comparación va primero: 3 > 5 es False, y not False es True.',
+  },
+  {
+    id: 'r-elif', concept: 'condicionales', mode: 'text', code: 'x = 15\nif x > 10:\n    print("A")\nelif x > 5:\n    print("B")\nelse:\n    print("C")', answer: 'A',
+    question: '¿Qué muestra este programa?',
+    explain: 'Solo se ejecuta la primera condición verdadera: 15 > 10.',
+  },
+  {
+    id: 'r-sin-return', concept: 'condicionales', mode: 'text', code: 'def f(x):\n    if x > 0:\n        return "positivo"\n\nprint(f(-1))', answer: 'None',
+    question: '¿Qué muestra este programa?',
+    explain: 'Con -1 no se cumple el if y la función llega al final sin return: devuelve None.',
+  },
+  {
+    id: 'r-factorial', concept: 'recursion', mode: 'text', code: 'def f(n):\n    if n == 0:\n        return 1\n    return n * f(n - 1)\n\nprint(f(3))', answer: '6',
+    question: '¿Qué muestra este programa?',
+    explain: '3 × 2 × 1 × 1 = 6.',
+  },
+  {
+    id: 'r-caso-base', concept: 'recursion', mode: 'choice',
+    question: '¿Qué le pasa a una función recursiva sin caso base?',
+    options: [{ text: 'Se llama sin parar hasta un RecursionError', correct: true }, { text: 'Devuelve None' }, { text: 'Se ejecuta una sola vez' }],
+    explain: 'El caso base es lo que la hace terminar.',
+  },
   // ---- Módulo 4 · diseño de funciones
   {
     id: 'r-generalizar', concept: 'diseno', mode: 'choice',

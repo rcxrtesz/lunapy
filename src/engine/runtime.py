@@ -357,6 +357,10 @@ def explain(exc, code, names):
             title = "Faltan los dos puntos"
             expl = "Las líneas que abren un bloque (if, for, while, def…) deben terminar con «:»."
             sug = "Añade «:» al final de la línea."
+        elif "maybe you meant '=='" in low or re.match(r"^\s*(return|if|elif|while)\b[^=]*[^=!<>]=[^=]", code_line):
+            title = "Para comparar se usa =="
+            expl = "En una condición has escrito «=», que sirve para asignar. Para preguntar si dos valores son iguales se usa «==»."
+            sug = "Cambia «=» por «==»: if edad == 18:"
         elif "forgot a comma" in low:
             title = "Puede que falte una coma"
             expl = "Python encuentra dos valores seguidos sin nada que los separe."
@@ -780,9 +784,15 @@ def _suggestions(tree, spec):
         tips.append(f"La variable «{unused[0]}» se crea pero nunca se usa. Si no la necesitas, puedes eliminarla.")
     # Números «mágicos» repetidos: mejor un nombre que explique qué son y un único sitio donde cambiarlos.
     # spec["skip_tips"] = ["repeated_numbers"] lo desactiva (p. ej. antes de enseñar las variables).
+    # Los argumentos de las llamadas a funciones propias (calificacion(7)) son datos de prueba, no números mágicos.
+    own_funcs = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    test_args = {id(a) for n in ast.walk(tree)
+                 if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in own_funcs
+                 for a in n.args + [kw.value for kw in n.keywords]}
     counts = {}
     for node in ast.walk(tree):
-        if isinstance(node, ast.Constant) and type(node.value) in (int, float) and node.value not in (0, 1):
+        if (isinstance(node, ast.Constant) and type(node.value) in (int, float) and node.value not in (0, 1)
+                and id(node) not in test_args):
             counts[node.value] = counts.get(node.value, 0) + 1
     repeated = sorted((v for v, n in counts.items() if n >= 2), key=lambda v: -counts[v])
     if repeated and "repeated_numbers" not in spec.get("skip_tips", []):

@@ -14,6 +14,9 @@ import { ACTIVITIES_PARAMETROS } from './lesson-parametros.js';
 import { ACTIVITIES_ENCAPSULAR } from './lesson-encapsular.js';
 import { ACTIVITIES_INTERFACES } from './lesson-interfaces.js';
 import { ACTIVITIES_REFACTORIZAR } from './lesson-refactorizar.js';
+import { ACTIVITIES_BOOLEANAS } from './lesson-booleanas.js';
+import { ACTIVITIES_CONDICIONALES } from './lesson-condicionales.js';
+import { ACTIVITIES_RECURSION } from './lesson-recursion.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -423,7 +426,8 @@ print("Precio con IVA:", round(total, 2))`,
 for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
 
 export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS,
-  ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR };
+  ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR,
+  ...ACTIVITIES_BOOLEANAS, ...ACTIVITIES_CONDICIONALES, ...ACTIVITIES_RECURSION };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

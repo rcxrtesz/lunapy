@@ -13,6 +13,7 @@ Python pueden diferir ligeramente. El comportamiento en Pyodide se prueba en
 tests/qa/qa.html.
 """
 
+import ast
 import builtins
 import contextlib
 import io
@@ -504,6 +505,17 @@ class FunctionCallTests(unittest.TestCase):
     def test_error_inside_function(self):
         r = runtime.check("def area(b, h):\n    return b * altura", self.SPEC)
         self.assertEqual((r["status"], r["category"]), ("fail", "ejecucion"))
+
+    def test_assignment_in_condition(self):
+        r = runtime.check("x = 5\nif x = 5:\n    print(1)", {"cases": [{}]})
+        self.assertEqual(r["title"], "Para comparar se usa ==")
+        r = runtime.check("def f(n):\n    return n % 2 = 0", {"cases": [{}]})
+        self.assertEqual(r["title"], "Para comparar se usa ==")
+
+    def test_test_call_arguments_are_not_magic_numbers(self):
+        code = "def doble(x):\n    return x * 2\n\nprint(doble(7))\nprint(doble(7) + 7)"
+        tips = runtime._suggestions(ast.parse(code), {})
+        self.assertFalse(any("7" in t for t in tips), tips)
 
     def test_argument_count_errors_are_explained(self):
         for code in ("def f(a, b):\n    return a\nf(1)", "def f():\n    pass\nf(3)", "print(len('a', 'b'))", "print(abs(-3, -4))"):

@@ -16,6 +16,9 @@ export const CONCEPTS = {
   modulos: { name: 'Importar módulos (math)', short: 'Módulos' },
   parametros: { name: 'Parámetros, return y variables locales', short: 'Parámetros' },
   diseno: { name: 'Diseñar y refactorizar funciones', short: 'Diseño' },
+  booleanos: { name: 'Comparaciones y lógica booleana', short: 'Booleanos' },
+  condicionales: { name: 'Decidir con if, elif y else', short: 'Condicionales' },
+  recursion: { name: 'Funciones recursivas', short: 'Recursión' },
 };
 
 export const MODULES = [
@@ -61,7 +64,7 @@ export const MODULES = [
     book: ['Cap. 5 · Condicionales y recursión'], cisco: 'PE1 · Módulo 3',
     objectives: ['Tomar decisiones con if / elif / else', 'Combinar condiciones con and, or, not', 'Entender la recursión'],
     prerequisites: ['Módulo 3'],
-    lessons: [{ title: 'Expresiones booleanas' }, { title: 'if, elif y else' }, { title: 'Recursión' }],
+    lessons: [{ id: 'booleanas', title: 'Expresiones booleanas' }, { id: 'condicionales', title: 'if, elif y else' }, { id: 'recursion', title: 'Recursión' }],
   },
   {
     id: 'm6', num: 6, title: 'Valores de retorno y composición',
