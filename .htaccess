@@ -1,0 +1,37 @@
+# Configuración para Apache (Dinahosting). Se aplica al publicar LunaPy en el hosting.
+
+# Tipos de archivo que Apache no siempre conoce
+AddType application/wasm .wasm
+AddType application/manifest+json .webmanifest
+AddType font/woff2 .woff2
+
+# Forzar https: necesario para instalar la app y para el service worker
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # El service worker y su lista de archivos deben comprobarse siempre: así llegan las actualizaciones.
+  <FilesMatch "^(sw\.js|sw-assets\.js|index\.html|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # Dependencias con versión fija: se pueden guardar mucho tiempo.
+  <If "%{REQUEST_URI} =~ m#/vendor/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Compresión de texto (el .wasm ya va comprimido por dentro poco; se comprime igualmente si el servidor lo permite)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml application/wasm text/plain
+</IfModule>
+
+# No publicar herramientas, pruebas ni documentación interna
+<IfModule mod_rewrite.c>
+  RewriteRule ^(tools|tests|\.git)(/|$) - [F,L]
+  RewriteRule ^(tests\.html|serve\.py|QA_.*\.md|PROYECTO\.md)$ - [F,L]
+</IfModule>

@@ -1,4 +1,4 @@
-// Preact + htm sin paso de compilación (≈ 5 KB). Plantillas con html`...`.
+// Preact + htm sin paso de compilación (≈ 13 KB, incluido en vendor/). Plantillas con html`...`.
 export {
   html, render, Component, useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect,
-} from 'https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.module.js';
+} from '../../vendor/preact/standalone.module.js';

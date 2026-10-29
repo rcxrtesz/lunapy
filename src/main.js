@@ -14,6 +14,7 @@ import { Review } from './views/review.js';
 import { ProgressView } from './views/progress.js';
 import { ProfileView } from './views/profile.js';
 import { ErrorBoundary } from './components/boundary.js';
+import { initPWA, usePWA, applyUpdate } from './lib/pwa.js';
 
 const NAV = [
   { href: '#/', icon: 'home', label: 'Inicio', match: (r) => r[0] === '' },
@@ -93,6 +94,7 @@ function App() {
   const s = useStore();
   const route = useRoute();
   const eng = useEngine();
+  const pwa = usePWA();
   const lvl = levelInfo(s.xp);
   const st = streak(s);
   const due = dueReviews(s).length;
@@ -137,6 +139,7 @@ function App() {
           <span class=${`dot ${eng.state}`} />
           ${eng.state === 'ready' ? `Python ${eng.python} · listo` : eng.state === 'error' ? 'Python no disponible' : 'Cargando Python…'}
         </div>
+        ${!pwa.online && html`<div class="engine-pill" title="Tu progreso se guarda en este dispositivo"><span class="dot offline" /> Sin conexión · todo sigue funcionando</div>`}
       </div>
     </aside>
     <div class="main">
@@ -162,12 +165,18 @@ function App() {
       ${NAV.filter((n) => !n.desktopOnly).map((n) => html`<a class=${n.match(route) ? 'active' : ''} href=${n.href}><${Icon} name=${n.icon} size=${21} />${n.short || n.label}</a>`)}
     </nav>
     ${!s.profile.onboarded && html`<${Onboarding} />`}
+    ${pwa.updateReady && html`<div class="update-banner" role="status">
+      <${Icon} name="sparkle" size=${18} />
+      <span>Hay una versión nueva de LunaPy.</span>
+      <button class="btn sm primary" onClick=${applyUpdate}>Actualizar</button>
+    </div>`}
     <${Toasts} />
   </div>`;
 }
 
 // ---------- Servicios globales ----------
 engine.start(); // Python se carga en segundo plano desde el primer momento
+initPWA(); // app instalable y sin conexión
 
 // Logros: se comprueban tras cada cambio de estado
 subscribe((s) => {

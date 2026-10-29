@@ -1,7 +1,8 @@
 // Web Worker que aloja Pyodide. El código del alumno se ejecuta aquí,
 // fuera del hilo de la interfaz y sin acceso al DOM.
-const PYODIDE_VERSION = '0.27.7';
-importScripts(`https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/pyodide.js`);
+// Pyodide 0.27.7 va incluido en vendor/pyodide: funciona sin conexión.
+const PYODIDE_URL = new URL('../../vendor/pyodide/', self.location.href).href;
+importScripts(`${PYODIDE_URL}pyodide.js`);
 
 let ready = null;
 
@@ -11,7 +12,7 @@ const TOKEN = self.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Math.r
 const send = self.postMessage.bind(self); // capturado antes de que se ejecute código del alumno
 
 async function boot() {
-  const pyodide = await loadPyodide({ stdout: () => {}, stderr: () => {} });
+  const pyodide = await loadPyodide({ indexURL: PYODIDE_URL, stdout: () => {}, stderr: () => {} });
   const src = await (await fetch(new URL('./runtime.py', self.location.href))).text();
   // El motor se carga en un módulo privado, fuera de __main__ y de sys.modules, para que
   // el código del alumno no lo encuentre con un simple «import __main__».

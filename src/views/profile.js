@@ -5,11 +5,13 @@ import { PaletteChoices, ModeChoices } from '../components/appearance.js';
 import { actions, getState, useStore, levelInfo, streak, checkBackup } from '../state/store.js';
 import { downloadBackup } from '../lib/backup.js';
 import { ACHIEVEMENTS } from '../state/gamification.js';
+import { usePWA, promptInstall, isIOS } from '../lib/pwa.js';
 
 const GOALS = [[20, 'Suave', '≈ 10 min'], [30, 'Constante', '≈ 15 min'], [50, 'Intenso', '≈ 25 min']];
 
 export function ProfileView() {
   const s = useStore();
+  const pwa = usePWA();
   const [name, setName] = useState(s.profile.name);
   const [pending, setPending] = useState(null); // copia a importar, a la espera de confirmación
   const [confirmReset, setConfirmReset] = useState(false);
@@ -95,6 +97,26 @@ export function ProfileView() {
         <${PaletteChoices} palette=${s.palette || 'indigo'} />
         <div class="appearance-title">Modo</div>
         <${ModeChoices} theme=${s.theme} resolved=${resolved} />
+      </div>
+
+      <div class="card span-12">
+        <div class="card-title"><${Icon} name="layers" /> Instalar la app
+          ${pwa.installed ? html`<span class="tag ok" style="margin-left:auto"><${Icon} name="check" size=${12} /> Instalada</span>` : null}</div>
+        ${pwa.installed
+          ? html`<p class="small">Estás usando LunaPy como aplicación instalada.</p>`
+          : pwa.canInstall
+            ? html`<p class="small">Instálala en este dispositivo: tendrás su icono, se abrirá en su propia ventana y funcionará sin conexión.</p>
+                <button class="btn primary" onClick=${async () => { if (await promptInstall()) toast({ icon: 'check', title: 'LunaPy instalada' }); }}><${Icon} name="layers" size=${15} /> Instalar LunaPy</button>`
+            : isIOS
+              ? html`<p class="small">En iPhone y iPad se instala desde Safari:</p>
+                  <ol class="install-steps small"><li>Pulsa el botón <b>Compartir</b> (el cuadrado con la flecha hacia arriba).</li>
+                    <li>Elige <b>«Añadir a pantalla de inicio»</b>.</li><li>Pulsa <b>Añadir</b>: LunaPy aparecerá con su icono.</li></ol>`
+              : html`<p class="small">Abre LunaPy en <b>Edge</b> o <b>Chrome</b> (también en Android) y elige <b>«Instalar LunaPy»</b> en el menú del navegador o en el icono de instalación de la barra de direcciones.</p>`}
+        <div class="tiny muted" style="margin-top:10px">
+          ${pwa.devMode ? 'Modo desarrollo: el funcionamiento sin conexión se activa cuando la app se publica.'
+            : pwa.offlineReady ? '✓ Guardada en este dispositivo: funciona sin conexión.'
+            : pwa.enabled ? 'Preparando el funcionamiento sin conexión…' : 'Este navegador no permite el funcionamiento sin conexión.'}
+        </div>
       </div>
 
       <div class="card span-6">

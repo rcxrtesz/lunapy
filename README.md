@@ -1,9 +1,11 @@
-# LunaPy · Aprende Python pensando (DEMO)
+# LunaPy · Aprende Python pensando
 
-Plataforma interactiva para aprender Python desde cero, centrada en el pensamiento computacional:
+Aplicación interactiva para aprender Python desde cero, centrada en el pensamiento computacional:
 **Comprender → Razonar → Planificar → Programar → Ejecutar → Analizar → Mejorar.**
 
-## Cómo ejecutarla
+Es una **aplicación instalable (PWA)**: se instala en Windows, Android e iPhone desde el navegador y **funciona sin conexión** (Python incluido).
+
+## Cómo ejecutarla en local
 
 Solo necesitas Python 3 (no hace falta Node ni instalar nada):
 
@@ -11,7 +13,7 @@ Solo necesitas Python 3 (no hace falta Node ni instalar nada):
 python serve.py
 ```
 
-Se abre `http://localhost:5173/`. La primera vez el navegador descarga Pyodide (~10 MB, Python 3.12 compilado a WebAssembly); después queda en caché.
+Se abre `http://localhost:5173/`. Todas las dependencias (Pyodide, CodeMirror, Preact y las fuentes) van incluidas en `vendor/`: no se descarga nada de internet.
 
 Tests:
 
@@ -19,40 +21,69 @@ Tests:
 python -m unittest discover tests
 ```
 
-Y con Python real en el navegador: `http://localhost:5173/tests.html`.
+Con Python real en el navegador: `http://localhost:5173/tests.html` y la suite QA en `http://localhost:5173/tests/qa/qa.html`.
+
+## Aplicación instalable y sin conexión
+
+| Pieza | Archivo |
+|---|---|
+| Manifiesto (nombre, iconos, colores, atajos) | `manifest.webmanifest` |
+| Iconos (generados con `python tools/make_icons.py`) | `icons/` |
+| Service worker (guarda la app en el dispositivo) | `sw.js` |
+| Lista de archivos y versión (generada) | `sw-assets.js` |
+| Registro, actualizaciones e instalación | `src/lib/pwa.js` |
+| Configuración de Apache para el hosting | `.htaccess` |
+
+**Después de cambiar cualquier archivo de la app hay que regenerar la lista:**
+
+```bash
+python tools/build_sw.py
+```
+
+`tests/test_pwa.py` falla si se olvida. Cuando la versión cambia, la app instalada descarga la novedad en segundo plano y muestra «Hay una versión nueva de LunaPy · Actualizar».
+
+**En desarrollo local** (`localhost`) el service worker está desactivado, para que los cambios se vean al recargar. Para probar el modo sin conexión en local, ejecuta esto en la consola del navegador y recarga la página:
+
+```js
+localStorage.setItem('lunapy.sw', '1')
+```
+
+Para desactivarlo de nuevo, usa `localStorage.removeItem('lunapy.sw')` y elimina el service worker desde las herramientas del navegador.
+
+**Dependencias incluidas:** `python tools/vendor.py` las descarga en versiones fijas y `vendor/VENDOR.md` recoge el origen, el tamaño (13,6 MB, casi todo Pyodide) y las huellas SHA-256. Las licencias de cada una están en su carpeta.
 
 ## Arquitectura
 
 | Pieza | Decisión | Motivo |
 |---|---|---|
-| Interfaz | Preact + htm en módulos ES nativos, sin compilación | Este equipo no tiene Node; así la demo funciona con solo `python serve.py`. Los componentes son de estilo React, así que migrar a React + TS + Vite en la fase completa es directo. |
-| Editor | CodeMirror 5 (resaltado, sangría automática, números de línea) | Ligero, accesible y sin compilación. |
-| Ejecución | Pyodide dentro de un **Web Worker** | Python real, aislado del DOM, con límite de tiempo (si se supera, se termina el worker y se reinicia) y límite de salida. Los módulos `js`/`pyodide` están bloqueados para el código del alumno. |
-| `input()` | Reejecución determinista | Cuando el programa pide un dato, la consola lo solicita y el programa se vuelve a ejecutar con todos los datos (misma semilla aleatoria). No requiere cabeceras COOP/COEP. **Limitación conocida:** los programas que dependen de la hora actual pueden mostrar valores distintos entre reejecuciones. Para eliminarla haría falta entrada síncrona con `SharedArrayBuffer`. |
-| Paso a paso | `sys.settrace` en Python real | Cada paso es el estado real justo antes de ejecutar cada línea; nada está simulado. |
-| Validación | `src/engine/runtime.py` | Casos de prueba con casos límite, variantes anti-trampa (cambia los datos y comprueba que el resultado se recalcula), reglas sobre el AST y detección de malentendidos frecuentes. Acepta cualquier implementación correcta. |
+| Interfaz | Preact + htm en módulos ES nativos, sin compilación | Funciona con solo `python serve.py`; componentes de estilo React. |
+| Editor | CodeMirror 5 | Resaltado, sangría automática, números de línea; en programas largos solo dibuja las líneas visibles. |
+| Ejecución | Pyodide 0.27.7 (Python 3.12) en un **Web Worker** | Python real, aislado de la interfaz, con cola de peticiones, límites de tiempo y salida, y protección del motor frente al código del alumno. |
+| `input()` | Reejecución determinista | Cuando el programa pide un dato, la consola lo solicita y el programa se vuelve a ejecutar con todos los datos (misma semilla aleatoria). **Limitación conocida:** los programas que dependen de la hora actual pueden mostrar valores distintos entre reejecuciones. Para eliminarla haría falta entrada síncrona con `SharedArrayBuffer`. |
+| Paso a paso | `sys.settrace` en Python real | Cada paso es el estado real justo antes de ejecutar cada línea. |
+| Validación | `src/engine/runtime.py` | Casos visibles, casos límite y casos ocultos aleatorios; variantes anti-trampa sobre el árbol sintáctico; detección de malentendidos frecuentes. Acepta cualquier implementación correcta. |
 | Contenido | Datos en `src/content/` | Lecciones, actividades, pistas y repasos separados de los componentes. |
-| Progreso | `localStorage` (`src/state/store.js`) | Persistente al recargar. Repetición espaciada con cajas de Leitner, explicada en «Mi progreso». |
+| Progreso | `localStorage` (`src/state/store.js`) | Validación y reparación de datos, repetición espaciada (Leitner), exportación e importación. Punto único donde se añadirá la sincronización. |
 
 ```
-index.html  serve.py  tests.html
+index.html  manifest.webmanifest  sw.js  sw-assets.js  .htaccess  serve.py
 src/
-  engine/   runtime.py (ejecución, errores en español, traza, validación) · worker.js · python.js
-  content/  curriculum.js · lesson-variables.js · activities.js · review.js
-  state/    store.js (persistencia, XP, rachas, SRS) · gamification.js (logros, misiones, repasos)
-  components/  code.js (editor, consola, errores) · tracer.js · questions.js · hints.js · activities.js
-  views/    dashboard · map · lesson · lab · challenges · review · progress
-tests/test_runtime.py
+  engine/      runtime.py · worker.js · python.js
+  content/     curriculum.js · lesson-variables.js · activities.js · review.js
+  state/       store.js · gamification.js · palettes.js
+  components/  code.js · tracer.js · questions.js · hints.js · activities.js · boundary.js · appearance.js · common.js
+  views/       dashboard · map · lesson · lab · challenges · review · progress · profile
+  lib/         ui.js · icons.js · highlight.js · backup.js · pwa.js
+vendor/        pyodide · codemirror · preact · fonts   (dependencias incluidas)
+icons/         iconos de la app
+tools/         vendor.py · build_sw.py · make_icons.py
+tests/         test_runtime.py · test_pwa.py · qa/
 ```
 
-## Alcance de la demo
+## Estado
 
-Completo: inicio, mapa de los 13 módulos (con su correspondencia con los capítulos de libropython.es), lección 2.1 de Variables, 5 actividades y 3 desafíos extra, laboratorio, pistas en 5 niveles, repaso espaciado, progreso, logros, modo claro/oscuro y diseño adaptable.
+- **Hecho:** demo aprobada (lección 2.1 «Variables», 5 actividades y 3 desafíos, laboratorio, pistas, repaso, progreso, logros, 7 paletas con modo día y noche, perfil), auditoría QA con todas las correcciones aplicadas y app instalable sin conexión.
+- **Siguiente:** contenido de los módulos 1–13; después, cuenta y sincronización con una API PHP 8.4 y MySQL en Dinahosting.
+- **Publicación:** pendiente de confirmación expresa. Antes de subir la app al hosting o generar paquetes para tiendas, se avisará.
 
-Apariencia: 7 paletas de color (Índigo por defecto, Océano, Esmeralda, Violeta, Frambuesa, Atardecer y Grafito), cada una con su versión de día y de noche. Se eligen con el botón de la paleta en la barra superior. Los valores están en `styles.css` (bloque «Paletas personalizables») y la lista en `src/state/palettes.js`.
-
-Perfil (`src/views/profile.js`, también accesible desde el avatar de la barra superior): nombre, objetivo diario, apariencia, exportar e importar una copia del progreso en JSON y reiniciar. El apartado «Cuenta» está preparado para el futuro inicio de sesión.
-
-Previsto para la fase completa: base de datos en la nube con registro e inicio de sesión por correo electrónico. El acceso al progreso está centralizado en `src/state/store.js`, así que la sincronización se añadirá ahí sin tocar las pantallas.
-
-Pendiente: el contenido de los módulos 1 y 3–13, las lecciones 2.2–2.3, la tutoría con IA (no hay ningún modelo conectado: las pistas y el análisis son deterministas) y las cuentas o la sincronización entre dispositivos.
+Las pistas y el análisis de errores son deterministas: no hay ningún modelo de IA conectado.

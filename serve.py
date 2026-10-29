@@ -18,6 +18,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ".py": "text/plain; charset=utf-8",
         ".css": "text/css",
         ".html": "text/html; charset=utf-8",
+        ".wasm": "application/wasm",  # imprescindible para que Pyodide compile WebAssembly en streaming
+        ".webmanifest": "application/manifest+json",
+        ".woff2": "font/woff2",
+        ".svg": "image/svg+xml",
+        ".json": "application/json",
+        ".zip": "application/zip",
     }
 
     def __init__(self, *args, **kwargs):
