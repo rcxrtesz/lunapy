@@ -619,6 +619,8 @@ def _values_equal(a, b):
 def _case_label(case, i):
     if case.get("label"):
         return case["label"]
+    if case.get("call"):
+        return case["call"]
     if case.get("stdin"):
         return "Datos: " + ", ".join(case["stdin"])
     return f"Caso {i + 1}"
@@ -839,6 +841,49 @@ def _apply_variant(code, var):
     return ast.unparse(ast.fix_missing_locations(tree)), missing
 
 
+# Separa la salida del programa de la salida de la llamada de prueba («call» en un caso).
+_CALL_MARK = "\x1e__lunapy_call__"
+
+
+def _run_case(code, case):
+    """Ejecuta un caso. Con «call», añade al final una llamada de prueba (p. ej. «print(area(3, 4))»)
+    y se queda solo con lo que muestra esa llamada."""
+    call = case.get("call")
+    if not call:
+        return execute(code, stdin=case.get("stdin", []), interactive=False, seed=1)
+    res = execute(f"{code}\nprint({_CALL_MARK!r})\n{call}\n", stdin=case.get("stdin", []), interactive=False, seed=1)
+    printed = res["printed"]
+    cut = printed.rfind(_CALL_MARK + "\n")
+    if cut != -1:
+        res = dict(res, printed=printed[cut + len(_CALL_MARK) + 1:])
+    return res
+
+
+def _check_functions(tree, spec):
+    """spec["functions"] = [{"name": "area", "params": 2}]: comprueba que existen antes de llamarlas."""
+    defs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    for fn in spec.get("functions", []):
+        node = defs.get(fn["name"])
+        if node is None:
+            return {
+                "status": "fail", "category": "comprension", "title": f"Falta la función «{fn['name']}»",
+                "message": fn.get("missing_msg") or (
+                    f"El enunciado pide definir una función llamada «{fn['name']}» con `def {fn['name']}(...):`. "
+                    "Comprueba que el nombre coincide exactamente (mayúsculas incluidas) y que está al principio de la línea."),
+                "cases": [],
+            }
+        want = fn.get("params")
+        got = len(node.args.args)
+        if want is not None and got != want:
+            plural = "parámetro" if want == 1 else "parámetros"
+            return {
+                "status": "fail", "category": "comprension", "title": "Revisa los parámetros",
+                "message": f"«{fn['name']}» debe recibir {want} {plural} y la tuya recibe {got}.",
+                "cases": [],
+            }
+    return None
+
+
 def check(code, spec):
     if spec.get("blanks") and _has_blanks(code):
         return {
@@ -852,11 +897,15 @@ def check(code, spec):
         err = explain(exc, code, [])
         return {"status": "fail", "category": "sintaxis", "title": err["title"], "message": err["explanation"], "error": err, "cases": []}
 
+    missing_fn = _check_functions(tree, spec)
+    if missing_fn:
+        return missing_fn
+
     cases = (spec.get("cases") or [{}]) + _hidden_cases(code, spec)
     results = []
     first_fail = None
     for i, case in enumerate(cases):
-        res = execute(code, stdin=case.get("stdin", []), interactive=False, seed=1)
+        res = _run_case(code, case)
         if res["tampered"]:
             return dict(TAMPER_RESULT)
         label = _case_label(case, i)
@@ -894,7 +943,7 @@ def check(code, spec):
                     "y calcular el resultado a partir de ella. Así funcionará con cualquier dato, no solo con este."),
                 "cases": results,
             }
-        res = execute(variant_code, stdin=var.get("stdin", []), interactive=False, seed=1)
+        res = _run_case(variant_code, var)
         if res["tampered"]:
             return dict(TAMPER_RESULT)
         ok = res["status"] == "ok" and _compare(var, spec, res)[0]

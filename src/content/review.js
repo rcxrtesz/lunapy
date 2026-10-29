@@ -72,6 +72,35 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 3 · llamar a funciones
+  {
+    id: 'r-len', concept: 'funciones', mode: 'text', code: 'print(len("luna py"))', answer: '7',
+    question: '¿Qué muestra este programa?',
+    explain: '`len()` cuenta todos los caracteres, también el espacio.',
+  },
+  {
+    id: 'r-none', concept: 'funciones', mode: 'choice',
+    question: '¿Qué devuelve `print("hola")`?',
+    options: [{ text: 'None', correct: true }, { text: 'El texto "hola"' }, { text: 'Nada: da un error' }],
+    explain: 'print muestra el texto en pantalla, pero el valor que devuelve es `None`.',
+  },
+  {
+    id: 'r-anidada', concept: 'funciones', mode: 'text', code: 'print(abs(min(-8, 3)))', answer: '8',
+    question: '¿Qué muestra este programa?',
+    explain: 'De dentro hacia fuera: min(-8, 3) = -8 y abs(-8) = 8.',
+  },
+  {
+    id: 'r-floor-ceil', concept: 'modulos', mode: 'text', code: 'import math\nprint(math.floor(2.9), math.ceil(2.1))', answer: '2 3',
+    question: '¿Qué muestra este programa?',
+    explain: '`floor` redondea hacia abajo y `ceil` hacia arriba.',
+  },
+  {
+    id: 'r-import', concept: 'modulos', mode: 'choice', code: 'print(math.pi)',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'NameError: falta import math', correct: true }, { text: 'Muestra 3.141592653589793' }],
+    explain: 'Un módulo hay que importarlo antes de usarlo.',
+    expectError: 'NameError',
+  },
   // ---- Módulo 2 · tipos y entrada
   {
     id: 'r-int-corta', concept: 'tipos', mode: 'text', code: 'print(int(9.7))', answer: '9',

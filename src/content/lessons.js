@@ -3,8 +3,9 @@ import { LESSONS_M1 } from './module1.js';
 import { LESSON_VARIABLES } from './lesson-variables.js';
 import { LESSON_EXPRESIONES } from './lesson-expresiones.js';
 import { LESSON_ENTRADA } from './lesson-entrada.js';
+import { LESSON_LLAMAR_FUNCIONES } from './lesson-llamar-funciones.js';
 
-const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA];
+const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA, LESSON_LLAMAR_FUNCIONES];
 
 export const LESSONS = Object.fromEntries(ALL.map((l) => [l.id, l]));
 export const LESSON_ORDER = ALL.map((l) => l.id);

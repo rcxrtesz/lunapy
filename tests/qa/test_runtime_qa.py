@@ -477,6 +477,38 @@ class ExactLinesTests(unittest.TestCase):
         self.assertEqual((r["status"], r["message"]), ("fail", "usa :.2f"))
 
 
+class FunctionCallTests(unittest.TestCase):
+    SPEC = {"functions": [{"name": "area", "params": 2}],
+            "cases": [{"call": "print(area(3, 4))", "out_lines": ["12"]}, {"call": "print(area(2.5, 2))", "out_lines": ["5.0"]}],
+            "misconceptions": [{"out_lines": ["12", "None"], "title": "Falta return", "msg": "usa return"}]}
+
+    def test_correct_function_passes(self):
+        self.assertEqual(runtime.check("def area(b, h):\n    return b * h", self.SPEC)["status"], "pass")
+
+    def test_own_output_is_ignored(self):
+        code = 'def area(b, h):\n    return b * h\nprint("prueba:", area(1, 1))'
+        self.assertEqual(runtime.check(code, self.SPEC)["status"], "pass")
+
+    def test_print_instead_of_return(self):
+        r = runtime.check("def area(b, h):\n    print(b * h)", self.SPEC)
+        self.assertEqual((r["status"], r["message"]), ("fail", "usa return"))
+
+    def test_missing_function(self):
+        r = runtime.check("def Area(b, h):\n    return b * h", self.SPEC)
+        self.assertEqual((r["status"], r["title"]), ("fail", "Falta la función «area»"))
+
+    def test_wrong_param_count(self):
+        r = runtime.check("def area(b):\n    return b * b", self.SPEC)
+        self.assertEqual((r["status"], r["title"]), ("fail", "Revisa los parámetros"))
+
+    def test_error_inside_function(self):
+        r = runtime.check("def area(b, h):\n    return b * altura", self.SPEC)
+        self.assertEqual((r["status"], r["category"]), ("fail", "ejecucion"))
+
+    def test_hardcoded_answer_fails_second_case(self):
+        self.assertEqual(runtime.check("def area(b, h):\n    return 12", self.SPEC)["status"], "fail")
+
+
 class VariantAstTests(unittest.TestCase):
     def test_any_spacing(self):
         self.assertEqual(runtime.check("edad=19\nedad = edad + 1\nprint(edad)", SPEC_EDAD)["status"], "pass")
