@@ -449,6 +449,21 @@ class P3RegressionTests(unittest.TestCase):
         self.assertEqual(runtime.check(code, HIDDEN), runtime.check(code, HIDDEN))
 
 
+class MustUseOpTests(unittest.TestCase):
+    SPEC = {"cases": [{"out_lines": ["2 15"]}],
+            "rules": [{"type": "must_use_op", "ops": ["FloorDiv", "Mod"], "msg": "usa // y %"}]}
+
+    def test_operators_present(self):
+        self.assertEqual(runtime.check("print(135 // 60, 135 % 60)", self.SPEC)["status"], "pass")
+
+    def test_hardcoded_result_rejected(self):
+        r = runtime.check("print(2, 15)", self.SPEC)
+        self.assertEqual((r["status"], r["message"]), ("fail", "usa // y %"))
+
+    def test_augmented_assignment_counts(self):
+        self.assertEqual(runtime.check("h = 135\nh //= 60\nm = 135\nm %= 60\nprint(h, m)", self.SPEC)["status"], "pass")
+
+
 class VariantAstTests(unittest.TestCase):
     def test_any_spacing(self):
         self.assertEqual(runtime.check("edad=19\nedad = edad + 1\nprint(edad)", SPEC_EDAD)["status"], "pass")

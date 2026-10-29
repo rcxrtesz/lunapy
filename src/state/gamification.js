@@ -2,17 +2,21 @@
 import { conceptStatus, streak, today, lastDays, addDays } from './store.js';
 import { CONCEPTS } from '../content/curriculum.js';
 import { REVIEW_ITEMS } from '../content/review.js';
-import { LESSON_VARIABLES } from '../content/lesson-variables.js';
-import { LESSON_ACTIVITIES } from '../content/activities.js';
+import { LESSONS, LESSON_ORDER, lessonActivities } from '../content/lessons.js';
+import { ACTIVITIES } from '../content/activities.js';
+
+const CODE_ACTIVITIES = Object.values(ACTIVITIES).filter((a) => a.type === 'code').map((a) => a.id);
+const M1_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm1');
 
 export const ACHIEVEMENTS = [
   { id: 'first-run', name: 'Hola, mundo', desc: 'Ejecuta tu primer programa', icon: 'play', test: (s) => Object.values(s.daily).some((d) => (d.runs || 0) > 0 || d.labRuns > 0) },
   { id: 'first-activity', name: 'Primer paso', desc: 'Supera tu primera actividad', icon: 'flag', test: (s) => Object.values(s.activities).some((a) => a.completed) },
   { id: 'predictor', name: 'Mente de intérprete', desc: 'Acierta 3 predicciones a la primera', icon: 'eye', test: (s) => Object.values(s.checks).filter((c) => c.correct && c.prediction).length >= 3 },
-  { id: 'debugger', name: 'Depuradora', desc: 'Corrige «El saludo roto»', icon: 'bug', test: (s) => s.activities['var-fix']?.completed },
+  { id: 'debugger', name: 'Depuradora', desc: 'Corrige tu primer programa con errores', icon: 'bug', test: (s) => ['m1p-fix', 'var-fix'].some((id) => s.activities[id]?.completed) },
   { id: 'planner', name: 'Primero pienso', desc: 'Completa una planificación antes de programar', icon: 'brain', test: (s) => Object.keys(s.plans).length > 0 },
-  { id: 'no-hints', name: 'Por mí misma', desc: 'Resuelve un ejercicio de código sin pistas', icon: 'star', test: (s) => ['var-complete', 'var-fix', 'var-build', 'ch-swap', 'ch-iva'].some((id) => s.activities[id]?.noHints) },
-  { id: 'lesson', name: 'Variables desbloqueadas', desc: 'Completa la lección de variables', icon: 'trophy', test: (s) => s.lessons.variables?.completed },
+  { id: 'no-hints', name: 'Por mí misma', desc: 'Resuelve un ejercicio de código sin pistas', icon: 'star', test: (s) => CODE_ACTIVITIES.some((id) => s.activities[id]?.noHints) },
+  { id: 'lesson', name: 'Primera lección', desc: 'Completa tu primera lección', icon: 'trophy', test: (s) => LESSON_ORDER.some((id) => s.lessons[id]?.completed) },
+  { id: 'module-1', name: 'Pensamiento computacional', desc: 'Completa el Módulo 1', icon: 'brain', test: (s) => M1_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'streak-3', name: 'Constancia', desc: 'Mantén una racha de 3 días', icon: 'flame', test: (s) => streak(s).days >= 3 },
   { id: 'reviewer', name: 'Memoria a largo plazo', desc: 'Completa una sesión de repaso', icon: 'repeat', test: (s) => Object.values(s.daily).some((d) => (d.reviewSessions || 0) > 0) },
 ];
@@ -69,16 +73,35 @@ export function buildReviewSession(s, max = 5) {
   return pick.slice(0, max);
 }
 
-export function lessonProgress(s) {
-  const l = s.lessons.variables || { maxStep: 0, step: 0 };
-  const done = LESSON_ACTIVITIES.filter((id) => s.activities[id]?.completed).length;
-  const theory = LESSON_VARIABLES.steps.filter((st) => !st.activity && !st.summary).length;
-  const theorySeen = Math.min(theory, l.maxStep);
+/**
+ * Lección en la que está el alumno: la última que ha abierto y no ha terminado;
+ * si no ha empezado ninguna, la primera pendiente del curso.
+ */
+export function currentLessonId(s) {
+  const pending = LESSON_ORDER.filter((id) => !s.lessons[id]?.completed);
+  if (!pending.length) return LESSON_ORDER[LESSON_ORDER.length - 1];
+  const touched = pending.filter((id) => s.lessons[id]?.lastAt).sort((a, b) => s.lessons[b].lastAt - s.lessons[a].lastAt);
+  return touched[0] || pending[0];
+}
+
+/** Progreso de una lección: teoría recorrida (1 punto por paso) y actividades superadas (2 puntos cada una). */
+export function lessonProgress(s, lessonId = currentLessonId(s)) {
+  const lesson = LESSONS[lessonId];
+  const acts = lessonActivities(lesson);
+  const l = s.lessons[lessonId] || { maxStep: 0, step: 0 };
+  const done = acts.filter((id) => s.activities[id]?.completed).length;
+  const isTheory = (st) => !st.activity && !st.summary;
+  const theory = lesson.steps.filter(isTheory).length;
+  const theorySeen = lesson.steps.slice(0, l.maxStep || 0).filter(isTheory).length;
+  const pct = l.completed ? 100 : Math.round(((theorySeen + done * 2) / (theory + acts.length * 2)) * 100);
   return {
-    pct: Math.round(((theorySeen + done * 2) / (theory + LESSON_ACTIVITIES.length * 2)) * 100),
-    activitiesDone: done, activitiesTotal: LESSON_ACTIVITIES.length, completed: !!l.completed, step: l.step || 0,
+    lessonId, lesson, pct, activitiesDone: done, activitiesTotal: acts.length,
+    completed: !!l.completed, started: (l.maxStep || 0) > 0 || done > 0, step: l.step || 0,
   };
 }
+
+/** Todas las lecciones terminadas. */
+export const courseCompleted = (s) => LESSON_ORDER.every((id) => s.lessons[id]?.completed);
 
 export function weakPoints(s) {
   return conceptList(s)

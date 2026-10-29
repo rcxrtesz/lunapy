@@ -685,6 +685,11 @@ class _Usage(ast.NodeVisitor):
         self.loads, self.stores, self.calls = {}, {}, set()
         self.self_refs = set()  # variables reasignadas a partir de sí mismas
         self.print_names = set()
+        self.ops = set()  # operadores usados: "Add", "Mult", "FloorDiv", "Mod"…
+
+    def visit_BinOp(self, node):
+        self.ops.add(type(node.op).__name__)
+        self.generic_visit(node)
 
     def visit_Name(self, node):
         target = self.loads if isinstance(node.ctx, ast.Load) else self.stores
@@ -708,6 +713,7 @@ class _Usage(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_AugAssign(self, node):
+        self.ops.add(type(node.op).__name__)
         if isinstance(node.target, ast.Name):
             self.self_refs.add(node.target.id)
         self.generic_visit(node)
@@ -729,6 +735,8 @@ def _rules(tree, spec):
             bad = rule["name"] not in u.self_refs
         elif t == "print_uses":
             bad = any(n not in u.print_names for n in rule["names"])
+        elif t == "must_use_op":  # p. ej. ["FloorDiv", "Mod"]: el resultado debe calcularse, no escribirse
+            bad = any(op not in u.ops for op in rule["ops"])
         if bad:
             return rule
     return None
@@ -751,16 +759,17 @@ def _suggestions(tree, spec):
     if unused:
         tips.append(f"La variable «{unused[0]}» se crea pero nunca se usa. Si no la necesitas, puedes eliminarla.")
     # Números «mágicos» repetidos: mejor un nombre que explique qué son y un único sitio donde cambiarlos.
+    # spec["skip_tips"] = ["repeated_numbers"] lo desactiva (p. ej. antes de enseñar las variables).
     counts = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Constant) and type(node.value) in (int, float) and node.value not in (0, 1):
             counts[node.value] = counts.get(node.value, 0) + 1
     repeated = sorted((v for v, n in counts.items() if n >= 2), key=lambda v: -counts[v])
-    if repeated:
+    if repeated and "repeated_numbers" not in spec.get("skip_tips", []):
         v = repeated[0]
         tips.append(
-            f"El número {_fmt(v)} aparece {counts[v]} veces. Guárdalo en una variable con un nombre que explique qué es "
-            f"(por ejemplo, IVA = {_fmt(v)}) y úsala: si un día cambia, solo tendrás que tocar una línea.")
+            f"El número {_fmt(v)} aparece {counts[v]} veces. Guárdalo en una variable con un nombre que explique "
+            "qué representa y úsala en su lugar: si un día cambia, solo tendrás que tocar una línea.")
     return tips
 
 

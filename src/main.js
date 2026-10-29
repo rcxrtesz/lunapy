@@ -109,7 +109,7 @@ function App() {
   let view;
   switch (route[0]) {
     case 'mapa': view = html`<${MapView} />`; break;
-    case 'leccion': view = html`<${LessonView} step=${route[2]} />`; break;
+    case 'leccion': view = html`<${LessonView} lessonId=${route[1]} step=${route[2]} key=${route[1]} />`; break;
     case 'lab': view = html`<${Lab} />`; break;
     case 'desafios': view = route[1] ? html`<${ChallengeView} id=${route[1]} key=${route[1]} />` : html`<${Challenges} />`; break;
     case 'repaso': view = html`<${Review} />`; break;

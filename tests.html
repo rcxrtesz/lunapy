@@ -21,7 +21,7 @@
     import { engine } from './src/engine/python.js';
     import { ACTIVITIES } from './src/content/activities.js';
     import { REVIEW_ITEMS } from './src/content/review.js';
-    import { LESSON_VARIABLES } from './src/content/lesson-variables.js';
+    import { LESSONS } from './src/content/lessons.js';
 
     const out = document.getElementById('out');
     const results = [];
@@ -68,11 +68,17 @@
       await expectOutput(`repaso ${it.id}`, it.code, it.answer, it.expectError);
     }
 
-    for (const st of LESSON_VARIABLES.steps) {
-      for (const b of st.blocks || []) {
-        if (b.type !== 'check' || !b.code) continue;
-        const expected = b.mode === 'text' ? b.answer : b.expectOutput;
-        await expectOutput(`lección ${b.id}`, b.code, expected, b.expectError);
+    for (const lesson of Object.values(LESSONS)) {
+      for (const st of lesson.steps) {
+        for (const b of st.blocks || []) {
+          if (b.type !== 'check' || !b.code) continue;
+          const expected = b.mode === 'text' ? b.answer : b.expectOutput;
+          await expectOutput(`lección ${lesson.code} · ${b.id}`, b.code, expected, b.expectError);
+        }
+      }
+      // Cada paso que referencia una actividad debe existir
+      for (const st of lesson.steps.filter((x) => x.activity)) {
+        log(!!ACTIVITIES[st.activity], `lección ${lesson.code} · la actividad ${st.activity} existe`);
       }
     }
 

@@ -5,7 +5,9 @@
 //    acepta soluciones correctas distintas y rechaza las erróneas con la categoría adecuada.
 // En los textos, `código` se muestra como código en línea y **texto** en negrita.
 
-export const ACTIVITIES = {
+import { ACTIVITIES_M1 } from './module1.js';
+
+const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
   'var-predict': {
     id: 'var-predict', type: 'predict', kindLabel: 'Predice el resultado',
@@ -410,5 +412,9 @@ print("Precio con IVA:", round(total, 2))`,
   },
 };
 
-export const LESSON_ACTIVITIES = ['var-predict', 'var-complete', 'var-order', 'var-fix', 'var-build'];
-export const CHALLENGES = ['var-predict', 'var-complete', 'var-order', 'var-fix', 'var-build', 'ch-explain', 'ch-swap', 'ch-iva'];
+for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
+
+export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2 };
+
+// Zona de desafíos: todas las actividades, en el orden del curso.
+export const CHALLENGES = Object.keys(ACTIVITIES);

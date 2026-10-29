@@ -5,8 +5,8 @@ import { CodeView, RunnableCode } from '../components/code.js';
 import { Tracer } from '../components/tracer.js';
 import { Question, Classify } from '../components/questions.js';
 import { ActivityRunner } from '../components/activities.js';
-import { LESSON_VARIABLES as L } from '../content/lesson-variables.js';
-import { ACTIVITIES, LESSON_ACTIVITIES } from '../content/activities.js';
+import { LESSONS, lessonActivities } from '../content/lessons.js';
+import { ACTIVITIES } from '../content/activities.js';
 import { actions, useStore } from '../state/store.js';
 import { isUnlocked } from '../state/gamification.js';
 
@@ -32,8 +32,15 @@ function Block({ b }) {
 
 const checksOf = (step) => (step.blocks || []).filter((b) => b.type === 'check' || b.type === 'classify');
 
-export function LessonView({ step: stepParam }) {
+export function LessonView({ lessonId, step: stepParam }) {
+  const L = LESSONS[lessonId];
+  // La vista se monta con una clave por lección, así que esta rama es estable para cada instancia.
+  if (!L) {
+    return html`<div class="empty" style="margin-top:40px"><div class="icon-wrap"><${Icon} name="book" size=${24} /></div>
+      <h3>Esta lección todavía no está disponible</h3><a class="btn primary" href="#/mapa">Ir al mapa</a></div>`;
+  }
   const s = useStore();
+  const LESSON_ACTIVITIES = lessonActivities(L);
   const lesson = s.lessons[L.id] || { maxStep: 0 };
   // No se puede ir más allá del primer paso de teoría con preguntas sin responder
   // (ni con el índice ni escribiendo la dirección): predecir antes de seguir es parte del método.
@@ -77,6 +84,8 @@ export function LessonView({ step: stepParam }) {
   };
 
   const pct = Math.round(((idx + 1) / L.steps.length) * 100);
+  const order = Object.keys(LESSONS);
+  const next = LESSONS[order[order.indexOf(L.id) + 1]];
 
   return html`<div>
     <div class="row between wrap" style="margin-top:14px">
@@ -140,7 +149,7 @@ export function LessonView({ step: stepParam }) {
           <div style="margin-top:20px">
             ${lesson.completed ? html`<div class="callout tip"><span class="callout-icon"><${Icon} name="trophy" /></span><div><strong>Lección completada</strong>Puedes volver a cualquier paso cuando quieras. Lo que ya has conseguido no se pierde.</div></div>`
               : allDone ? html`<button class="btn primary lg" onClick=${finish}><${Icon} name="trophy" size=${17} /> Completar lección (+${L.bonusXp} XP)</button>`
-              : html`<div class="callout"><span class="callout-icon"><${Icon} name="info" /></span><div>Para completar la lección tienes que superar las cinco actividades. Leer la teoría no basta: queremos que demuestres que sabes aplicarla.</div></div>`}
+              : html`<div class="callout"><span class="callout-icon"><${Icon} name="info" /></span><div>Para completar la lección tienes que superar ${LESSON_ACTIVITIES.length === 1 ? 'la actividad' : `las ${LESSON_ACTIVITIES.length} actividades`}. Leer la teoría no basta: queremos que demuestres que sabes aplicarla.</div></div>`}
           </div>
         </div>`}
 
@@ -160,10 +169,11 @@ export function LessonView({ step: stepParam }) {
       <div style="text-align:center">
         <div class="celebrate-badge"><${Icon} name="trophy" size=${36} /></div>
         <h2>¡Lección completada!</h2>
-        <p class="muted">Ya sabes guardar datos, modificarlos, distinguir tipos, pedir información y leer errores. Mañana te propondremos un repaso breve para fijarlo en la memoria a largo plazo.</p>
+        <p class="muted">${L.celebration} Mañana te propondremos un repaso breve para fijarlo en la memoria a largo plazo.</p>
         <div class="row wrap" style="justify-content:center;margin-top:18px">
           <a class="btn" href="#/progreso" onClick=${() => setCelebrate(false)}>Ver mi progreso</a>
-          <a class="btn primary" href="#/desafios" onClick=${() => setCelebrate(false)}>Ir a los desafíos <${Icon} name="arrowRight" size=${15} /></a>
+          ${next ? html`<a class="btn primary" href=${`#/leccion/${next.id}/0`} onClick=${() => setCelebrate(false)}>Siguiente lección: ${next.code} <${Icon} name="arrowRight" size=${15} /></a>`
+            : html`<a class="btn primary" href="#/desafios" onClick=${() => setCelebrate(false)}>Ir a los desafíos <${Icon} name="arrowRight" size=${15} /></a>`}
         </div>
       </div>
     </${Modal}>`}

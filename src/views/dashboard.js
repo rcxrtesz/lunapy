@@ -2,7 +2,8 @@ import { html } from '../lib/ui.js';
 import { Icon } from '../lib/icons.js';
 import { Progress, Ring } from '../components/common.js';
 import { useStore, levelInfo, streak, lastDays, today } from '../state/store.js';
-import { dailyMissions, weekly, dueReviews, upcomingReviews, lessonProgress, weakPoints } from '../state/gamification.js';
+import { dailyMissions, weekly, dueReviews, upcomingReviews, lessonProgress, weakPoints, courseCompleted } from '../state/gamification.js';
+import { MODULES } from '../content/curriculum.js';
 
 const DAYS = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
 
@@ -25,19 +26,23 @@ export function Dashboard() {
   const days = lastDays(7, s);
   const maxXp = Math.max(goal, ...days.map((d) => d.xp));
   const weak = weakPoints(s).slice(0, 2);
-  const started = lp.pct > 0;
-  const continueHref = lp.completed ? '#/desafios' : `#/leccion/variables/${lp.step || 0}`;
+  const L = lp.lesson;
+  const mod = MODULES.find((m) => m.id === L.moduleId);
+  const allDone = courseCompleted(s);
+  const started = lp.started;
+  const continueHref = allDone ? '#/desafios' : `#/leccion/${L.id}/${lp.step || 0}`;
+  const left = lp.activitiesTotal - lp.activitiesDone;
 
   return html`<div>
     <section class="hero" style="margin-top:12px">
       <div style="position:relative;z-index:1">
-        <div class="hero-mod"><${Icon} name="map" size=${14} /> Módulo 2 · Lección 2.1</div>
+        <div class="hero-mod"><${Icon} name="map" size=${14} /> Módulo ${mod.num} · Lección ${L.code} · ${L.title}</div>
         <h1>${greeting()}${s.profile.name ? `, ${s.profile.name}` : ''}</h1>
-        <p>${lp.completed ? 'Has completado la lección de variables. Pon a prueba lo aprendido en la zona de desafíos o repasa lo que más te cueste.'
-          : started ? `Vas por buen camino con «Variables: dar nombre a los datos». Te quedan ${lp.activitiesTotal - lp.activitiesDone} actividades para completar la lección.`
-          : 'Hoy empiezas con las variables: la base de todo programa. Primero entenderás la idea, después la verás funcionar y, por último, resolverás problemas por tu cuenta.'}</p>
+        <p>${allDone ? 'Has completado todas las lecciones disponibles. Pon a prueba lo aprendido en la zona de desafíos o repasa lo que más te cueste.'
+          : started ? `Vas por buen camino con «${L.title}». ${left ? `Te ${left === 1 ? 'queda 1 actividad' : `quedan ${left} actividades`} para completar la lección.` : 'Solo te falta cerrar la lección en el resumen.'}`
+          : L.teaser}</p>
         <div class="row wrap" style="margin-top:18px">
-          <a class="btn primary lg" href=${continueHref}><${Icon} name="play" size=${16} /> ${lp.completed ? 'Ir a los desafíos' : started ? 'Continuar aprendiendo' : 'Empezar la lección'}</a>
+          <a class="btn primary lg" href=${continueHref}><${Icon} name="play" size=${16} /> ${allDone ? 'Ir a los desafíos' : started ? 'Continuar aprendiendo' : 'Empezar la lección'}</a>
           <a class="btn glass lg" href="#/lab"><${Icon} name="terminal" size=${16} /> Laboratorio</a>
         </div>
         <div class="hero-progress">

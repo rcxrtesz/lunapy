@@ -13,6 +13,8 @@ export const LESSON_VARIABLES = {
   title: 'Variables: dar nombre a los datos',
   minutes: 30,
   bonusXp: 25,
+  teaser: 'Hoy empiezas con las variables: la base de todo programa. Primero entenderás la idea, después la verás funcionar y, por último, resolverás problemas por tu cuenta.',
+  celebration: 'Ya sabes guardar datos, modificarlos, distinguir tipos, pedir información y leer errores.',
   objectives: [
     'Explicar qué es una variable y para qué sirve',
     'Asignar y modificar valores sabiendo en qué orden actúa Python',

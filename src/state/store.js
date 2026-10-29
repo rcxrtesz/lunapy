@@ -257,6 +257,7 @@ export const actions = {
       const l = (s.lessons[lessonId] ||= { step: 0, maxStep: 0, completed: false });
       l.step = step;
       l.maxStep = Math.max(l.maxStep, step);
+      l.lastAt = Date.now(); // para saber qué lección continuar
     });
   },
 

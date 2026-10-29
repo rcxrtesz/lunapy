@@ -7,12 +7,16 @@ import { CONCEPTS } from '../content/curriculum.js';
 import { useStore } from '../state/store.js';
 import { isUnlocked } from '../state/gamification.js';
 
-const TOPICS = ['Variables', 'Expresiones', 'Funciones', 'Condicionales', 'Bucles'];
+// Temas con actividades (en el orden del curso) y los que llegarán con los siguientes módulos.
+const TOPICS = [...new Set(CHALLENGES.map((id) => ACTIVITIES[id].topic))];
+const UPCOMING = ['Funciones', 'Condicionales', 'Bucles'];
 
 export function Challenges() {
   const s = useStore();
   const [diff, setDiff] = useState(0);
-  const list = CHALLENGES.map((id) => ACTIVITIES[id]).filter((a) => !diff || a.difficulty === diff);
+  const [topic, setTopic] = useState('');
+  const list = CHALLENGES.map((id) => ACTIVITIES[id])
+    .filter((a) => (!diff || a.difficulty === diff) && (!topic || a.topic === topic));
   return html`<div>
     <div class="page-head">
       <div class="eyebrow">Zona de desafíos</div>
@@ -20,7 +24,8 @@ export function Challenges() {
       <p>Problemas por tema y dificultad. Los más exigentes se desbloquean cuando demuestras dominio resolviendo los anteriores, no por haber leído la teoría.</p>
     </div>
     <div class="filters" role="group" aria-label="Filtrar por tema">
-      ${TOPICS.map((t, i) => html`<span class=${`tag ${i === 0 ? 'accent' : ''}`} title=${i ? 'Disponible en el desarrollo completo' : ''}>${t}${i ? ' · próximamente' : ''}</span>`)}
+      ${['', ...TOPICS].map((t) => html`<button class=${`chip ${topic === t ? 'on' : ''}`} onClick=${() => setTopic(t)} aria-pressed=${topic === t}>${t || 'Todos los temas'}</button>`)}
+      ${UPCOMING.map((t) => html`<span class="tag" title="Llegará con los siguientes módulos">${t} · próximamente</span>`)}
     </div>
     <div class="filters" role="group" aria-label="Filtrar por dificultad">
       ${['Todas', 'Básico', 'Intermedio', 'Avanzado'].map((d, i) => html`<button class=${`chip ${diff === i ? 'on' : ''}`} onClick=${() => setDiff(i)} aria-pressed=${diff === i}>${d}</button>`)}

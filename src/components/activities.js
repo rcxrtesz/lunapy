@@ -286,7 +286,7 @@ export function CodeActivity({ activity, onComplete }) {
       ${result && html`<div class=${`result ${result.status === 'pass' ? 'pass' : cat ? cat.tone : 'fail'}`} role="status">
         <div class="result-title"><${Icon} name=${cat ? cat.icon : 'info'} size=${18} /> ${result.title}
           ${cat && html`<span class=${`tag ${result.status === 'pass' ? 'ok' : result.category === 'sintaxis' || result.category === 'incompleto' ? 'warn' : result.category === 'comprension' ? 'info' : 'err'}`}>${cat.label}</span>`}</div>
-        ${result.error ? html`<div style="margin-top:8px"><${ErrorCard} error=${result.error} /></div>` : html`<div>${result.message}</div>`}
+        ${result.error ? html`<div style="margin-top:8px"><${ErrorCard} error=${result.error} /></div>` : html`<${Rich} tag="div" text=${result.message || ''} />`}
         ${result.case && html`<div class="small muted" style="margin-top:6px">Ha fallado en el caso: <b>${result.case}</b></div>`}
         ${result.detail && html`<div class="diff">
           <div><div class="lbl">Se esperaba</div><pre>${result.detail.expected}</pre></div>
@@ -296,7 +296,7 @@ export function CodeActivity({ activity, onComplete }) {
           ${result.cases.map((c) => html`<span class=${`case ${c.ok ? 'ok' : 'bad'}`}><${Icon} name=${c.ok ? 'check' : 'x'} size=${12} /> ${c.label}</span>`)}
         </div>`}
         ${result.category === 'mejorable' && html`<div class="improve">
-          ${result.suggestions && result.suggestions.length > 1 && html`<ul class="small" style="margin:0 0 10px;padding-left:18px">${result.suggestions.slice(1).map((t) => html`<li>${t}</li>`)}</ul>`}
+          ${result.suggestions && result.suggestions.length > 1 && html`<ul class="small" style="margin:0 0 10px;padding-left:18px">${result.suggestions.slice(1).map((t) => html`<li><${Rich} text=${t} /></li>`)}</ul>`}
           ${improving
             ? html`<div class="small"><b>Modo mejora:</b> aplica la sugerencia en el editor y vuelve a pulsar <b>Comprobar</b>. Mejorar una solución que ya funciona también da XP.</div>`
             : html`<button class="btn sm primary" onClick=${startImproving}><${Icon} name="sparkle" size=${14} /> Mejorar mi solución</button>`}

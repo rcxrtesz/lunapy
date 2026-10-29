@@ -2,6 +2,45 @@
 // La salida esperada de cada fragmento se verifica con Python real en tests.html.
 
 export const REVIEW_ITEMS = [
+  // ---- Módulo 1 · algoritmos y operadores
+  {
+    id: 'r-algoritmo', concept: 'algoritmo', mode: 'choice',
+    question: '¿Qué hace que una instrucción sirva para un algoritmo?',
+    options: [{ text: 'Que sea precisa y no admita dudas', correct: true }, { text: 'Que sea corta' }, { text: 'Que esté escrita en inglés' }],
+    explain: 'Un ordenador no interpreta: necesita instrucciones exactas, como «repite 3 veces» en lugar de «unas cuantas veces».',
+  },
+  {
+    id: 'r-comentario', concept: 'algoritmo', mode: 'text', code: '# print("Hola")\nprint("Adiós")', answer: 'Adiós',
+    question: '¿Qué muestra este programa?',
+    explain: 'La primera línea es un comentario: Python la ignora.',
+  },
+  {
+    id: 'r-orden', concept: 'algoritmo', mode: 'choice',
+    question: 'En un algoritmo para hacer un bocadillo, ¿qué paso no puede ir antes de «abrir el pan»?',
+    options: [{ text: 'Poner el queso dentro', correct: true }, { text: 'Sacar el queso de la nevera' }, { text: 'Lavarse las manos' }],
+    explain: 'Poner el queso dentro depende de que el pan esté abierto; los otros pasos son independientes.',
+  },
+  {
+    id: 'r-div-entera', concept: 'operadores', mode: 'text', code: 'print(20 // 6)', answer: '3',
+    question: '¿Qué muestra este programa?',
+    explain: '`//` da la parte entera: el 6 cabe 3 veces en el 20.',
+  },
+  {
+    id: 'r-resto', concept: 'operadores', mode: 'text', code: 'print(20 % 6)', answer: '2',
+    question: '¿Qué muestra este programa?',
+    explain: '20 = 6 × 3 + 2: sobran 2.',
+  },
+  {
+    id: 'r-division', concept: 'operadores', mode: 'text', code: 'print(9 / 3)', answer: '3.0',
+    question: '¿Qué muestra este programa?',
+    explain: '`/` siempre da un decimal, aunque la división sea exacta.',
+  },
+  {
+    id: 'r-prioridad', concept: 'operadores', mode: 'text', code: 'print(2 + 2 * 5)', answer: '12',
+    question: '¿Qué muestra este programa?',
+    explain: 'Primero la multiplicación (2 × 5 = 10) y después la suma: 12.',
+  },
+  // ---- Módulo 2 · variables
   {
     id: 'r-concat', concept: 'tipos', mode: 'text', code: 'print("5" + "3")', answer: '53',
     question: '¿Qué muestra este programa?',

@@ -9,6 +9,8 @@ export const CONCEPTS = {
   input: { name: 'Pedir datos con input() y convertirlos', short: 'input()' },
   errores: { name: 'Leer y corregir errores', short: 'Errores' },
   descomponer: { name: 'Descomponer un problema en pasos', short: 'Descomponer' },
+  algoritmo: { name: 'Algoritmos y orden de ejecución', short: 'Algoritmos' },
+  operadores: { name: 'Operadores y expresiones', short: 'Operadores' },
 };
 
 export const MODULES = [
@@ -18,9 +20,9 @@ export const MODULES = [
     objectives: ['Entender qué es un programa y cómo lo ejecuta Python', 'Descomponer problemas cotidianos en pasos', 'Escribir y ejecutar tus primeras instrucciones'],
     prerequisites: ['Ninguno'],
     lessons: [
-      { title: 'Qué es programar: de la receta al algoritmo' },
-      { title: 'Python como calculadora' },
-      { title: 'Tu primer programa con print()' },
+      { id: 'algoritmos', title: 'Qué es programar: de la receta al algoritmo' },
+      { id: 'calculadora', title: 'Python como calculadora' },
+      { id: 'primer-programa', title: 'Tu primer programa con print()' },
     ],
   },
   {
@@ -29,7 +31,7 @@ export const MODULES = [
     objectives: ['Guardar y modificar datos con variables', 'Distinguir texto y números y convertir entre ellos', 'Construir expresiones con operadores'],
     prerequisites: ['Módulo 1 recomendado (no obligatorio en la demo)'],
     lessons: [
-      { id: 'variables', title: 'Variables: dar nombre a los datos', available: true },
+      { id: 'variables', title: 'Variables: dar nombre a los datos' },
       { title: 'Expresiones y operadores aritméticos' },
       { title: 'Tipos, conversiones y entrada de datos' },
       { title: 'Reto del módulo: ticket de compra', challenge: 'ch-iva' },

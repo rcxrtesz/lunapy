@@ -3,29 +3,37 @@ import { Icon } from '../lib/icons.js';
 import { Progress } from '../components/common.js';
 import { MODULES } from '../content/curriculum.js';
 import { ACTIVITIES } from '../content/activities.js';
+import { LESSONS } from '../content/lessons.js';
 import { useStore } from '../state/store.js';
-import { lessonProgress, isUnlocked } from '../state/gamification.js';
+import { lessonProgress, isUnlocked, currentLessonId } from '../state/gamification.js';
+
+// Módulos con contenido. El resto se muestra bloqueado hasta que se desarrolle.
+const OPEN_MODULES = new Set(['m1', 'm2']);
 
 export function MapView() {
   const s = useStore();
-  const lp = lessonProgress(s);
-  const [open, setOpen] = useState({ m2: true });
+  const current = LESSONS[currentLessonId(s)];
+  const [open, setOpen] = useState({ [current.moduleId]: true });
 
   return html`<div>
     <div class="page-head">
       <div class="eyebrow">Mapa de aprendizaje</div>
       <h1>De cero a nivel intermedio</h1>
       <p>13 módulos que siguen el orden de <a href="https://libropython.es/" target="_blank" rel="noopener">«Piensa en Python»</a>, el libro de referencia de tu asignatura, complementado con Cisco Python Essentials. Cada módulo indica a qué capítulos corresponde.</p>
-      <span class="demo-note"><${Icon} name="info" size=${13} /> Demo: solo la lección 2.1 tiene contenido completo</span>
+      <span class="demo-note"><${Icon} name="info" size=${13} /> En desarrollo: módulos 1 y 2 disponibles</span>
     </div>
     <div class="path">
       ${MODULES.map((m) => {
-        const isCurrent = m.id === 'm2';
-        const state = isCurrent ? 'current' : m.id === 'm1' ? '' : 'locked';
+        const available = OPEN_MODULES.has(m.id);
+        const lessons = m.lessons.filter((l) => l.id && LESSONS[l.id]);
+        const progress = lessons.map((l) => lessonProgress(s, l.id));
+        const modPct = m.lessons.length ? Math.round(progress.reduce((a, p) => a + p.pct, 0) / m.lessons.length) : 0;
+        const done = lessons.length > 0 && lessons.length === m.lessons.filter((l) => !l.challenge).length && progress.every((p) => p.completed);
+        const isCurrent = current.moduleId === m.id;
+        const state = !available ? 'locked' : done ? 'done' : isCurrent ? 'current' : '';
         const expanded = open[m.id];
-        const modPct = isCurrent ? Math.round(lp.pct / m.lessons.length) : 0;
         return html`<div class=${`module-card ${state}`} key=${m.id}>
-          <div class="module-node"><div class="module-badge">${m.id === 'm1' || isCurrent ? m.num : html`<${Icon} name="lock" size=${20} />`}</div></div>
+          <div class="module-node"><div class="module-badge">${!available ? html`<${Icon} name="lock" size=${20} />` : done ? html`<${Icon} name="check" size=${22} stroke=${3} />` : m.num}</div></div>
           <div class="card module-body">
             <div class="row between wrap" style="align-items:flex-start">
               <div style="min-width:0;flex:1">
@@ -34,12 +42,11 @@ export function MapView() {
                 <div class="book-ref"><${Icon} name="book" size=${13} /> ${m.book.join(' · ')} <span class="faint">· ${m.cisco}</span></div>
               </div>
               <div class="row" style="gap:8px">
-                ${isCurrent && html`<span class="tag accent">En curso · ${modPct} %</span>`}
-                ${m.id === 'm1' && html`<span class="tag">Contenido pendiente</span>`}
-                ${state === 'locked' && html`<span class="tag">Se desbloquea al dominar el módulo ${m.num - 1}</span>`}
+                ${available && (done ? html`<span class="tag ok">Completado</span>` : html`<span class=${`tag ${isCurrent ? 'accent' : ''}`}>${isCurrent ? 'En curso · ' : ''}${modPct} %</span>`)}
+                ${!available && html`<span class="tag">Se desbloquea al dominar el módulo ${m.num - 1}</span>`}
               </div>
             </div>
-            ${isCurrent && html`<div style="margin-top:12px"><${Progress} value=${modPct} /></div>`}
+            ${available && html`<div style="margin-top:12px"><${Progress} value=${modPct} kind=${done ? 'ok' : ''} /></div>`}
             <button class="details-toggle" style="margin-top:12px" onClick=${() => setOpen({ ...open, [m.id]: !expanded })} aria-expanded=${!!expanded}>
               ${expanded ? 'Ocultar detalles' : 'Ver objetivos y lecciones'}
             </button>
@@ -52,7 +59,8 @@ export function MapView() {
               </div>
               <div class="lesson-list">
                 ${m.lessons.map((l, i) => {
-                  if (l.available) {
+                  if (l.id && LESSONS[l.id] && available) {
+                    const lp = lessonProgress(s, l.id);
                     const cls = lp.completed ? 'completed' : 'available';
                     return html`<a class=${`lesson-item ${cls}`} href=${`#/leccion/${l.id}/${lp.step || 0}`}>
                       <span class="li-icon"><${Icon} name=${lp.completed ? 'check' : 'play'} size=${15} /></span>
@@ -69,7 +77,7 @@ export function MapView() {
                       : html`<div class="lesson-item pending"><span class="li-icon"><${Icon} name="lock" size=${15} /></span><span style="flex:1">${l.title}</span><span class="tag">${a.unlock.text}</span></div>`;
                   }
                   return html`<div class="lesson-item pending"><span class="li-icon"><${Icon} name="lock" size=${15} /></span>
-                    <span style="flex:1"><b>${m.num}.${i + 1}</b> ${l.title}</span><span class="tiny faint">Fuera de la demo</span></div>`;
+                    <span style="flex:1"><b>${m.num}.${i + 1}</b> ${l.title}</span><span class="tiny faint">Próximamente</span></div>`;
                 })}
               </div>
             </div>`}

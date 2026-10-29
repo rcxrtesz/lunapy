@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "ce5b72822186";
+self.LUNAPY_VERSION = "f41b42e62531";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",
@@ -20,6 +20,8 @@ self.LUNAPY_ASSETS = [
   "./src/content/activities.js",
   "./src/content/curriculum.js",
   "./src/content/lesson-variables.js",
+  "./src/content/lessons.js",
+  "./src/content/module1.js",
   "./src/content/review.js",
   "./src/engine/python.js",
   "./src/engine/runtime.py",

@@ -4,7 +4,7 @@ import { toast } from '../components/common.js';
 import { Question } from '../components/questions.js';
 import { CONCEPTS } from '../content/curriculum.js';
 import { actions, getState, useStore } from '../state/store.js';
-import { buildReviewSession, dueReviews } from '../state/gamification.js';
+import { buildReviewSession, dueReviews, currentLessonId } from '../state/gamification.js';
 
 export function Review() {
   const s = useStore();
@@ -32,7 +32,7 @@ export function Review() {
       <div class="card" style="max-width:640px">
         ${!practiced ? html`<div class="empty"><div class="icon-wrap"><${Icon} name="repeat" size=${24} /></div>
             <h3>Aún no hay nada que repasar</h3><p>Empieza la lección de variables: en cuanto practiques, aparecerán aquí tus repasos.</p>
-            <a class="btn primary" href="#/leccion/variables/0">Ir a la lección</a></div>`
+            <a class="btn primary" href=${`#/leccion/${currentLessonId(s)}/0`}>Ir a la lección</a></div>`
           : html`<div class="card-title"><${Icon} name="calendar" /> ${due.length ? `Tienes ${due.length} concepto${due.length > 1 ? 's' : ''} para repasar hoy` : 'Hoy no te toca ningún repaso'}</div>
             ${due.length > 0 && html`<div class="chips" style="margin-bottom:14px">${due.map((c) => html`<span class="tag warn">${c.name}</span>`)}</div>`}
             <p class="small muted">${due.length ? 'Son 5 preguntas rápidas (unos 2 minutos).' : 'Puedes hacer igualmente un repaso de refuerzo con tus conceptos más débiles.'}</p>
