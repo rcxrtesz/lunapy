@@ -30,11 +30,11 @@ export const MODULES = [
     id: 'm2', num: 2, title: 'Variables, tipos de datos, expresiones y operadores',
     book: ['Cap. 2 · Variables y sentencias'], cisco: 'PE1 · Módulo 2',
     objectives: ['Guardar y modificar datos con variables', 'Distinguir texto y números y convertir entre ellos', 'Construir expresiones con operadores'],
-    prerequisites: ['Módulo 1 recomendado (no obligatorio en la demo)'],
+    prerequisites: ['Módulo 1 (recomendado)'],
     lessons: [
       { id: 'variables', title: 'Variables: dar nombre a los datos' },
       { id: 'expresiones', title: 'Expresiones y operadores aritméticos' },
-      { title: 'Tipos, conversiones y entrada de datos' },
+      { id: 'entrada', title: 'Tipos, conversiones y entrada de datos' },
       { title: 'Reto del módulo: ticket de compra', challenge: 'ch-iva' },
     ],
   },

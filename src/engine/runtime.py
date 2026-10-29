@@ -586,12 +586,13 @@ def _line_eq(a, b):
     return True
 
 
-def _lines_match(got, expected):
+def _lines_match(got, expected, exact=False):
+    """exact=True compara el texto tal cual (para ejercicios de formato: 7.50 no es 7.5)."""
     g = _clean_lines(got)
     if len(g) != len(expected):
         return False, min(len(g), len(expected))
     for i, (x, y) in enumerate(zip(g, expected)):
-        if not _line_eq(x, y):
+        if not (x.strip() == y.strip() if exact else _line_eq(x, y)):
             return False, i
     return True, None
 
@@ -628,7 +629,7 @@ def _compare(case, spec, res):
     printed = res["printed"]
     args = case.get("args", {})
     if "out_lines" in case:
-        ok, idx = _lines_match(printed, case["out_lines"])
+        ok, idx = _lines_match(printed, case["out_lines"], spec.get("exact_lines", False))
         if not ok:
             return False, {"expected": "\n".join(case["out_lines"]), "got": "\n".join(_clean_lines(printed)), "line_index": idx}
     if spec.get("expect_last_number"):
@@ -673,7 +674,7 @@ def _misconception(case, spec, res, detail):
             candidates = [v for v in shown if not any(i is not None and abs(v - i) <= tol for i in inputs)] or shown
             if any(abs(v - val) <= tol for v in candidates):
                 return mis
-        if "out_lines" in mis and _lines_match(printed, mis["out_lines"])[0]:
+        if "out_lines" in mis and _lines_match(printed, mis["out_lines"], spec.get("exact_lines", False))[0]:
             return mis
         if "out_contains" in mis and mis["out_contains"] in printed:
             return mis

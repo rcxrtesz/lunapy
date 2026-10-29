@@ -464,6 +464,19 @@ class MustUseOpTests(unittest.TestCase):
         self.assertEqual(runtime.check("h = 135\nh //= 60\nm = 135\nm %= 60\nprint(h, m)", self.SPEC)["status"], "pass")
 
 
+class ExactLinesTests(unittest.TestCase):
+    def test_numbers_tolerant_by_default(self):
+        spec = {"cases": [{"out_lines": ["Total: 7.50 €"]}]}
+        self.assertEqual(runtime.check('print("Total:", 7.5, "€")', spec)["status"], "pass")
+
+    def test_exact_lines_requires_format(self):
+        spec = {"exact_lines": True, "cases": [{"out_lines": ["Total: 7.50 €"]}],
+                "misconceptions": [{"out_lines": ["Total: 7.5 €"], "title": "Formato", "msg": "usa :.2f"}]}
+        self.assertEqual(runtime.check('print(f"Total: {7.5:.2f} €")', spec)["status"], "pass")
+        r = runtime.check('print("Total:", 7.5, "€")', spec)
+        self.assertEqual((r["status"], r["message"]), ("fail", "usa :.2f"))
+
+
 class VariantAstTests(unittest.TestCase):
     def test_any_spacing(self):
         self.assertEqual(runtime.check("edad=19\nedad = edad + 1\nprint(edad)", SPEC_EDAD)["status"], "pass")

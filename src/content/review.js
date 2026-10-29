@@ -72,6 +72,40 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 2 · tipos y entrada
+  {
+    id: 'r-int-corta', concept: 'tipos', mode: 'text', code: 'print(int(9.7))', answer: '9',
+    question: '¿Qué muestra este programa?',
+    explain: '`int()` corta los decimales, no redondea.',
+  },
+  {
+    id: 'r-valueerror', concept: 'input', mode: 'choice', code: 'print(int("2.5"))',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'ValueError', correct: true }, { text: 'Muestra 2' }, { text: 'Muestra 3' }],
+    explain: 'Un texto con punto no es un entero válido para `int()`. Primero `float("2.5")`.',
+    expectError: 'ValueError',
+  },
+  {
+    id: 'r-sep', concept: 'print', mode: 'text', code: 'print(1, 2, 3, sep="")', answer: '123',
+    question: '¿Qué muestra este programa?',
+    explain: 'Con `sep=""` los valores se pegan sin espacios.',
+  },
+  {
+    id: 'r-fstring', concept: 'print', mode: 'text', code: 'x = 4\nprint(f"{x} al cuadrado es {x ** 2}")', answer: '4 al cuadrado es 16',
+    question: '¿Qué muestra este programa?',
+    explain: 'En una f-string, cada `{ }` se sustituye por el valor de lo que contiene.',
+  },
+  {
+    id: 'r-2f', concept: 'print', mode: 'text', code: 'print(f"{3.14159:.2f}")', answer: '3.14',
+    question: '¿Qué muestra este programa?',
+    explain: '`:.2f` muestra el número con 2 decimales.',
+  },
+  {
+    id: 'r-cp', concept: 'tipos', mode: 'choice',
+    question: '¿Cómo guardarías un número de teléfono que pide tu programa?',
+    options: [{ text: 'Como texto: input() sin convertir', correct: true }, { text: 'Con int(input())' }, { text: 'Con float(input())' }],
+    explain: 'No se hacen cálculos con él y como número perdería los ceros iniciales.',
+  },
   // ---- Módulo 2 · variables
   {
     id: 'r-concat', concept: 'tipos', mode: 'text', code: 'print("5" + "3")', answer: '53',

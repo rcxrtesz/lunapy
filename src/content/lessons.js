@@ -2,8 +2,9 @@
 import { LESSONS_M1 } from './module1.js';
 import { LESSON_VARIABLES } from './lesson-variables.js';
 import { LESSON_EXPRESIONES } from './lesson-expresiones.js';
+import { LESSON_ENTRADA } from './lesson-entrada.js';
 
-const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES];
+const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA];
 
 export const LESSONS = Object.fromEntries(ALL.map((l) => [l.id, l]));
 export const LESSON_ORDER = ALL.map((l) => l.id);
