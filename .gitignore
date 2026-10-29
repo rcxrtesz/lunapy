@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Configuración local de herramientas
+.claude/
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

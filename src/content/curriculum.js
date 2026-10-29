@@ -1,0 +1,115 @@
+// Currículo. Correspondencia con «Piensa en Python» (libropython.es, versión
+// española de Think Python 3.ª ed.) y con Cisco Python Essentials 1 (PE1).
+
+export const CONCEPTS = {
+  asignacion: { name: 'Asignación de variables', short: 'Asignación' },
+  reasignacion: { name: 'Modificar una variable', short: 'Reasignación' },
+  tipos: { name: 'Tipos: texto y números', short: 'Tipos' },
+  print: { name: 'Mostrar resultados con print()', short: 'print()' },
+  input: { name: 'Pedir datos con input() y convertirlos', short: 'input()' },
+  errores: { name: 'Leer y corregir errores', short: 'Errores' },
+  descomponer: { name: 'Descomponer un problema en pasos', short: 'Descomponer' },
+};
+
+export const MODULES = [
+  {
+    id: 'm1', num: 1, title: 'Pensamiento computacional y Python',
+    book: ['Cap. 1 · Bienvenida (la programación como forma de pensar)'], cisco: 'PE1 · Módulo 1',
+    objectives: ['Entender qué es un programa y cómo lo ejecuta Python', 'Descomponer problemas cotidianos en pasos', 'Escribir y ejecutar tus primeras instrucciones'],
+    prerequisites: ['Ninguno'],
+    lessons: [
+      { title: 'Qué es programar: de la receta al algoritmo' },
+      { title: 'Python como calculadora' },
+      { title: 'Tu primer programa con print()' },
+    ],
+  },
+  {
+    id: 'm2', num: 2, title: 'Variables, tipos de datos, expresiones y operadores',
+    book: ['Cap. 2 · Variables y sentencias'], cisco: 'PE1 · Módulo 2',
+    objectives: ['Guardar y modificar datos con variables', 'Distinguir texto y números y convertir entre ellos', 'Construir expresiones con operadores'],
+    prerequisites: ['Módulo 1 recomendado (no obligatorio en la demo)'],
+    lessons: [
+      { id: 'variables', title: 'Variables: dar nombre a los datos', available: true },
+      { title: 'Expresiones y operadores aritméticos' },
+      { title: 'Tipos, conversiones y entrada de datos' },
+      { title: 'Reto del módulo: ticket de compra', challenge: 'ch-iva' },
+    ],
+  },
+  {
+    id: 'm3', num: 3, title: 'Funciones, parámetros y argumentos',
+    book: ['Cap. 3 · Funciones'], cisco: 'PE1 · Módulo 4',
+    objectives: ['Definir funciones propias', 'Pasar información mediante parámetros', 'Entender el ámbito de las variables'],
+    prerequisites: ['Módulo 2'],
+    lessons: [{ title: 'Llamar a funciones' }, { title: 'Definir tus propias funciones' }, { title: 'Parámetros y variables locales' }],
+  },
+  {
+    id: 'm4', num: 4, title: 'Funciones, interfaces y organización de programas',
+    book: ['Cap. 4 · Funciones e interfaces'], cisco: 'PE1 · Módulo 4',
+    objectives: ['Diseñar funciones con interfaces claras', 'Encapsular y generalizar', 'Refactorizar código repetido'],
+    prerequisites: ['Módulo 3'],
+    lessons: [{ title: 'Encapsulación y generalización' }, { title: 'Diseño de interfaces' }, { title: 'Refactorización' }],
+  },
+  {
+    id: 'm5', num: 5, title: 'Condicionales, lógica booleana y recursión',
+    book: ['Cap. 5 · Condicionales y recursión'], cisco: 'PE1 · Módulo 3',
+    objectives: ['Tomar decisiones con if / elif / else', 'Combinar condiciones con and, or, not', 'Entender la recursión'],
+    prerequisites: ['Módulo 3'],
+    lessons: [{ title: 'Expresiones booleanas' }, { title: 'if, elif y else' }, { title: 'Recursión' }],
+  },
+  {
+    id: 'm6', num: 6, title: 'Valores de retorno y composición',
+    book: ['Cap. 6 · Valores de retorno'], cisco: 'PE1 · Módulo 4',
+    objectives: ['Devolver resultados con return', 'Desarrollo incremental', 'Componer funciones'],
+    prerequisites: ['Módulos 3 y 5'],
+    lessons: [{ title: 'return' }, { title: 'Desarrollo incremental' }, { title: 'Composición y funciones booleanas' }],
+  },
+  {
+    id: 'm7', num: 7, title: 'Bucles, iteración y búsqueda',
+    book: ['Cap. 7 · Iteración y búsqueda'], cisco: 'PE1 · Módulo 3',
+    objectives: ['Repetir con for y while', 'Acumuladores y contadores', 'Buscar elementos'],
+    prerequisites: ['Módulo 5'],
+    lessons: [{ title: 'Bucles for' }, { title: 'Bucles while' }, { title: 'Patrones de búsqueda' }],
+  },
+  {
+    id: 'm8', num: 8, title: 'Cadenas de texto',
+    book: ['Cap. 8 · Cadenas y expresiones regulares'], cisco: 'PE2 · Módulo 2',
+    objectives: ['Indexar y trocear cadenas', 'Métodos de cadena', 'Introducción a expresiones regulares'],
+    prerequisites: ['Módulo 7'],
+    lessons: [{ title: 'Índices y porciones' }, { title: 'Métodos de cadena' }, { title: 'Expresiones regulares básicas' }],
+  },
+  {
+    id: 'm9', num: 9, title: 'Listas',
+    book: ['Cap. 9 · Listas'], cisco: 'PE1 · Módulo 3',
+    objectives: ['Crear y modificar listas', 'Recorrer listas', 'Alias y mutabilidad'],
+    prerequisites: ['Módulo 7'],
+    lessons: [{ title: 'Listas y operaciones' }, { title: 'Recorrer listas' }, { title: 'Mutabilidad y alias' }],
+  },
+  {
+    id: 'm10', num: 10, title: 'Diccionarios y tuplas',
+    book: ['Cap. 10 · Diccionarios', 'Cap. 11 · Tuplas', 'Cap. 12 · Análisis y generación de texto (proyecto)'], cisco: 'PE1 · Módulo 4',
+    objectives: ['Asociar claves y valores', 'Usar tuplas', 'Contar y analizar texto'],
+    prerequisites: ['Módulo 9'],
+    lessons: [{ title: 'Diccionarios' }, { title: 'Tuplas' }, { title: 'Proyecto: análisis de texto' }],
+  },
+  {
+    id: 'm11', num: 11, title: 'Archivos y tratamiento de datos',
+    book: ['Cap. 13 · Archivos y bases de datos'], cisco: 'PE2 · Módulo 4',
+    objectives: ['Leer y escribir archivos', 'Procesar datos tabulares', 'Gestionar errores con try / except'],
+    prerequisites: ['Módulo 10'],
+    lessons: [{ title: 'Leer y escribir archivos' }, { title: 'Procesar datos' }, { title: 'Excepciones' }],
+  },
+  {
+    id: 'm12', num: 12, title: 'Clases, objetos y programación orientada a objetos',
+    book: ['Cap. 14 · Clases y funciones', 'Cap. 15 · Clases y métodos', 'Cap. 16 · Clases y objetos', 'Cap. 17 · Herencia'], cisco: 'PE2 · Módulo 3',
+    objectives: ['Definir clases y crear objetos', 'Métodos y atributos', 'Herencia'],
+    prerequisites: ['Módulo 10'],
+    lessons: [{ title: 'Clases y objetos' }, { title: 'Métodos' }, { title: 'Herencia' }],
+  },
+  {
+    id: 'm13', num: 13, title: 'Depuración, buenas prácticas y proyectos',
+    book: ['Cap. 18 · Extras de Python', 'Cap. 19 · Reflexiones finales', 'Secciones de depuración de cada capítulo'], cisco: 'PE1/PE2 · Proyectos',
+    objectives: ['Depurar de forma sistemática', 'Escribir código legible', 'Desarrollar un proyecto completo'],
+    prerequisites: ['Módulos anteriores'],
+    lessons: [{ title: 'Estrategias de depuración' }, { title: 'Estilo y buenas prácticas' }, { title: 'Proyecto final' }],
+  },
+];

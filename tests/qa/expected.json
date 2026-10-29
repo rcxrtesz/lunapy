@@ -1,0 +1,94 @@
+{
+  "python": "3.14.8",
+  "snippets": {
+    "enteros": {
+      "code": "a = 7\nb = 2\nprint(a + b, a - b, a * b)",
+      "output": "9 5 14\n"
+    },
+    "division": {
+      "code": "print(7 / 2, 7 // 2, -7 // 2, 7 % 3, -7 % 3, 2 ** 10)",
+      "output": "3.5 3 -4 1 2 1024\n"
+    },
+    "decimales": {
+      "code": "print(0.1 + 0.2, round(2.675, 2), 1e3, 10 / 4)",
+      "output": "0.30000000000000004 2.67 1000.0 2.5\n"
+    },
+    "booleanos": {
+      "code": "print(True and False, True or False, not True, 3 > 2, 3 == 3.0, 'a' < 'b')",
+      "output": "False True False True True True\n"
+    },
+    "cadenas": {
+      "code": "s = 'Hola'\nprint(s + ' mundo', s * 3, len(s), s[0], s[-1], s.upper())",
+      "output": "Hola mundo HolaHolaHola 4 H a HOLA\n"
+    },
+    "conversion": {
+      "code": "print(int('42') + 1, float('3.5'), str(10) + '0', int(3.9), bool(''), bool('0'))",
+      "output": "43 3.5 100 3 False True\n"
+    },
+    "print_args": {
+      "code": "print('a', 'b', sep='-', end='!\\n')\nprint()\nprint(1, 2.5, None, True)",
+      "output": "a-b!\n\n1 2.5 None True\n"
+    },
+    "condicional": {
+      "code": "n = 5\nif n > 3:\n    print('grande')\nelif n > 1:\n    print('medio')\nelse:\n    print('pequeño')",
+      "output": "grande\n"
+    },
+    "bucles": {
+      "code": "t = 0\nfor i in range(5):\n    t += i\nwhile t > 3:\n    t -= 4\nprint(t, i)",
+      "output": "2 4\n"
+    },
+    "unicode": {
+      "code": "print('Ñandú, cigüeña, acción ✓ 🐍🌙')\nprint(len('🐍'), 'ß'.upper())",
+      "output": "Ñandú, cigüeña, acción ✓ 🐍🌙\n1 SS\n"
+    },
+    "fstring": {
+      "code": "p = 59.99\nprint(f'{p:.2f} € y {p*0.15:.1f}')",
+      "output": "59.99 € y 9.0\n"
+    },
+    "funciones": {
+      "code": "def doble(x):\n    return x * 2\nprint(doble(4), doble('ab'))",
+      "output": "8 abab\n"
+    }
+  },
+  "traces": [
+    {
+      "code": "t = 0\nfor i in range(3):\n    t = t + i\nprint(t)",
+      "lines": [
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4
+      ]
+    },
+    {
+      "code": "def doble(x):\n    y = x * 2\n    return y\n\nz = doble(4)\nprint(z)",
+      "lines": [
+        1,
+        5,
+        2,
+        3,
+        6
+      ]
+    },
+    {
+      "code": "n = 3\nwhile n > 0:\n    n -= 1\nif n == 0:\n    print('fin')",
+      "lines": [
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        5
+      ]
+    }
+  ]
+}

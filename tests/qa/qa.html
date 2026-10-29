@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LunaPy · Suite QA</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background: #f5f6fa; color: #141a2e; font-size: 14px; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    td, th { border: 1px solid #e2e5ee; padding: 5px 8px; text-align: left; vertical-align: top; }
+    td.ev { font-family: ui-monospace, Consolas, monospace; font-size: 12px; white-space: pre-wrap; word-break: break-word; max-width: 560px; }
+    .PASS { background: #e3f7ee; } .FAIL { background: #fdecec; } .BLOCKED { background: #fff3dc; }
+    #summary { font-weight: 700; font-size: 1.1rem; margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <h1>LunaPy · Suite QA (Pyodide real en el navegador)</h1>
+  <p>Ejecuta pruebas del motor, validadores, progreso y gamificación. Hace copia del progreso guardado (<code>lunapy.v1</code>) y la restaura al terminar.
+    Las pruebas marcadas con un bug describen el comportamiento <b>esperado</b>: si fallan, el bug sigue presente.</p>
+  <div id="summary">Ejecutando…</div>
+  <table><thead><tr><th>ID</th><th>Componente</th><th>Escenario</th><th>Resultado</th><th>Bug</th><th>Evidencia</th></tr></thead><tbody id="rows"></tbody></table>
+  <script type="module">
+    const KEY = 'lunapy.v1';
+    const backup = localStorage.getItem(KEY);
+    localStorage.removeItem(KEY); // el módulo de estado arranca limpio
+
+    const { engine } = await import('../../src/engine/python.js');
+    const { ACTIVITIES } = await import('../../src/content/activities.js');
+    const store = await import('../../src/state/store.js');
+    const gam = await import('../../src/state/gamification.js');
+    const expected = await (await fetch('./expected.json')).json();
+
+    const rows = document.getElementById('rows');
+    const results = [];
+    let n = 0;
+    const text = (segs) => (segs || []).map(([, s]) => s).join('');
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    async function T(component, scenario, fn, bug = '') {
+      const id = `QA-B${String(++n).padStart(3, '0')}`;
+      let status, evidence;
+      try {
+        const r = await fn();
+        status = r.ok ? 'PASS' : 'FAIL';
+        evidence = r.ev;
+      } catch (e) {
+        status = 'FAIL';
+        evidence = `Excepción: ${e && e.message ? e.message : e}`;
+      }
+      const row = { id, component, scenario, status, bug, evidence: String(evidence ?? '').slice(0, 700) };
+      results.push(row);
+      const tr = document.createElement('tr');
+      tr.className = status;
+      for (const k of ['id', 'component', 'scenario', 'status', 'bug', 'evidence']) {
+        const td = document.createElement('td');
+        td.textContent = row[k];
+        if (k === 'evidence') td.className = 'ev';
+        tr.appendChild(td);
+      }
+      rows.appendChild(tr);
+    }
+
+    const ready = () => new Promise((res) => {
+      if (engine.state === 'ready') return res();
+      const off = engine.subscribe((e) => { if (e.state === 'ready') { off(); res(); } });
+    });
+    const restart = async () => { engine._restart(); await ready(); };
+    const run = (code, stdin = []) => engine.run(code, stdin, 1);
+
+    // =============================================================== Rendimiento de arranque
+    const t0 = performance.now();
+    engine.start();
+    await ready();
+    const bootMs = Math.round(performance.now() - t0);
+    let t1 = performance.now();
+    await run('print(1)');
+    const firstRunMs = Math.round(performance.now() - t1);
+
+    // =============================================================== A. Ejecución (paridad con CPython)
+    for (const [name, s] of Object.entries(expected.snippets)) {
+      await T('Runtime', `Paridad con CPython ${expected.python}: ${name}`, async () => {
+        const r = await run(s.code);
+        const got = text(r.segs);
+        return { ok: r.status === 'ok' && got === s.output, ev: `Pyodide=${JSON.stringify(got)} | CPython=${JSON.stringify(s.output)}` };
+      });
+    }
+    await T('Runtime', 'Versión de Python en Pyodide', async () => ({ ok: !!engine.python, ev: `Python ${engine.python}` }));
+
+    // =============================================================== B. Aislamiento
+    await T('Runtime', 'Las variables no pasan de una ejecución a otra', async () => {
+      await run('secreto = 42');
+      const r = await run('print(secreto)');
+      return { ok: r.error && r.error.type === 'NameError', ev: r.error && r.error.original };
+    });
+    await T('Runtime', 'El estado de módulos importados no persiste (math.pi = 3)', async () => {
+      await run('import math\nmath.pi = 3');
+      const r = await run('import math\nprint(math.pi)');
+      return { ok: text(r.segs) === '3.141592653589793\n', ev: `Segunda ejecución imprime ${JSON.stringify(text(r.segs))}` };
+    }, 'BUG-003');
+    await restart();
+    await T('Runtime', 'Parchear el módulo builtins no rompe el motor', async () => {
+      await run('import builtins\nbuiltins.len = lambda x: 0').catch(() => {});
+      let r;
+      try { r = await run('print(len("abc"))'); } catch (e) { return { ok: false, ev: `La ejecución siguiente falla en el motor: ${e.message.slice(0, 160)}` }; }
+      return { ok: text(r.segs) === '3\n', ev: JSON.stringify(r).slice(0, 200) };
+    }, 'BUG-003');
+    await T('Runtime', 'El motor se recupera solo tras quedar corrupto', async () => {
+      let r;
+      try { r = await run('print("hola")'); } catch (e) { return { ok: false, ev: `Sigue roto hasta reiniciar el worker/recargar: ${e.message.slice(0, 120)}` }; }
+      return { ok: text(r.segs) === 'hola\n', ev: text(r.segs) };
+    }, 'BUG-003');
+    await restart();
+
+    // =============================================================== C. Tiempo límite y concurrencia
+    await T('Runtime', 'Bucle infinito se detiene (5 s) y el motor se recupera', async () => {
+      const a = performance.now();
+      const r = await run('while True:\n    pass');
+      const ms = Math.round(performance.now() - a);
+      await ready();
+      const b = performance.now();
+      const ok2 = text((await run('print(2)')).segs) === '2\n';
+      return { ok: r.error && r.error.type === 'Timeout' && ok2, ev: `timeout tras ${ms} ms; reinicio+siguiente ejecución ${Math.round(performance.now() - b)} ms` };
+    });
+    await T('Runtime', 'Ejecuciones simultáneas devuelven cada una su propio resultado', async () => {
+      const rs = await Promise.all([run('print("a")'), run('print("b")'), run('print("c")')]);
+      return { ok: rs.map((r) => text(r.segs)).join('') === 'a\nb\nc\n', ev: rs.map((r) => text(r.segs).trim()).join(',') };
+    });
+    await T('Runtime', 'Una petición en cola NO recibe el timeout de otra que se colgó', async () => {
+      const [, b] = await Promise.all([run('while True:\n    pass'), run('print("inocente")')]);
+      await ready();
+      return { ok: text(b.segs) === 'inocente\n', ev: `La segunda petición devolvió: ${b.error ? b.error.title : text(b.segs)}` };
+    }, 'BUG-005');
+    await T('Runtime', 'Salida excesiva se corta con OutputLimit', async () => {
+      const r = await run('while True:\n    print("x" * 100)');
+      return { ok: r.error && r.error.type === 'OutputLimit', ev: `${r.error && r.error.title}; ${text(r.segs).length} caracteres` };
+    });
+    await T('Runtime', 'Trazado de un bucle C largo (sum(range(10**9))) informa del límite de tiempo', async () => {
+      const r = await engine.trace('x = sum(range(10**9))\nprint(x)', [], 1);
+      await ready();
+      return { ok: !!r.error && r.error.type === 'Timeout', ev: `steps=${(r.steps || []).length}, error=${r.error && r.error.type}. El visualizador debe mostrar este error sin romperse (verificado en E2E)` };
+    }, 'BUG-004');
+    await T('Runtime', 'os._exit() no deja el motor inutilizable', async () => {
+      await run('import os\nos._exit(0)').catch((e) => e);
+      let r;
+      try { r = await run('print("vivo")'); } catch (e) { return { ok: false, ev: `Tras os._exit: ${e.message.slice(0, 160)}` }; }
+      return { ok: text(r.segs) === 'vivo\n', ev: `Tras os._exit la siguiente ejecución devuelve ${JSON.stringify(text(r.segs))}` };
+    });
+    await restart();
+    await T('Runtime', 'Recursión infinita da RecursionError explicado (sin colgar)', async () => {
+      const r = await run('def f():\n    f()\nf()');
+      return { ok: r.error && r.error.type === 'RecursionError', ev: `${r.error && r.error.type}: ${r.error && r.error.title}` };
+    });
+    await T('Runtime', 'Cadena de entrada muy larga (100 000 caracteres) en input()', async () => {
+      const r = await run('s = input()\nprint(len(s))', ['a'.repeat(100000)]);
+      return { ok: text(r.segs).endsWith('100000\n'), ev: `${r.status} ${r.error ? r.error.type + ' «' + r.error.title + '»' : ''}; el eco del dato ya no cuenta como salida del programa` };
+    }, 'BUG-011');
+
+    // =============================================================== D. Seguridad
+    await T('Seguridad', 'import js está bloqueado', async () => {
+      const r = await run('import js');
+      return { ok: r.error && r.error.type === 'ImportError', ev: r.error && r.error.original };
+    });
+    await T('Seguridad', 'import pyodide / micropip bloqueados', async () => {
+      const a = await run('import pyodide'); const b = await run('import micropip');
+      return { ok: a.error && b.error, ev: `${a.error && a.error.type}, ${b.error && b.error.type}` };
+    });
+    await T('Seguridad', 'importlib.import_module("js") NO debe dar acceso a JavaScript', async () => {
+      const r = await run('import importlib\njs = importlib.import_module("js")\nprint(type(js.fetch).__name__, js.self.location.pathname)');
+      return { ok: r.status === 'error', ev: `status=${r.status}; salida=${JSON.stringify(text(r.segs))}` };
+    }, 'BUG-002');
+    await T('Seguridad', 'builtins.__import__("js") NO debe dar acceso a JavaScript', async () => {
+      const r = await run('import builtins\njs = builtins.__import__("js")\nprint(hasattr(js, "postMessage"))');
+      return { ok: r.status === 'error', ev: `status=${r.status}; salida=${JSON.stringify(text(r.segs))}` };
+    }, 'BUG-002');
+    await T('Seguridad', 'sys.modules no expone el módulo js', async () => {
+      const r = await run('import sys\nprint("js" in sys.modules)');
+      return { ok: text(r.segs) !== 'True\n', ev: `"js" in sys.modules → ${text(r.segs).trim()}` };
+    }, 'BUG-002');
+    await T('Seguridad', 'El alumno NO puede reescribir el validador (__main__._compare)', async () => {
+      const a = ACTIVITIES['var-build'];
+      const trampa = 'import __main__\n__main__._compare = lambda *a: (True, None)\ninput()\ninput()\nprint(0)';
+      const r = await engine.check(trampa, a.spec);
+      const despues = await engine.check('x = 1', ACTIVITIES['ch-swap'].spec);
+      return { ok: r.status === 'fail', ev: `trampa → ${r.status} «${r.title}»; después, «x = 1» en OTRO ejercicio (ch-swap) → ${despues.status}` };
+    }, 'BUG-001');
+    await restart();
+    await T('Seguridad', 'El motor no es accesible con import __main__', async () => {
+      const r = await run('import __main__\nprint(hasattr(__main__, "_compare"), hasattr(__main__, "api_check"))');
+      return { ok: text(r.segs) === 'False False\n', ev: text(r.segs).trim() };
+    }, 'BUG-001');
+    await T('Seguridad', 'Manipular el validador desde la pila de llamadas se detecta, se restaura y se reinicia el worker', async () => {
+      const trampa = 'import sys\nsys._getframe(1).f_globals["_compare"] = lambda *a: (True, None)\nprint(0)';
+      const r = await engine.check(trampa, ACTIVITIES['var-build'].spec);
+      await ready();
+      const despues = await engine.check('x = 1', ACTIVITIES['ch-swap'].spec);
+      return { ok: r.status === 'fail' && r.category === 'manipulacion' && despues.status === 'fail', ev: `trampa → ${r.status}/${r.category}; después «x = 1» en ch-swap → ${despues.status}` };
+    }, 'BUG-001');
+    await T('Runtime', 'Tras parchear json/builtins el motor sigue respondiendo', async () => {
+      await run('import json, builtins\njson.loads = None\nbuiltins.len = None');
+      const r = await run('print(len([1, 2]))');
+      return { ok: text(r.segs) === '2\n', ev: JSON.stringify(text(r.segs)) };
+    }, 'BUG-003');
+
+    // =============================================================== E. input()
+    await T('Runtime', 'input(): reejecución conserva orden y semilla aleatoria', async () => {
+      const code = 'import random\nx = random.randint(1, 10**9)\na = input("A: ")\nb = input("B: ")\nprint(x, a, b)';
+      const r1 = await engine.run(code, [], 7); const r2 = await engine.run(code, ['1'], 7); const r3 = await engine.run(code, ['1', '2'], 7);
+      const x = text(r3.segs).trim().split(/\s+/).slice(-3)[0];
+      return { ok: r1.prompt === 'A: ' && r2.prompt === 'B: ' && text(r3.segs).endsWith(`${x} 1 2\n`), ev: JSON.stringify(r3.segs) };
+    });
+    await T('Runtime', 'input(): un programa no determinista (hora) cambia entre reejecuciones', async () => {
+      const code = 'import time\nprint(time.time_ns())\nn = input()';
+      const a = await engine.run(code, [], 3); await wait(5); const b = await engine.run(code, ['x'], 3);
+      return { ok: text(a.segs).split('\n')[0] === text(b.segs).split('\n')[0], ev: `1.ª=${text(a.segs).split('\n')[0]} 2.ª=${text(b.segs).split('\n')[0]} (limitación conocida de la reejecución)` };
+    }, 'LIM-001');
+
+    // =============================================================== F. Errores (Pyodide 3.12)
+    const errCases = {
+      'x = 10 / 0': 'División entre cero', "int('abc')": 'No se puede convertir a número entero', 'if True\n    print(1)': 'Faltan los dos puntos',
+      '  x = 1': 'Problema de sangría', 'if True:\nprint(1)': 'Problema de sangría', "print 'hola'": 'A print le faltan los paréntesis',
+      'print(“hola”)': 'Carácter no válido', "'3' * '2'": 'Multiplicación con texto', "5 + 'a'": 'Operación entre tipos incompatibles',
+      'print((1)': 'Paréntesis sin cerrar', 'print(1))': 'Paréntesis de más', 'class = 5': 'Palabra reservada', 'mi edad = 3': 'Nombre de variable con espacios',
+      '2edad = 3': 'Nombre que empieza por un número', 'print("hola)': 'Texto sin cerrar', '18 = edad': 'La asignación está al revés',
+      'edad = 17\nprint("Tengo " + edad)': 'Mezcla de texto y números', 'print(nombre)': 'Python no conoce el nombre «nombre»',
+    };
+    for (const [code, title] of Object.entries(errCases)) {
+      await T('Errores', `Mensaje para: ${code.replace(/\n/g, '⏎')}`, async () => {
+        const r = await run(code);
+        return { ok: r.error && r.error.title === title, ev: `${r.error && r.error.title} | ${r.error && r.error.original}` };
+      });
+    }
+
+    // =============================================================== G. Paso a paso
+    for (const tcase of expected.traces) {
+      await T('Paso a paso', `Secuencia de líneas igual que CPython: ${tcase.code.split('\n')[0]}…`, async () => {
+        const r = await engine.trace(tcase.code, [], 1);
+        const got = r.steps.filter((s) => !s.end).map((s) => s.line);
+        return { ok: JSON.stringify(got) === JSON.stringify(tcase.lines), ev: `Pyodide=${JSON.stringify(got)} CPython=${JSON.stringify(tcase.lines)}` };
+      });
+    }
+    await T('Paso a paso', 'Más de 400 pasos: se corta y lo indica', async () => {
+      const r = await engine.trace('i = 0\nwhile True:\n    i += 1', [], 1);
+      return { ok: r.status === 'trace_limit' && r.steps.length === 401, ev: `status=${r.status}, pasos=${r.steps.length}` };
+    });
+
+    // =============================================================== Validadores: 8 actividades
+    const V = (id, label, code, expect, category, bug = '') => T(`Validador ${id}`, label, async () => {
+      const r = await engine.check(code, ACTIVITIES[id].spec);
+      const ok = r.status === expect && (!category || r.category === category);
+      return { ok, ev: `${r.status}/${r.category}: ${r.title}. ${r.message || ''}` };
+    }, bug);
+    // var-complete
+    await V('var-complete', '1 · Convencional', ACTIVITIES['var-complete'].solution.code, 'pass');
+    await V('var-complete', '2 · Alternativa (edad = 1 + edad, comillas simples)', "nombre = 'Lucía'\nedad = 19\nprint(nombre, \"tiene\", edad, \"años\")\nedad = 1 + edad\nprint(\"El año que viene tendrá\", edad)", 'pass');
+    await V('var-complete', '3 · Parece correcta: edad = 19 + 1', 'nombre = "Lucía"\nedad = 19\nprint(nombre, "tiene", edad, "años")\nedad = 19 + 1\nprint("El año que viene tendrá", edad)', 'fail', 'logica');
+    await V('var-complete', 'Adversarial · borra todo e imprime el texto fijo', 'print("Lucía tiene 19 años")\nprint("El año que viene tendrá 20")', 'fail', '', 'BUG-006');
+    // var-fix
+    await V('var-fix', '1 · Convencional (str)', ACTIVITIES['var-fix'].solution.code, 'pass');
+    await V('var-fix', '2 · Alternativa (format)', 'nombre = "Marco"\nedad = 17\nprint("Hola, {}. Tienes {} años.".format(nombre, edad))', 'pass');
+    await V('var-fix', '2b · Alternativa (%)', 'nombre = "Marco"\nedad = 17\nprint("Hola, %s. Tienes %d años." % (nombre, edad))', 'pass');
+    await V('var-fix', '3 · Parece correcta: falta un espacio', 'nombre = "Marco"\nedad = 17\nmensaje = "Hola, " + nombre + ". Tienes " + str(edad) + "años."\nprint(mensaje)', 'fail', 'logica');
+    await V('var-fix', 'Adversarial · texto fijo + variables «usadas» y edad=17 sin espacios', 'nombre = "Marco"\nedad=17\nnombre, edad\nprint("Hola, Marco. Tienes 17 años.")', 'fail', '', 'BUG-006');
+    // var-build
+    await V('var-build', '1 · Convencional', ACTIVITIES['var-build'].solution.code, 'pass');
+    await V('var-build', '2 · Alternativa (una línea, int para el descuento, 2 decimales)', 'p = float(input("Precio: "))\nd = int(input("Descuento: "))\nprint(f"{p * (100 - d) / 100:.2f}")', 'pass');
+    await V('var-build', '3 · Parece correcta: int() para el precio', 'precio = int(input())\ndescuento = int(input())\nprint(precio - precio * descuento / 100)', 'fail', 'ejecucion');
+    await V('var-build', '3b · Parece correcta: resta el porcentaje como euros', 'precio = float(input())\ndescuento = float(input())\nprint(precio - descuento)', 'fail', 'comprension');
+    await V('var-build', 'Legítima: muestra el descuento DESPUÉS del resultado', 'precio = float(input())\ndescuento = float(input())\nfinal = precio - precio * descuento / 100\nprint("Pagas", final, "euros con un", descuento, "% de descuento")', 'pass', '', 'PED-001');
+    await V('var-build', 'Adversarial · tabla con las respuestas de los casos', 'p = input()\nd = input()\nprint({"100": 80, "59.99": 50.9915, "40": 40, "250": 0}[p])', 'fail', '', 'LIM-002');
+    // ch-swap
+    await V('ch-swap', '1 · Convencional (aux)', ACTIVITIES['ch-swap'].solution.code, 'pass');
+    await V('ch-swap', '2 · Alternativa (desempaquetado inverso)', 'vaso_a = "café"\nvaso_b = "té"\nvaso_b, vaso_a = vaso_a, vaso_b', 'pass');
+    await V('ch-swap', '3 · Parece correcta: dos asignaciones sin auxiliar', 'vaso_a = "café"\nvaso_b = "té"\nvaso_a = vaso_b\nvaso_b = vaso_a', 'fail', 'logica');
+    await V('ch-swap', 'Adversarial · comillas simples + valores escritos a mano', "vaso_a = 'café'\nvaso_b = 'té'\nvaso_a = 'té'\nvaso_b = 'café'", 'fail', '', 'BUG-006');
+    // ch-iva
+    await V('ch-iva', '1 · Convencional', ACTIVITIES['ch-iva'].solution.code, 'pass');
+    await V('ch-iva', '2 · Alternativa (precio + precio*21/100)', 'precio = float(input())\nprint(precio + precio * 21 / 100)', 'pass');
+    await V('ch-iva', '3 · Parece correcta: solo el IVA', 'precio = float(input())\nprint(precio * 0.21)', 'fail', 'comprension');
+    await V('ch-iva', 'Legítima: «Total: X (IVA del 21 %)»', 'precio = float(input())\nprint("Total:", round(precio * 1.21, 2), "(IVA del 21 %)")', 'pass', '', 'PED-001');
+
+    // var-predict / ch-explain: integridad del contenido
+    for (const id of ['var-predict', 'ch-explain']) {
+      await T(`Contenido ${id}`, 'Una sola opción correcta y todas las incorrectas explican el error', async () => {
+        const a = ACTIVITIES[id];
+        const correct = a.options.filter((o) => o.correct).length;
+        const sinWhy = a.options.filter((o) => !o.correct && !o.why).length;
+        return { ok: correct === 1 && sinWhy === 0, ev: `correctas=${correct}, incorrectas sin explicación=${sinWhy}` };
+      });
+    }
+    // var-order: el código ordenado ejecuta y todas las dependencias referencian ids existentes
+    await T('Contenido var-order', 'Dependencias válidas y código final ejecutable', async () => {
+      const a = ACTIVITIES['var-order'];
+      const ids = a.stages.flatMap((s) => s.items.map((i) => i.id));
+      const badDeps = a.stages.flatMap((s) => s.items.flatMap((i) => i.after.filter((d) => !ids.includes(d))));
+      const r = await run(a.stages[1].items.map((i) => i.text).join('\n'), ['10', '50']);
+      return { ok: !badDeps.length && text(r.segs).endsWith('Precio final: 5.0\n'), ev: `deps rotas=${badDeps.length}; salida=${JSON.stringify(text(r.segs).split('\n').slice(-2)[0])}` };
+    });
+
+    // =============================================================== Progreso y gamificación (módulo de estado)
+    const { actions, getState, conceptStatus, streak } = store;
+    const A = (id) => ACTIVITIES[id];
+    const freshState = () => { actions.reset(); };
+
+    await T('Progreso', 'Repetir una actividad superada no duplica XP', async () => {
+      freshState();
+      const a = actions.activityPass(A('var-complete'), {}); const b = actions.activityPass(A('var-complete'), {});
+      return { ok: a.xp === 20 && b.xp === 0 && getState().xp === 20, ev: `1.ª=${a.xp} XP, 2.ª=${b.xp} XP, total=${getState().xp}` };
+    });
+    await T('Progreso', 'Pistas y solución reducen el XP según la regla', async () => {
+      freshState();
+      actions.activityFail(A('var-fix'), 'logica', 'x'); [1, 2, 3].forEach((l) => actions.hintUsed('var-fix', l));
+      const h = actions.activityPass(A('var-fix')).xp;
+      actions.activityFail(A('var-build'), 'logica', 'x'); actions.hintUsed('var-build', 5, true);
+      const s = actions.activityPass(A('var-build')).xp;
+      return { ok: h === 16 && s === 9, ev: `3 pistas en 20 XP → ${h} (esperado 16); solución en 30 XP → ${s} (esperado 9)` };
+    });
+    await T('Progreso', 'Fallos, pistas y solución guardados no se pierden al salir y volver', async () => {
+      freshState();
+      for (let k = 0; k < 3; k++) actions.activityFail(A('var-fix'), 'ejecucion', 'x');
+      actions.hintUsed('var-fix', 5, true);
+      // (la interfaz se desmonta y vuelve a montar: el intento sigue en el almacén)
+      const vuelta = store.currentAttempt('var-fix');
+      const r = actions.activityPass(A('var-fix'));
+      const a = getState().activities['var-fix'];
+      const c = getState().concepts.tipos;
+      return { ok: vuelta.fails === 3 && vuelta.solution && r.xp === 6 && !a.firstTry && !a.noHints && c.box === 1,
+        ev: `intento recuperado=${JSON.stringify(vuelta)}; XP=${r.xp} (esperado 6); firstTry=${a.firstTry}; noHints=${a.noHints}; caja tipos=${c.box}` };
+    }, 'BUG-012');
+    await T('Progreso', 'Comprobar dos veces el mismo código erróneo cuenta un solo fallo', async () => {
+      freshState();
+      const a = actions.activityFail(A('var-fix'), 'ejecucion', 'x', { code: 'print(1)' });
+      const b = actions.activityFail(A('var-fix'), 'ejecucion', 'x', { code: 'print(1)' });
+      const c = actions.activityFail(A('var-fix'), 'ejecucion', 'x', { code: 'print(2)' });
+      const rec = getState().activities['var-fix'];
+      return { ok: a && !b && c && rec.fails === 2 && getState().errors.ejecucion === 2, ev: `contados=[${a},${b},${c}], fallos=${rec.fails}` };
+    }, 'BUG-014');
+    await T('Progreso', 'Un error de predicción se atribuye solo al concepto que revela', async () => {
+      freshState();
+      const opt = A('var-predict').options.find((o) => o.text === 'puntos bonus');
+      actions.activityFail(A('var-predict'), 'concepto', 'x', { concepts: [opt.concept] });
+      const cs = getState().concepts;
+      return { ok: cs.print?.wrong === 1 && !cs.reasignacion, ev: `print.wrong=${cs.print?.wrong}, reasignacion=${JSON.stringify(cs.reasignacion || null)}` };
+    }, 'PED-006');
+    await T('Progreso', 'Mejorar una solución da XP una sola vez', async () => {
+      freshState();
+      const x = [actions.improveSolution(A('var-build')), actions.improveSolution(A('var-build'))];
+      return { ok: x[0] === 3 && x[1] === 0, ev: JSON.stringify(x) };
+    }, 'P2-8');
+    await T('Progreso', 'Los errores de planificación no quitan el bonus «a la primera»', async () => {
+      freshState();
+      actions.activityFail(A('var-build'), 'planificacion', 'plan', { planning: true });
+      const r = actions.activityPass(A('var-build'));
+      return { ok: r.xp === 35, ev: `XP=${r.xp} (30 + 5 de bonus)` };
+    });
+    await T('Progreso', 'Pregunta intercalada: XP solo la primera vez', async () => {
+      freshState();
+      const x = [actions.answerCheck('q-x', 'tipos', true), actions.answerCheck('q-x', 'tipos', true)];
+      return { ok: x[0] === 2 && x[1] === 0, ev: JSON.stringify(x) };
+    });
+    await T('Gamificación', 'El XP de repaso no se puede acumular sin límite el mismo día', async () => {
+      freshState();
+      let xp = 0; for (let i = 0; i < 50; i++) xp += actions.review({ concept: 'tipos' }, true);
+      return { ok: xp <= 30, ev: `50 respuestas correctas al mismo concepto el mismo día = ${xp} XP` };
+    }, 'BUG-008');
+    await T('Gamificación', 'Misión «Supera 2 actividades» no se cumple repitiendo la misma', async () => {
+      freshState();
+      actions.activityPass(A('var-complete'), {}); actions.activityPass(A('var-complete'), {});
+      const m = gam.dailyMissions(getState()).find((x) => x.id === 'activity');
+      return { ok: m.progress < 2, ev: `progreso misión = ${m.progress}/2 tras superar 2 veces la misma actividad` };
+    }, 'BUG-009');
+    await T('Gamificación', 'Logro «Hola, mundo» exige ejecutar un programa', async () => {
+      freshState();
+      actions.activityFail(A('var-build'), 'planificacion', 'Planificación: x');
+      const got = gam.newAchievements(getState()).map((a) => a.id);
+      return { ok: !got.includes('first-run'), ev: `Tras un fallo de planificación (sin ejecutar código) se concede: ${got.join(', ') || 'nada'}` };
+    }, 'BUG-010');
+    await T('Gamificación', 'Logro «Mente de intérprete» exige 3 predicciones', async () => {
+      freshState();
+      ['q-def', 'q-input', 'q-nombres'].forEach((id) => actions.answerCheck(id, 'asignacion', true));
+      const got = gam.newAchievements(getState()).map((a) => a.id);
+      return { ok: !got.includes('predictor'), ev: `3 aciertos en preguntas que NO son de predicción conceden: ${got.join(', ') || 'nada'}` };
+    }, 'BUG-010');
+    await T('Gamificación', 'Los logros SÍ se conceden cuando se cumplen (programa, predicciones, sesión de repaso)', async () => {
+      freshState();
+      actions.programRun();
+      ['p1', 'p2', 'p3'].forEach((id) => actions.answerCheck(id, 'tipos', true, { prediction: true }));
+      actions.reviewSessionDone();
+      const got = gam.newAchievements(getState()).map((a) => a.id);
+      return { ok: ['first-run', 'predictor', 'reviewer'].every((id) => got.includes(id)), ev: `concedidos: ${got.join(', ')}` };
+    }, 'BUG-010');
+    await T('Gamificación', 'Varios logros a la vez se registran en una sola actualización', async () => {
+      freshState();
+      let updates = 0;
+      const off = store.subscribe(() => { updates++; });
+      actions.unlockAchievements(['first-run', 'predictor']);
+      off();
+      return { ok: updates === 1 && Object.keys(getState().achievements).length === 2, ev: `actualizaciones=${updates}` };
+    }, 'BUG-013');
+    await T('Gamificación', 'Logro «Depuradora» solo tras completar var-fix', async () => {
+      freshState();
+      const before = gam.newAchievements(getState()).some((a) => a.id === 'debugger');
+      actions.activityPass(A('var-fix'), {});
+      const after = gam.newAchievements(getState()).some((a) => a.id === 'debugger');
+      return { ok: !before && after, ev: `antes=${before}, después=${after}` };
+    });
+    await T('Repaso espaciado', 'Mismo día: un concepto no pasa de la caja 2', async () => {
+      freshState();
+      for (let i = 0; i < 5; i++) actions.activityPass(A('ch-swap'), {});
+      const c = getState().concepts.reasignacion;
+      return { ok: c.box === 2 && conceptStatus(c) === 'practicado', ev: `caja=${c.box}, estado=${conceptStatus(c)}, próximo=${c.next}` };
+    });
+    await T('Repaso espaciado', 'Día siguiente: toca repaso; acierto → caja 3 (dominado) y repaso a 4 días', async () => {
+      const t0d = store.today();
+      actions.advanceDay(); actions.advanceDay();
+      const due = conceptStatus(getState().concepts.reasignacion);
+      actions.review({ concept: 'reasignacion' }, true);
+      const c = getState().concepts.reasignacion;
+      return { ok: due === 'repaso' && c.box === 3 && c.next === store.addDays(store.today(), 4) && conceptStatus(c) === 'dominado', ev: `hoy era ${t0d}; tras 2 días estado=${due}; tras acertar caja=${c.box}, próximo=${c.next}, estado=${conceptStatus(c)}` };
+    });
+    await T('Repaso espaciado', 'Fallo → caja 1 y repaso inmediato', async () => {
+      actions.review({ concept: 'reasignacion' }, false);
+      const c = getState().concepts.reasignacion;
+      return { ok: c.box === 1 && c.next === store.today() && conceptStatus(c) === 'repaso', ev: `caja=${c.box}, próximo=${c.next}, estado=${conceptStatus(c)}` };
+    });
+    await T('Rachas', 'Racha: días consecutivos, se mantiene hasta fin del día y se rompe tras un día sin XP', async () => {
+      freshState();
+      actions.answerCheck('a1', null, true); actions.advanceDay(); actions.answerCheck('a2', null, true);
+      const dos = streak().days; actions.advanceDay();
+      const pendienteHoy = streak().days; actions.advanceDay();
+      const rota = streak().days;
+      return { ok: dos === 2 && pendienteHoy === 2 && rota === 0, ev: `consecutivos=${dos}, día siguiente sin XP aún=${pendienteHoy}, tras un día completo sin XP=${rota}` };
+    });
+    await T('Persistencia', 'El estado se guarda en localStorage tras cada acción', async () => {
+      freshState(); actions.activityPass(A('var-predict'), {});
+      const saved = JSON.parse(localStorage.getItem(KEY));
+      return { ok: saved.xp === 15 && saved.activities['var-predict'].completed, ev: `xp guardado=${saved.xp}` };
+    });
+    // Importación
+    const imports = {
+      'copia válida': [{ ...getState(), xp: 99 }, true],
+      'JSON sin version': [{ xp: 5, daily: {} }, false],
+      'activities: null': [{ version: 1, xp: 5, daily: {}, activities: null }, false],
+      'concepts: "texto"': [{ version: 1, xp: 5, daily: {}, concepts: 'texto' }, false],
+      'xp negativo': [{ version: 1, xp: -500, daily: {} }, false],
+      'profile.dailyGoal = 0': [{ version: 1, xp: 1, daily: {}, profile: { dailyGoal: 0 } }, false],
+    };
+    for (const [name, [data, shouldAccept]] of Object.entries(imports)) {
+      await T('Importación', `Importar ${name} → ${shouldAccept ? 'se acepta' : 'se rechaza'}`, async () => {
+        freshState();
+        const { ok, invalid } = actions.importState(structuredClone(data));
+        return { ok: ok === shouldAccept, ev: `importState → ok=${ok}${invalid.length ? `; motivo: ${invalid.join(", ")}` : ""}` };
+      }, shouldAccept || name === 'JSON sin version' ? '' : 'BUG-007');
+    }
+    await T('Persistencia', 'Al cargar, los campos dañados se detectan para repararlos con su valor inicial', async () => {
+      const { invalidKeys } = store.validateState({ version: 1, xp: 5, daily: {}, activities: null, concepts: 'x', profile: { name: 'Ana', dailyGoal: 30, onboarded: true } });
+      return { ok: JSON.stringify(invalidKeys) === '["activities","concepts"]', ev: `campos a reparar: ${invalidKeys.join(', ')}` };
+    }, 'BUG-007');
+
+    // =============================================================== Rendimiento
+    t1 = performance.now();
+    for (let i = 0; i < 50; i++) await run(`x = ${i}\nprint(x * 2)`);
+    const avg50 = ((performance.now() - t1) / 50).toFixed(1);
+    t1 = performance.now(); await engine.check(ACTIVITIES['var-build'].solution.code, ACTIVITIES['var-build'].spec); const checkMs = Math.round(performance.now() - t1);
+    t1 = performance.now(); await engine.trace('t = 0\nfor i in range(100):\n    t += i', [], 1); const traceMs = Math.round(performance.now() - t1);
+    const mem = performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1048576)} MB heap JS de la página (el worker no se incluye)` : 'no disponible';
+    const perf = { bootMs, firstRunMs, avg50, checkMs, traceMs, mem, ua: navigator.userAgent };
+    await T('Rendimiento', 'Mediciones (informativo)', async () => ({ ok: true, ev: JSON.stringify(perf) }));
+
+    // =============================================================== Restaurar progreso
+    if (backup === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, backup);
+
+    const pass = results.filter((r) => r.status === 'PASS').length;
+    const fail = results.filter((r) => r.status === 'FAIL');
+    document.getElementById('summary').textContent = `${pass}/${results.length} PASS · ${fail.length} FAIL (${fail.filter((r) => r.bug).length} asociados a bugs documentados)`;
+    window.__qa = { results, perf };
+  </script>
+</body>
+</html>

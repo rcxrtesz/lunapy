@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LunaPy · Tests de ejercicios</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background: #f5f6fa; color: #141a2e; }
+    h1 { margin: 0 0 6px; }
+    #summary { font-weight: 700; margin: 12px 0 18px; font-size: 1.1rem; }
+    .t { font-family: ui-monospace, Consolas, monospace; font-size: 13px; padding: 4px 8px; border-radius: 6px; margin: 2px 0; }
+    .ok { background: #e3f7ee; } .bad { background: #fdecec; }
+  </style>
+</head>
+<body>
+  <h1>Tests de ejercicios (Python real en Pyodide)</h1>
+  <div>Comprueba que cada validador acepta soluciones correctas distintas, rechaza las erróneas con la categoría adecuada y que las respuestas de las preguntas coinciden con lo que hace Python.</div>
+  <div id="summary">Cargando Python…</div>
+  <div id="out"></div>
+  <script type="module">
+    import { engine } from './src/engine/python.js';
+    import { ACTIVITIES } from './src/content/activities.js';
+    import { REVIEW_ITEMS } from './src/content/review.js';
+    import { LESSON_VARIABLES } from './src/content/lesson-variables.js';
+
+    const out = document.getElementById('out');
+    const results = [];
+    const log = (ok, name, detail = '') => {
+      results.push(ok);
+      const d = document.createElement('div');
+      d.className = `t ${ok ? 'ok' : 'bad'}`;
+      d.textContent = `${ok ? '✓' : '✗'} ${name}${detail ? ' — ' + detail : ''}`;
+      out.appendChild(d);
+    };
+    const text = (segs) => segs.map(([, s]) => s).join('').replace(/\s+$/, '');
+
+    async function expectOutput(name, code, expected, expectError) {
+      const r = await engine.run(code, []);
+      if (expectError) return log(r.status === 'error' && r.error.type === expectError, name, `error=${r.error && r.error.type}`);
+      const got = text(r.segs);
+      log(r.status === 'ok' && got === expected, name, `salida=${JSON.stringify(got)} esperada=${JSON.stringify(expected)}`);
+    }
+
+    for (const a of Object.values(ACTIVITIES)) {
+      if (a.type === 'code') {
+        for (const [i, ref] of (a.reference || []).entries()) {
+          const r = await engine.check(ref, a.spec);
+          log(r.status === 'pass', `${a.id} · solución correcta #${i + 1} aceptada`, `${r.category}: ${r.title}`);
+        }
+        const sol = await engine.check(a.solution.code, a.spec);
+        log(sol.status === 'pass', `${a.id} · solución explicada aceptada`, sol.category);
+        for (const [i, w] of (a.wrongs || []).entries()) {
+          const r = await engine.check(w.code, a.spec);
+          log(r.status === 'fail' && r.category === w.category, `${a.id} · solución errónea #${i + 1} rechazada como «${w.category}»`, `obtenido: ${r.status}/${r.category}`);
+        }
+      }
+      if (a.type === 'predict') await expectOutput(`${a.id} · la salida declarada coincide con Python`, a.code, a.expectedOutput);
+      if (a.type === 'order') {
+        for (const st of a.stages.filter((x) => x.code)) {
+          const code = st.items.map((i) => i.text).join('\n');
+          const r = await engine.run(code, ['100', '20']);
+          log(r.status === 'ok' && text(r.segs).endsWith('Precio final: 80.0'), `${a.id} · el código ordenado funciona`, text(r.segs));
+        }
+      }
+    }
+
+    for (const it of REVIEW_ITEMS.filter((i) => i.code)) {
+      await expectOutput(`repaso ${it.id}`, it.code, it.answer, it.expectError);
+    }
+
+    for (const st of LESSON_VARIABLES.steps) {
+      for (const b of st.blocks || []) {
+        if (b.type !== 'check' || !b.code) continue;
+        const expected = b.mode === 'text' ? b.answer : b.expectOutput;
+        await expectOutput(`lección ${b.id}`, b.code, expected, b.expectError);
+      }
+    }
+
+    // Límite de tiempo: un bucle infinito debe detenerse y el motor recuperarse
+    const t0 = performance.now();
+    const loop = await engine.run('while True:\n    pass', []);
+    log(loop.error && loop.error.type === 'Timeout', 'bucle infinito detenido por límite de tiempo', `${Math.round(performance.now() - t0)} ms`);
+    const after = await engine.run('print(1 + 1)', []);
+    log(text(after.segs) === '2', 'el motor se recupera tras el límite de tiempo');
+
+    const passed = results.filter(Boolean).length;
+    document.getElementById('summary').textContent = `${passed}/${results.length} tests superados`;
+    document.title = `${passed}/${results.length} · Tests LunaPy`;
+    window.__testResult = { passed, total: results.length };
+  </script>
+</body>
+</html>
