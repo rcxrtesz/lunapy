@@ -1,0 +1,12 @@
+# Saltos de línea LF en todos los sistemas (Windows incluido): el servidor es Linux
+# y la versión de la app (sw-assets.js) no debe cambiar según dónde se descargue el repositorio.
+* text=auto eol=lf
+
+# Dependencias incluidas: se guardan exactamente como se descargaron (lo verifica tools/vendor.py).
+vendor/** -text
+
+# Binarios
+*.png binary
+*.wasm binary
+*.zip binary
+*.woff2 binary
