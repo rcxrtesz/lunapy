@@ -29,6 +29,9 @@ import { ACTIVITIES_REGEX } from './lesson-regex.js';
 import { ACTIVITIES_LISTAS } from './lesson-listas.js';
 import { ACTIVITIES_RECORRER_LISTAS } from './lesson-recorrer-listas.js';
 import { ACTIVITIES_ALIAS } from './lesson-alias.js';
+import { ACTIVITIES_DICCIONARIOS } from './lesson-diccionarios.js';
+import { ACTIVITIES_TUPLAS } from './lesson-tuplas.js';
+import { ACTIVITIES_PROYECTO_TEXTO } from './lesson-proyecto-texto.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -443,7 +446,8 @@ export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EX
   ...ACTIVITIES_RETORNO, ...ACTIVITIES_INCREMENTAL, ...ACTIVITIES_COMPOSICION,
   ...ACTIVITIES_FOR, ...ACTIVITIES_WHILE, ...ACTIVITIES_BUSQUEDA,
   ...ACTIVITIES_INDICES, ...ACTIVITIES_METODOS, ...ACTIVITIES_REGEX,
-  ...ACTIVITIES_LISTAS, ...ACTIVITIES_RECORRER_LISTAS, ...ACTIVITIES_ALIAS };
+  ...ACTIVITIES_LISTAS, ...ACTIVITIES_RECORRER_LISTAS, ...ACTIVITIES_ALIAS,
+  ...ACTIVITIES_DICCIONARIOS, ...ACTIVITIES_TUPLAS, ...ACTIVITIES_PROYECTO_TEXTO };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

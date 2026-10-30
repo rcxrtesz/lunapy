@@ -9,7 +9,7 @@ import { isUnlocked } from '../state/gamification.js';
 
 // Temas con actividades (en el orden del curso) y los que llegarán con los siguientes módulos.
 const TOPICS = [...new Set(CHALLENGES.map((id) => ACTIVITIES[id].topic))];
-const UPCOMING = ['Diccionarios', 'Archivos'];
+const UPCOMING = ['Archivos', 'Clases'];
 
 export function Challenges() {
   const s = useStore();

@@ -36,9 +36,9 @@ export function Question({ item, onFirstAnswer, label = 'Comprueba tu comprensiÃ
     const quoted = /^(["']).*\1$/.test(given);
     if (quoted) given = given.slice(1, -1);
     const expected = normalize(item.answer);
-    // Listas y tuplas impresas: da igual el espacio tras las comas y el tipo de comillas.
-    const repr = (s) => s.replace(/\s*([,[\]()])\s*/g, '$1').replace(/"/g, "'");
-    const ok = given === expected || (/^[[(]/.test(expected) && repr(given) === repr(expected));
+    // Listas, tuplas y diccionarios impresos: da igual el espacio tras las comas y el tipo de comillas.
+    const repr = (s) => s.replace(/\s*([,:[\](){}])\s*/g, '$1').replace(/"/g, "'");
+    const ok = given === expected || (/^[[({]/.test(expected) && repr(given) === repr(expected));
     first(ok);
     const n = tries + 1;
     setTries(n);

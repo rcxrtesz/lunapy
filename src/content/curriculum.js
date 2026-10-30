@@ -28,6 +28,8 @@ export const CONCEPTS = {
   regex: { name: 'Expresiones regulares', short: 'Regex' },
   listas: { name: 'Listas: crear, recorrer y transformar', short: 'Listas' },
   alias: { name: 'Mutabilidad, alias y copias', short: 'Alias' },
+  diccionarios: { name: 'Diccionarios: claves y valores', short: 'Diccionarios' },
+  tuplas: { name: 'Tuplas, zip y ordenar por clave', short: 'Tuplas' },
 };
 
 export const MODULES = [
@@ -108,7 +110,7 @@ export const MODULES = [
     book: ['Cap. 10 · Diccionarios', 'Cap. 11 · Tuplas', 'Cap. 12 · Análisis y generación de texto (proyecto)'], cisco: 'PE1 · Módulo 4',
     objectives: ['Asociar claves y valores', 'Usar tuplas', 'Contar y analizar texto'],
     prerequisites: ['Módulo 9'],
-    lessons: [{ title: 'Diccionarios' }, { title: 'Tuplas' }, { title: 'Proyecto: análisis de texto' }],
+    lessons: [{ id: 'diccionarios', title: 'Diccionarios' }, { id: 'tuplas', title: 'Tuplas' }, { id: 'proyecto-texto', title: 'Proyecto: análisis de texto' }],
   },
   {
     id: 'm11', num: 11, title: 'Archivos y tratamiento de datos',

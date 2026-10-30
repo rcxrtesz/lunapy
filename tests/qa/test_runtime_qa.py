@@ -537,6 +537,14 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def f(a):\n    return a\nf(b=2)", {"cases": [{}]})
         self.assertEqual(r["title"], "Argumento con un nombre que no existe")
 
+    def test_keyerror_is_explained(self):
+        r = runtime.check('d = {"a": 1}\nprint(d["b"])', {"cases": [{}]})
+        self.assertEqual((r["category"], r["title"]), ("ejecucion", "La clave no existe"))
+        self.assertIn("'b'", r["message"])
+
+    def test_underscore_is_not_an_unused_variable(self):
+        self.assertEqual(runtime._suggestions(ast.parse("nombre, _ = ('Ana', 8)\nprint(nombre)"), {}), [])
+
     def test_unpacking_errors_are_explained(self):
         r = runtime.check("def f():\n    return 1\n\na, b = f()", {"cases": [{}]})
         self.assertEqual(r["title"], "Se esperaban varios valores")

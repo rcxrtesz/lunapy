@@ -470,6 +470,11 @@ def explain(exc, code, names):
             title = "Valor no válido"
             expl = "Una función ha recibido un valor del tipo correcto pero con un contenido que no puede usar."
             sug = "Revisa el valor que se pasa en esa línea."
+    elif isinstance(exc, KeyError):
+        clave = exc.args[0] if exc.args else "?"
+        title = "La clave no existe"
+        expl = f"El diccionario no tiene la clave {clave!r}."
+        sug = "Comprueba antes si existe con «in», o usa dic.get(clave, valor_por_defecto). Ojo con las mayúsculas y los espacios de la clave."
     elif isinstance(exc, ZeroDivisionError):
         title = "División entre cero"
         expl = "Has dividido un número entre 0, algo que no tiene resultado."
@@ -794,7 +799,7 @@ def _suggestions(tree, spec):
     expected_vars = set()
     for c in spec.get("cases", []):
         expected_vars |= set(c.get("vars", {}).keys())
-    unused = sorted(n for n in u.stores if n not in u.loads and n not in expected_vars)
+    unused = sorted(n for n in u.stores if n not in u.loads and n not in expected_vars and n != "_")
     if unused:
         tips.append(f"La variable «{unused[0]}» se crea pero nunca se usa. Si no la necesitas, puedes eliminarla.")
     # Números «mágicos» repetidos: mejor un nombre que explique qué son y un único sitio donde cambiarlos.

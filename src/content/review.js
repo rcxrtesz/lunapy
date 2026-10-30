@@ -72,6 +72,40 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 10 · diccionarios y tuplas
+  {
+    id: 'r-dic-get', concept: 'diccionarios', mode: 'text', code: 'd = {"a": 1}\nprint(d.get("a", 0), d.get("z", 0))', answer: '1 0',
+    question: '¿Qué muestra este programa?',
+    explain: 'get devuelve el valor si la clave existe y el valor por defecto si no.',
+  },
+  {
+    id: 'r-dic-keyerror', concept: 'diccionarios', mode: 'choice', code: 'd = {"a": 1}\nprint(d["b"])',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'KeyError', correct: true }, { text: 'Muestra None' }, { text: 'Muestra 0' }],
+    explain: 'Con corchetes, una clave inexistente da KeyError. get no lo daría.',
+    expectError: 'KeyError',
+  },
+  {
+    id: 'r-dic-contar', concept: 'diccionarios', mode: 'text', code: 'c = {}\nfor x in "abca":\n    c[x] = c.get(x, 0) + 1\nprint(c["a"], len(c))', answer: '2 3',
+    question: '¿Qué muestra este programa?',
+    explain: 'La a aparece dos veces; hay tres letras distintas.',
+  },
+  {
+    id: 'r-swap', concept: 'tuplas', mode: 'text', code: 'a, b = 1, 2\na, b = b, a\nprint(a, b)', answer: '2 1',
+    question: '¿Qué muestra este programa?',
+    explain: 'Primero se evalúa la derecha (2, 1) y después se reparte.',
+  },
+  {
+    id: 'r-zip', concept: 'tuplas', mode: 'text', code: 'print(dict(zip("ab", [1, 2])))', answer: "{'a': 1, 'b': 2}",
+    question: '¿Qué muestra este programa?',
+    explain: 'zip empareja cada letra con un número y dict convierte las parejas en un diccionario.',
+  },
+  {
+    id: 'r-key', concept: 'tuplas', mode: 'choice',
+    question: '¿Qué hace sorted(palabras, key=len)?',
+    options: [{ text: 'Ordena las palabras de más corta a más larga', correct: true }, { text: 'Devuelve la longitud de la lista' }, { text: 'Ordena alfabéticamente' }],
+    explain: 'key indica por qué ordenar: aquí, por la longitud de cada palabra.',
+  },
   // ---- Módulo 9 · listas
   {
     id: 'r-lista-indice', concept: 'listas', mode: 'text', code: 'v = [10, 20, 30, 40]\nprint(v[1], v[-1], len(v))', answer: '20 40 4',
