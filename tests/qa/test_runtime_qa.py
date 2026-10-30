@@ -537,10 +537,19 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def f(a):\n    return a\nf(b=2)", {"cases": [{}]})
         self.assertEqual(r["title"], "Argumento con un nombre que no existe")
 
+    def test_raised_valueerror_shows_message(self):
+        r = runtime.check('raise ValueError("la edad no puede ser negativa")', {"cases": [{}]})
+        self.assertIn("la edad no puede ser negativa", r["message"])
+
     def test_keyerror_is_explained(self):
         r = runtime.check('d = {"a": 1}\nprint(d["b"])', {"cases": [{}]})
         self.assertEqual((r["category"], r["title"]), ("ejecucion", "La clave no existe"))
         self.assertIn("'b'", r["message"])
+
+    def test_file_handles_and_unpacking_are_idiomatic(self):
+        code = ('with open("a.txt", "w") as f:\n    f.write("x,1\\n")\ntotal = 0\nwith open("a.txt") as f:\n'
+                '    for linea in f:\n        nombre, valor = linea.split(",")\n        total += int(valor)\nprint(total)')
+        self.assertEqual(runtime._suggestions(ast.parse(code), {}), [])
 
     def test_underscore_is_not_an_unused_variable(self):
         self.assertEqual(runtime._suggestions(ast.parse("nombre, _ = ('Ana', 8)\nprint(nombre)"), {}), [])
@@ -554,6 +563,12 @@ class FunctionCallTests(unittest.TestCase):
     def test_none_operand_points_to_return(self):
         r = runtime.check("def f(x):\n    print(x)\n\ny = f(2) + 1", {"cases": [{}]})
         self.assertIn("return", r["error"]["suggestion"])
+
+    def test_own_test_calls_do_not_consume_input(self):
+        spec = {"functions": [{"name": "pedir", "params": 0}],
+                "cases": [{"stdin": ["7"], "call": "print(pedir())", "out_lines": ["7"]}]}
+        code = "def pedir():\n    return int(input())\n\nprint(pedir())"
+        self.assertEqual(runtime.check(code, spec)["status"], "pass")
 
     def test_hardcoded_answer_fails_second_case(self):
         self.assertEqual(runtime.check("def area(b, h):\n    return 12", self.SPEC)["status"], "fail")

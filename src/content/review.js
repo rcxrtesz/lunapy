@@ -72,6 +72,39 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 11 · archivos y excepciones
+  {
+    id: 'r-modo-w', concept: 'archivos', mode: 'choice',
+    question: '¿Qué hace open("datos.txt", "w") si el archivo ya existe?',
+    options: [{ text: 'Lo vacía y empieza a escribir desde cero', correct: true }, { text: 'Añade al final' }, { text: 'Da un error' }],
+    explain: 'Para añadir sin borrar se usa el modo "a".',
+  },
+  {
+    id: 'r-strip-linea', concept: 'archivos', mode: 'text', code: 'print("Ana\\n".strip() + "!")', answer: 'Ana!',
+    question: '¿Qué muestra este programa?',
+    explain: 'strip quita el salto de línea final que tienen las líneas leídas de un archivo.',
+  },
+  {
+    id: 'r-csv-split', concept: 'datos', mode: 'text', code: 'p, u = "boli,3".split(",")\nprint(int(u) * 2)', answer: '6',
+    question: '¿Qué muestra este programa?',
+    explain: 'split da textos: hay que convertir u con int() antes de operar.',
+  },
+  {
+    id: 'r-try', concept: 'excepciones', mode: 'text', code: 'try:\n    x = int("a")\n    print("ok")\nexcept ValueError:\n    print("error")', answer: 'error',
+    question: '¿Qué muestra este programa?',
+    explain: 'int("a") falla y Python salta directamente al except.',
+  },
+  {
+    id: 'r-except-tipo', concept: 'excepciones', mode: 'choice',
+    question: '¿Por qué conviene escribir except ValueError en lugar de except a secas?',
+    options: [{ text: 'Para no esconder otros errores, como una variable mal escrita', correct: true }, { text: 'Porque except a secas da un error de sintaxis' }, { text: 'Porque es más rápido' }],
+    explain: 'Un except sin tipo captura cualquier error y puede ocultar fallos de programación.',
+  },
+  {
+    id: 'r-raise', concept: 'excepciones', mode: 'text', code: 'try:\n    raise ValueError("ups")\nexcept ValueError as e:\n    print(e)', answer: 'ups',
+    question: '¿Qué muestra este programa?',
+    explain: 'raise lanza la excepción con su mensaje, y el except la recoge en e.',
+  },
   // ---- Módulo 10 · diccionarios y tuplas
   {
     id: 'r-dic-get', concept: 'diccionarios', mode: 'text', code: 'd = {"a": 1}\nprint(d.get("a", 0), d.get("z", 0))', answer: '1 0',

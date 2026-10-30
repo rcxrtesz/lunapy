@@ -468,7 +468,8 @@ def explain(exc, code, names):
             sug = "Comprueba cuántos valores devuelve la función (los que separa con comas en el return) y usa el mismo número de variables."
         else:
             title = "Valor no válido"
-            expl = "Una función ha recibido un valor del tipo correcto pero con un contenido que no puede usar."
+            # Con raise ValueError("…") propio, el mensaje del alumno es la mejor explicación.
+            expl = f"Se ha lanzado un ValueError: «{msg}»." if msg else "Una función ha recibido un valor del tipo correcto pero con un contenido que no puede usar."
             sug = "Revisa el valor que se pasa en esa línea."
     elif isinstance(exc, KeyError):
         clave = exc.args[0] if exc.args else "?"
@@ -786,11 +787,21 @@ def _suggestions(tree, spec):
     tips = []
     allowed_short = set(spec.get("allow_short_names", []))
     # Contadores de bucle (for i in …) y parámetros (n //= 10) con una letra son una convención aceptada.
+    unpacked = set()  # a, b = …: desempaquetar obliga a nombrar campos que quizá no se usen
     for node in ast.walk(tree):
         if isinstance(node, ast.For) and isinstance(node.target, ast.Name):
             allowed_short.add(node.target.id)
         elif isinstance(node, ast.FunctionDef):
             allowed_short.update(a.arg for a in node.args.args)
+        elif isinstance(node, ast.withitem) and isinstance(node.optional_vars, ast.Name):
+            allowed_short.add(node.optional_vars.id)   # with open(...) as f
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            allowed_short.add(node.name)               # except ValueError as e
+        if isinstance(node, (ast.Assign, ast.For)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for t in targets:
+                if isinstance(t, ast.Tuple):
+                    unpacked.update(e.id for e in t.elts if isinstance(e, ast.Name))
     short = sorted(n for n in u.stores if len(n) == 1 and n not in allowed_short and n != "_")
     if short:
         tips.append(
@@ -799,7 +810,7 @@ def _suggestions(tree, spec):
     expected_vars = set()
     for c in spec.get("cases", []):
         expected_vars |= set(c.get("vars", {}).keys())
-    unused = sorted(n for n in u.stores if n not in u.loads and n not in expected_vars and n != "_")
+    unused = sorted(n for n in u.stores if n not in u.loads and n not in expected_vars and n != "_" and n not in unpacked)
     if unused:
         tips.append(f"La variable «{unused[0]}» se crea pero nunca se usa. Si no la necesitas, puedes eliminarla.")
     # Números «mágicos» repetidos: mejor un nombre que explique qué son y un único sitio donde cambiarlos.
@@ -896,13 +907,30 @@ def _apply_variant(code, var):
 _CALL_MARK = "\x1e__lunapy_call__"
 
 
+def _without_top_level_calls(code):
+    """Vacía las líneas de las expresiones sueltas del programa principal (las pruebas del alumno,
+    como «print(pedir_edad())»): en un caso con «call» solo cuenta la llamada de prueba, y así no
+    gastan los datos de entrada ni ensucian el resultado. Se dejan las líneas en blanco para que
+    los números de línea de los errores sigan coincidiendo con el editor."""
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return code
+    lines = code.split("\n")
+    for node in tree.body:
+        if isinstance(node, ast.Expr) and not isinstance(node.value, ast.Constant):
+            for i in range(node.lineno - 1, node.end_lineno):
+                lines[i] = ""
+    return "\n".join(lines)
+
+
 def _run_case(code, case):
     """Ejecuta un caso. Con «call», añade al final una llamada de prueba (p. ej. «print(area(3, 4))»)
     y se queda solo con lo que muestra esa llamada."""
     call = case.get("call")
     if not call:
         return execute(code, stdin=case.get("stdin", []), interactive=False, seed=1)
-    res = execute(f"{code}\nprint({_CALL_MARK!r})\n{call}\n", stdin=case.get("stdin", []), interactive=False, seed=1)
+    res = execute(f"{_without_top_level_calls(code)}\nprint({_CALL_MARK!r})\n{call}\n", stdin=case.get("stdin", []), interactive=False, seed=1)
     printed = res["printed"]
     cut = printed.rfind(_CALL_MARK + "\n")
     if cut != -1:

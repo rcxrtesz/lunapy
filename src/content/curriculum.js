@@ -30,6 +30,9 @@ export const CONCEPTS = {
   alias: { name: 'Mutabilidad, alias y copias', short: 'Alias' },
   diccionarios: { name: 'Diccionarios: claves y valores', short: 'Diccionarios' },
   tuplas: { name: 'Tuplas, zip y ordenar por clave', short: 'Tuplas' },
+  archivos: { name: 'Leer y escribir archivos', short: 'Archivos' },
+  datos: { name: 'Procesar datos en tabla (CSV)', short: 'Datos' },
+  excepciones: { name: 'Excepciones: try, except y raise', short: 'Excepciones' },
 };
 
 export const MODULES = [
@@ -117,7 +120,7 @@ export const MODULES = [
     book: ['Cap. 13 · Archivos y bases de datos'], cisco: 'PE2 · Módulo 4',
     objectives: ['Leer y escribir archivos', 'Procesar datos tabulares', 'Gestionar errores con try / except'],
     prerequisites: ['Módulo 10'],
-    lessons: [{ title: 'Leer y escribir archivos' }, { title: 'Procesar datos' }, { title: 'Excepciones' }],
+    lessons: [{ id: 'archivos', title: 'Leer y escribir archivos' }, { id: 'procesar', title: 'Procesar datos' }, { id: 'excepciones', title: 'Excepciones' }],
   },
   {
     id: 'm12', num: 12, title: 'Clases, objetos y programación orientada a objetos',
