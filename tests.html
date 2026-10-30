@@ -34,6 +34,37 @@
     };
     const text = (segs) => segs.map(([, s]) => s).join('').replace(/\s+$/, '');
 
+    // ---------- Fusión del progreso entre dispositivos (src/state/merge.js) ----------
+    {
+      const { merge } = await import('./src/state/merge.js');
+      const base = { version: 1, createdAt: 100, updatedAt: 200, xp: 50, daily: { d1: { xp: 50, activities: 2 } },
+        activities: { a: { attempts: 2, fails: 1, completed: false } }, concepts: { c: { attempts: 3, good: 2, wrong: 1, box: 2, history: [1, 1], errors: { E: 1 } } },
+        lessons: { l1: { maxStep: 3, completed: false, lastAt: 200 } }, checks: { q1: { correct: true, at: 150 } }, errors: { logica: 1 },
+        achievements: { first: 150 }, log: [{ t: 150, kind: 'xp', label: 'A' }], drafts: {}, plans: {}, profile: { name: 'Ana' }, theme: 'light', palette: 'indigo', dayOffset: 0, lab: null };
+      const clone = (o) => JSON.parse(JSON.stringify(o));
+      // Móvil (local) y ordenador (remoto) parten de la misma base y avanzan sin conexión.
+      const local = clone(base);
+      local.updatedAt = 300; local.xp = 70; local.daily.d1.xp = 70; local.activities.a.attempts = 3; local.activities.a.completed = true; local.activities.a.completedAt = 290;
+      local.lessons.l1.maxStep = 5; local.lessons.l1.lastAt = 300; local.checks.q2 = { correct: false, at: 280 }; local.log.unshift({ t: 290, kind: 'xp', label: 'B' });
+      local.profile = { name: 'Ana móvil' }; local.drafts.x = 'print(1)';
+      const remote = clone(base);
+      remote.updatedAt = 250; remote.xp = 65; remote.daily.d1.xp = 65; remote.activities.a.attempts = 4; remote.lessons.l2 = { maxStep: 1, completed: true, completedAt: 240 };
+      remote.concepts.c.attempts = 5; remote.concepts.c.box = 3; remote.achievements.second = 240; remote.log.unshift({ t: 240, kind: 'xp', label: 'C' });
+      remote.drafts.x = 'print(2)'; remote.drafts.y = 'print(3)'; remote.theme = 'dark';
+      const m = merge(local, remote, base);
+      log(m.xp === 85, 'fusión · la XP ganada en los dos dispositivos se suma', `xp=${m.xp}`);
+      log(m.daily.d1.xp === 85 && m.daily.d1.activities === 2, 'fusión · los contadores diarios se suman', JSON.stringify(m.daily.d1));
+      log(m.activities.a.attempts === 5 && m.activities.a.completed && m.activities.a.completedAt === 290, 'fusión · intentos sumados y actividad completada', JSON.stringify(m.activities.a));
+      log(m.lessons.l1.maxStep === 5 && m.lessons.l2.completed, 'fusión · se conservan las lecciones de los dos', JSON.stringify(m.lessons));
+      log(m.checks.q1 && m.checks.q2 && m.achievements.first && m.achievements.second, 'fusión · preguntas y logros se unen');
+      log(m.concepts.c.box === 3 && m.concepts.c.attempts === 5, 'fusión · el concepto toma la caja del lado con más práctica', JSON.stringify(m.concepts.c));
+      log(m.log.map((e) => e.label).join() === 'B,C,A', 'fusión · historial unido, sin duplicados y ordenado', m.log.map((e) => e.label).join());
+      log(m.profile.name === 'Ana móvil' && m.theme === 'light' && m.drafts.x === 'print(1)' && m.drafts.y === 'print(3)', 'fusión · ajustes y borradores del dispositivo más reciente', `${m.profile.name} ${m.theme} ${JSON.stringify(m.drafts)}`);
+      const first = merge({ ...clone(base), xp: 10, updatedAt: 0, profile: { name: '' } }, clone(base), null);
+      log(first.xp === 50 && first.profile.name === 'Ana', 'fusión · primera sincronización de un dispositivo nuevo: toma el mayor', `xp=${first.xp}`);
+      log(merge(local, null, base) === local, 'fusión · sin datos en el servidor se queda el local');
+    }
+
     async function expectOutput(name, code, expected, expectError) {
       const r = await engine.run(code, []);
       if (expectError) return log(r.status === 'error' && r.error.type === expectError, name, `error=${r.error && r.error.type}`);

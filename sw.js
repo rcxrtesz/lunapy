@@ -32,7 +32,8 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return; // p. ej. la futura API: siempre a la red
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (url.pathname.includes('/api/')) return; // la API siempre va a la red, nunca a la caché
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);

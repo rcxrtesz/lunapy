@@ -63,7 +63,8 @@ Para desactivarlo de nuevo, usa `localStorage.removeItem('lunapy.sw')` y elimina
 | Paso a paso | `sys.settrace` en Python real | Cada paso es el estado real justo antes de ejecutar cada línea. |
 | Validación | `src/engine/runtime.py` | Casos visibles, casos límite y casos ocultos aleatorios; variantes anti-trampa sobre el árbol sintáctico; detección de malentendidos frecuentes. Acepta cualquier implementación correcta. |
 | Contenido | Datos en `src/content/` | Lecciones, actividades, pistas y repasos separados de los componentes. |
-| Progreso | `localStorage` (`src/state/store.js`) | Validación y reparación de datos, repetición espaciada (Leitner), exportación e importación. Punto único donde se añadirá la sincronización. |
+| Progreso | `localStorage` (`src/state/store.js`) | Validación y reparación de datos, repetición espaciada (Leitner), exportación e importación. |
+| Cuenta y sincronización | `src/lib/sync.js`, `src/state/merge.js`, `api/` (PHP 8.4 + MySQL) | Funciona sin conexión; con sesión iniciada sube y trae el progreso y fusiona los cambios hechos en varios dispositivos. Ver [DESPLIEGUE.md](DESPLIEGUE.md). |
 
 ```
 index.html  manifest.webmanifest  sw.js  sw-assets.js  .htaccess  serve.py
@@ -83,7 +84,8 @@ tests/         test_runtime.py · test_pwa.py · qa/
 ## Estado
 
 - **Hecho:** demo aprobada, auditoría QA con todas las correcciones aplicadas, app instalable sin conexión y **el temario completo**: 13 módulos con 3 lecciones cada uno (39 lecciones, 157 actividades con validación automática y 104 preguntas de repaso), desde «Qué es programar» hasta clases, herencia y un proyecto final.
-- **Siguiente:** revisión del contenido; después, cuenta y sincronización con una API PHP 8.4 y MySQL en Dinahosting.
+- **Hecho también:** cuenta y sincronización entre dispositivos (API en PHP 8.4 con MySQL, registro limitado a correos autorizados), probada en local con SQLite.
+- **Siguiente:** publicar en Dinahosting siguiendo [DESPLIEGUE.md](DESPLIEGUE.md) (cuando lo decidas) y revisar el contenido con uso real.
 - **Publicación:** pendiente de confirmación expresa. Antes de subir la app al hosting o generar paquetes para tiendas, se avisará.
 
 Las pistas y el análisis de errores son deterministas: no hay ningún modelo de IA conectado.

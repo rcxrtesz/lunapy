@@ -201,7 +201,7 @@ Tests del motor. Los tests con Python real están en `http://localhost:5173/test
 ### Fuera del alcance de la demo
 - Contenido: los 13 módulos están terminados (39 lecciones). Queda revisarlos con uso real.
 - Tutoría con IA: ahora las pistas y el análisis son deterministas.
-- Cuentas de usuario y sincronización entre dispositivos.
+- ~~Cuentas de usuario y sincronización entre dispositivos.~~ Hecho: `api/` (PHP 8.4 + MySQL) y `src/lib/sync.js`. Falta publicarlo (ver DESPLIEGUE.md). Recuperación de contraseña por correo: para más adelante.
 - Diseño definitivo del logo.
 
 ### Próximo paso tras aprobar la demo: base de datos y cuentas

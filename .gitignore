@@ -11,3 +11,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# API: configuración con contraseñas y base de datos de pruebas (nunca al repositorio)
+api/config.php
+api/datos/

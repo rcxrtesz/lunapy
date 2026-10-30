@@ -14,6 +14,7 @@ export const LEVELS = [0, 60, 150, 280, 450, 680, 980, 1350, 1800];
 const fresh = () => ({
   version: 1,
   createdAt: Date.now(),
+  updatedAt: 0, // última modificación (para decidir qué dispositivo tiene los ajustes más recientes)
   profile: { name: '', dailyGoal: 30, onboarded: false },
   theme: 'system', // 'light' | 'dark' | 'system'
   palette: 'indigo',
@@ -43,6 +44,7 @@ const PALETTE_IDS = PALETTES.map((p) => p.id);
 const FIELDS = {
   version: { label: 'versión', ok: (v) => v === 1 },
   createdAt: { label: 'fecha de inicio', ok: isCount },
+  updatedAt: { label: 'última modificación', ok: isCount },
   profile: { label: 'perfil', ok: (v) => isObj(v) && typeof v.name === 'string' && v.name.length <= 60 && [20, 30, 50].includes(v.dailyGoal) && typeof v.onboarded === 'boolean' },
   theme: { label: 'modo de color', ok: (v) => ['light', 'dark', 'system'].includes(v) },
   palette: { label: 'paleta', ok: (v) => PALETTE_IDS.includes(v) },
@@ -120,6 +122,7 @@ export function getState() { return state; }
 export function update(fn) {
   const draft = structuredClone(state);
   fn(draft);
+  draft.updatedAt = Date.now();
   state = draft;
   persist();
   notify();
@@ -131,6 +134,16 @@ function notify() {
   listeners.forEach((l) => {
     try { l(state); } catch (e) { console.error('[LunaPy] Error en un oyente del estado:', e); }
   });
+}
+
+/** Sustituye todo el estado (la sincronización lo usa tras fusionar con el servidor). */
+export function replaceState(input) {
+  const { data, invalidKeys } = validateState(input);
+  const base = fresh();
+  invalidKeys.forEach((k) => { data[k] = base[k]; });
+  state = data;
+  persist();
+  notify();
 }
 
 export function subscribe(fn) {

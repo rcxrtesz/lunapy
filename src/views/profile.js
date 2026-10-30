@@ -6,6 +6,8 @@ import { actions, getState, useStore, levelInfo, streak, checkBackup } from '../
 import { downloadBackup } from '../lib/backup.js';
 import { ACHIEVEMENTS } from '../state/gamification.js';
 import { usePWA, promptInstall, isIOS } from '../lib/pwa.js';
+import { forzarSubida } from '../lib/sync.js';
+import { CuentaCard } from '../components/cuenta.js';
 
 const GOALS = [[20, 'Suave', '≈ 10 min'], [30, 'Constante', '≈ 15 min'], [50, 'Intenso', '≈ 25 min']];
 
@@ -119,17 +121,7 @@ export function ProfileView() {
         </div>
       </div>
 
-      <div class="card span-6">
-        <div class="card-title"><${Icon} name="lock" /> Cuenta <span class="tag warn" style="margin-left:auto">Próximamente</span></div>
-        <p class="small">Ahora mismo usas un <b>perfil local</b>: tu progreso se guarda solo en este navegador y no se envía a ningún servidor.</p>
-        <p class="small muted">En la versión completa podrás crear una cuenta con tu correo electrónico para:</p>
-        <ul class="small muted" style="margin:0;padding-left:18px">
-          <li>Guardar tu progreso en la nube y no perderlo nunca.</li>
-          <li>Continuar en cualquier dispositivo (ordenador, tablet, móvil).</li>
-          <li>Recuperar el acceso si cambias de navegador.</li>
-        </ul>
-        <p class="small muted" style="margin-top:10px">Mientras tanto, puedes exportar una copia de seguridad de tu progreso.</p>
-      </div>
+      <${CuentaCard} />
 
       <div class="card span-6">
         <div class="card-title"><${Icon} name="save" /> Tus datos</div>
@@ -151,6 +143,7 @@ export function ProfileView() {
         <button class="btn" onClick=${() => setPending(null)}>Cancelar</button>
         <button class="btn primary" onClick=${() => {
           const { ok } = actions.importState(pending);
+          if (ok) forzarSubida();
           setPending(null);
           if (ok) { setName(getState().profile.name); toast({ icon: 'check', title: 'Copia restaurada' }); }
           else toast({ icon: 'alert', title: 'No se pudo restaurar la copia' });
@@ -160,10 +153,10 @@ export function ProfileView() {
 
     ${confirmReset && html`<${Modal} onClose=${() => setConfirmReset(false)} label="Reiniciar progreso">
       <h2>¿Reiniciar el progreso?</h2>
-      <p class="muted">Se borrarán XP, actividades, repasos y logros guardados en este navegador. Si quieres conservarlos, exporta antes una copia. No se puede deshacer.</p>
+      <p class="muted">Se borrarán XP, actividades, repasos y logros guardados en este navegador y, si tienes la sesión iniciada, también en tu cuenta (en todos tus dispositivos). Si quieres conservarlos, exporta antes una copia. No se puede deshacer.</p>
       <div class="row" style="justify-content:flex-end;margin-top:16px">
         <button class="btn" onClick=${() => setConfirmReset(false)}>Cancelar</button>
-        <button class="btn primary" style="background:var(--err);border-color:var(--err)" onClick=${() => { actions.reset(); setConfirmReset(false); location.hash = '#/'; }}>Sí, reiniciar</button>
+        <button class="btn primary" style="background:var(--err);border-color:var(--err)" onClick=${() => { actions.reset(); forzarSubida(); setConfirmReset(false); location.hash = '#/'; }}>Sí, reiniciar</button>
       </div>
     </${Modal}>`}
   </div>`;

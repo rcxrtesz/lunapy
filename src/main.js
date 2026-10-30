@@ -15,6 +15,7 @@ import { ProgressView } from './views/progress.js';
 import { ProfileView } from './views/profile.js';
 import { ErrorBoundary } from './components/boundary.js';
 import { initPWA, usePWA, applyUpdate } from './lib/pwa.js';
+import { initSync } from './lib/sync.js';
 
 const NAV = [
   { href: '#/', icon: 'home', label: 'Inicio', match: (r) => r[0] === '' },
@@ -177,6 +178,7 @@ function App() {
 // ---------- Servicios globales ----------
 engine.start(); // Python se carga en segundo plano desde el primer momento
 initPWA(); // app instalable y sin conexión
+initSync(); // cuenta: sincroniza el progreso entre dispositivos
 
 // Logros: se comprueban tras cada cambio de estado
 subscribe((s) => {

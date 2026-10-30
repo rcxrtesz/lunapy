@@ -1,0 +1,9 @@
+# API de LunaPy: solo index.php es accesible desde fuera.
+Options -Indexes
+
+<FilesMatch ".*">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^index\.php$">
+    Require all granted
+</FilesMatch>
