@@ -72,6 +72,39 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 6 · valores de retorno y composición
+  {
+    id: 'r-muerto', concept: 'retorno', mode: 'text', code: 'def f():\n    return 1\n    return 2\n\nprint(f())', answer: '1',
+    question: '¿Qué muestra este programa?',
+    explain: 'El primer return termina la función: el segundo es código muerto.',
+  },
+  {
+    id: 'r-dos-valores', concept: 'retorno', mode: 'text', code: 'def f(x):\n    return x + 1, x * 2\n\na, b = f(5)\nprint(b, a)', answer: '10 6',
+    question: '¿Qué muestra este programa?',
+    explain: 'a recibe 6 y b recibe 10; el print los muestra en orden b, a.',
+  },
+  {
+    id: 'r-andamio', concept: 'incremental', mode: 'choice',
+    question: 'En el desarrollo incremental, ¿qué es el andamiaje?',
+    options: [{ text: 'Los print temporales que muestran valores intermedios', correct: true }, { text: 'Los comentarios del código' }, { text: 'La cabecera de la función' }],
+    explain: 'Sirven para comprobar mientras construyes y se quitan al terminar.',
+  },
+  {
+    id: 'r-componer', concept: 'composicion', mode: 'text', code: 'def f(x):\n    return x + 3\n\ndef g(x):\n    return x * 10\n\nprint(g(f(1)))', answer: '40',
+    question: '¿Qué muestra este programa?',
+    explain: 'De dentro hacia fuera: f(1) = 4 y g(4) = 40.',
+  },
+  {
+    id: 'r-isinstance', concept: 'tipos', mode: 'text', code: 'print(isinstance(2.5, float), isinstance(2.5, int))', answer: 'True False',
+    question: '¿Qué muestra este programa?',
+    explain: '2.5 es un float, no un int.',
+  },
+  {
+    id: 'r-bool-limpia', concept: 'composicion', mode: 'choice',
+    question: '¿Cuál es la forma más clara de escribir una función que dice si n es negativo?',
+    options: [{ text: 'return n < 0', correct: true }, { text: 'if n < 0: return True, si no return False' }, { text: 'return "True" if n < 0' }],
+    explain: 'La comparación ya es un booleano: devuélvela directamente.',
+  },
   // ---- Módulo 5 · condicionales y recursión
   {
     id: 'r-igual', concept: 'booleanos', mode: 'choice',

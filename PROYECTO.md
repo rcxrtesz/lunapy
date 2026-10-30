@@ -199,7 +199,7 @@ Tests del motor. Los tests con Python real están en `http://localhost:5173/test
 ## 6. Pendiente
 
 ### Fuera del alcance de la demo
-- Contenido de los módulos 6–13. (Terminados: módulos 1 a 5, con tres lecciones cada uno.)
+- Contenido de los módulos 7–13. (Terminados: módulos 1 a 6, con tres lecciones cada uno.)
 - Tutoría con IA: ahora las pistas y el análisis son deterministas.
 - Cuentas de usuario y sincronización entre dispositivos.
 - Diseño definitivo del logo.

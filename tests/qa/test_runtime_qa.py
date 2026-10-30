@@ -524,6 +524,12 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def f(a):\n    return a\nf(b=2)", {"cases": [{}]})
         self.assertEqual(r["title"], "Argumento con un nombre que no existe")
 
+    def test_unpacking_errors_are_explained(self):
+        r = runtime.check("def f():\n    return 1\n\na, b = f()", {"cases": [{}]})
+        self.assertEqual(r["title"], "Se esperaban varios valores")
+        r = runtime.check("def f():\n    return 1, 2, 3\n\na, b = f()", {"cases": [{}]})
+        self.assertEqual(r["title"], "No coincide el número de valores")
+
     def test_none_operand_points_to_return(self):
         r = runtime.check("def f(x):\n    print(x)\n\ny = f(2) + 1", {"cases": [{}]})
         self.assertIn("return", r["error"]["suggestion"])

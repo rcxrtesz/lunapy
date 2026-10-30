@@ -427,6 +427,10 @@ def explain(exc, code, names):
             else:
                 expl = f"{fn}() recibe {m_args.group(2).replace('one', '1')} argumento(s), pero le has pasado {m_args.group(3)}."
             sug = f"Compara la llamada con la cabecera de {fn}(): debe haber un argumento por cada parámetro, en el mismo orden."
+        elif m_unpack := re.search(r"cannot unpack non-iterable (\w+) object", msg):
+            title = "Se esperaban varios valores"
+            expl = f"Intentas repartir un único valor (un {tipo_es(m_unpack.group(1))}) entre varias variables."
+            sug = "Si viene de una función, comprueba que devuelve todos los valores en el mismo return, separados por comas: return a, b."
         elif m_kw := re.search(r"(\w+)\(\) got an unexpected keyword argument '(\w+)'", msg):
             title = "Argumento con un nombre que no existe"
             expl = f"{m_kw.group(1)}() no tiene ningún parámetro llamado «{m_kw.group(2)}»."
@@ -457,6 +461,11 @@ def explain(exc, code, names):
             title = "No se puede convertir a número decimal"
             expl = f"float() no puede convertir el texto «{val}» en un número."
             sug = "Python usa punto como separador decimal (3.5, no 3,5)." if "," in val else "Comprueba que el dato introducido sea un número."
+        elif m_vals := re.search(r"(not enough|too many) values to unpack \(expected (\d+)(?:, got (\d+))?\)", msg):
+            title = "No coincide el número de valores"
+            got = f" y llegan {m_vals.group(3)}" if m_vals.group(3) else ""
+            expl = f"Hay {m_vals.group(2)} variables a la izquierda del «=»{got}: tiene que haber una variable por cada valor."
+            sug = "Comprueba cuántos valores devuelve la función (los que separa con comas en el return) y usa el mismo número de variables."
         else:
             title = "Valor no válido"
             expl = "Una función ha recibido un valor del tipo correcto pero con un contenido que no puede usar."

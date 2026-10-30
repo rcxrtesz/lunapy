@@ -17,6 +17,9 @@ import { ACTIVITIES_REFACTORIZAR } from './lesson-refactorizar.js';
 import { ACTIVITIES_BOOLEANAS } from './lesson-booleanas.js';
 import { ACTIVITIES_CONDICIONALES } from './lesson-condicionales.js';
 import { ACTIVITIES_RECURSION } from './lesson-recursion.js';
+import { ACTIVITIES_RETORNO } from './lesson-retorno.js';
+import { ACTIVITIES_INCREMENTAL } from './lesson-incremental.js';
+import { ACTIVITIES_COMPOSICION } from './lesson-composicion.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -427,7 +430,8 @@ for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
 
 export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS,
   ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR,
-  ...ACTIVITIES_BOOLEANAS, ...ACTIVITIES_CONDICIONALES, ...ACTIVITIES_RECURSION };
+  ...ACTIVITIES_BOOLEANAS, ...ACTIVITIES_CONDICIONALES, ...ACTIVITIES_RECURSION,
+  ...ACTIVITIES_RETORNO, ...ACTIVITIES_INCREMENTAL, ...ACTIVITIES_COMPOSICION };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

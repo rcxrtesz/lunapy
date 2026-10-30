@@ -19,6 +19,9 @@ export const CONCEPTS = {
   booleanos: { name: 'Comparaciones y lógica booleana', short: 'Booleanos' },
   condicionales: { name: 'Decidir con if, elif y else', short: 'Condicionales' },
   recursion: { name: 'Funciones recursivas', short: 'Recursión' },
+  retorno: { name: 'Valores de retorno', short: 'return' },
+  incremental: { name: 'Desarrollo incremental', short: 'Incremental' },
+  composicion: { name: 'Composición de funciones', short: 'Composición' },
 };
 
 export const MODULES = [
@@ -71,7 +74,7 @@ export const MODULES = [
     book: ['Cap. 6 · Valores de retorno'], cisco: 'PE1 · Módulo 4',
     objectives: ['Devolver resultados con return', 'Desarrollo incremental', 'Componer funciones'],
     prerequisites: ['Módulos 3 y 5'],
-    lessons: [{ title: 'return' }, { title: 'Desarrollo incremental' }, { title: 'Composición y funciones booleanas' }],
+    lessons: [{ id: 'retorno', title: 'return a fondo' }, { id: 'incremental', title: 'Desarrollo incremental' }, { id: 'composicion', title: 'Composición y funciones booleanas' }],
   },
   {
     id: 'm7', num: 7, title: 'Bucles, iteración y búsqueda',
