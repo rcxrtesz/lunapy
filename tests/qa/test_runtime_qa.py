@@ -537,6 +537,27 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def f(a):\n    return a\nf(b=2)", {"cases": [{}]})
         self.assertEqual(r["title"], "Argumento con un nombre que no existe")
 
+    def test_classes_and_attribute_errors(self):
+        spec = {"classes": [{"name": "Punto"}], "cases": [{"call": "print(Punto(1, 2).x)", "out_lines": ["1"]}]}
+        self.assertEqual(runtime.check("class Punto:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y", spec)["status"], "pass")
+        self.assertEqual(runtime.check("class punto:\n    pass", spec)["title"], "Falta la clase «Punto»")
+        r = runtime.check("class Punto:\n    def __init__(self, x, y):\n        x = x", spec)
+        self.assertEqual(r["title"], "Ese atributo o método no existe")
+        self.assertIn("self.x", r["error"]["suggestion"])
+
+    def test_class_and_method_args_are_test_data(self):
+        code = ("class R:\n    def __init__(self, a, b):\n        self.a = a\n        self.b = b\n    def doble(self, k):\n"
+                "        return self.a * k\n\nrect = R(2, 2)\nprint(rect.doble(2))")
+        self.assertEqual(runtime._suggestions(ast.parse(code), {}), [])
+
+    def test_str_returning_none_is_explained(self):
+        r = runtime.check("class C:\n    def __str__(self):\n        print('x')\n\nprint(C())", {"cases": [{}]})
+        self.assertEqual(r["title"], "__str__ debe devolver un texto")
+
+    def test_method_without_self_points_to_self(self):
+        r = runtime.check("class L:\n    def encender():\n        pass\n\nL().encender()", {"cases": [{}]})
+        self.assertIn("self", r["error"]["suggestion"])
+
     def test_raised_valueerror_shows_message(self):
         r = runtime.check('raise ValueError("la edad no puede ser negativa")', {"cases": [{}]})
         self.assertIn("la edad no puede ser negativa", r["message"])

@@ -427,6 +427,12 @@ def explain(exc, code, names):
             else:
                 expl = f"{fn}() recibe {m_args.group(2).replace('one', '1')} argumento(s), pero le has pasado {m_args.group(3)}."
             sug = f"Compara la llamada con la cabecera de {fn}(): debe haber un argumento por cada parámetro, en el mismo orden."
+            if re.search(rf"\w+\.{fn}\(\)", msg):  # Clase.metodo(): falta self en la definición
+                sug = f"{fn} es un método: Python le pasa el objeto como primer argumento, así que su primer parámetro tiene que ser self: def {fn}(self, …)."
+        elif "__str__ returned non-string" in msg:
+            title = "__str__ debe devolver un texto"
+            expl = "El método __str__ no ha devuelto un texto (probablemente usa print en lugar de return)."
+            sug = 'Haz que __str__ devuelva el texto: return f"…". Es print quien lo mostrará.'
         elif m_unpack := re.search(r"cannot unpack non-iterable (\w+) object", msg):
             title = "Se esperaban varios valores"
             expl = f"Intentas repartir un único valor (un {tipo_es(m_unpack.group(1))}) entre varias variables."
@@ -471,6 +477,15 @@ def explain(exc, code, names):
             # Con raise ValueError("…") propio, el mensaje del alumno es la mejor explicación.
             expl = f"Se ha lanzado un ValueError: «{msg}»." if msg else "Una función ha recibido un valor del tipo correcto pero con un contenido que no puede usar."
             sug = "Revisa el valor que se pasa en esa línea."
+    elif isinstance(exc, AttributeError) and (m_attr := re.search(r"'(\w+)' object has no attribute '(\w+)'|module '(\w+)' has no attribute '(\w+)'", msg)):
+        dueno, attr = (m_attr.group(1), m_attr.group(2)) if m_attr.group(1) else (m_attr.group(3), m_attr.group(4))
+        title = "Ese atributo o método no existe"
+        expl = f"«{dueno}» no tiene nada llamado «{attr}»."
+        if m_attr.group(3):
+            sug = "Revisa cómo se escribe la función del módulo: Python distingue mayúsculas (sqrt, no Sqrt)."
+        else:
+            sug = (f"Si «{dueno}» es una clase tuya, comprueba que en __init__ guardas el dato con self.{attr} = … "
+                   "y que el nombre coincide exactamente. Si es un método, revisa que esté definido dentro de la clase.")
     elif isinstance(exc, KeyError):
         clave = exc.args[0] if exc.args else "?"
         title = "La clave no existe"
@@ -816,9 +831,14 @@ def _suggestions(tree, spec):
     # Números «mágicos» repetidos: mejor un nombre que explique qué son y un único sitio donde cambiarlos.
     # spec["skip_tips"] = ["repeated_numbers"] lo desactiva (p. ej. antes de enseñar las variables).
     # Los argumentos de las llamadas a funciones propias (calificacion(7)) son datos de prueba, no números mágicos.
-    own_funcs = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    # Funciones, clases y métodos propios: Rectangulo(2, 3) o carrito.anadir("pan", 1.5) también son pruebas.
+    own_funcs = {n.name for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
+
+    def _own_call(func):
+        return (isinstance(func, ast.Name) and func.id in own_funcs) or (isinstance(func, ast.Attribute) and func.attr in own_funcs)
+
     test_args = {id(sub) for n in ast.walk(tree)
-                 if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in own_funcs
+                 if isinstance(n, ast.Call) and _own_call(n.func)
                  for a in n.args + [kw.value for kw in n.keywords]
                  for sub in ast.walk(a)}  # también lo que va dentro: sin_repetidos([3, 1, 3])
     counts = {}
@@ -940,6 +960,16 @@ def _run_case(code, case):
 
 def _check_functions(tree, spec):
     """spec["functions"] = [{"name": "area", "params": 2}]: comprueba que existen antes de llamarlas."""
+    classes = {n.name for n in tree.body if isinstance(n, ast.ClassDef)}
+    for cl in spec.get("classes", []):  # spec["classes"] = [{"name": "Punto"}]
+        if cl["name"] not in classes:
+            return {
+                "status": "fail", "category": "comprension", "title": f"Falta la clase «{cl['name']}»",
+                "message": cl.get("missing_msg") or (
+                    f"El enunciado pide definir una clase llamada «{cl['name']}» con `class {cl['name']}:`. "
+                    "Comprueba el nombre exacto (las clases empiezan por mayúscula) y que está al principio de la línea."),
+                "cases": [],
+            }
     defs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
     for fn in spec.get("functions", []):
         node = defs.get(fn["name"])

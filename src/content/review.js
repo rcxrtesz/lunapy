@@ -72,6 +72,40 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 12 · clases
+  {
+    id: 'r-clase-objeto', concept: 'clases', mode: 'choice',
+    question: 'Si Coche es una clase, ¿qué es Coche("rojo")?',
+    options: [{ text: 'Un objeto (una instancia) de la clase Coche', correct: true }, { text: 'Otra clase' }, { text: 'Un método' }],
+    explain: 'Llamar a la clase crea un objeto nuevo y ejecuta su __init__.',
+  },
+  {
+    id: 'r-self', concept: 'clases', mode: 'text', code: 'class C:\n    def __init__(self, v):\n        self.v = v * 2\n\nprint(C(5).v)', answer: '10',
+    question: '¿Qué muestra este programa?',
+    explain: '__init__ guarda en self.v el doble del valor recibido.',
+  },
+  {
+    id: 'r-metodo', concept: 'clases', mode: 'text', code: 'class Dado:\n    def __init__(self, caras):\n        self.caras = caras\n\n    def maximo(self):\n        return self.caras\n\nprint(Dado(20).maximo())', answer: '20',
+    question: '¿Qué muestra este programa?',
+    explain: 'El método usa el atributo del objeto con el que se llama.',
+  },
+  {
+    id: 'r-str', concept: 'clases', mode: 'choice',
+    question: '¿Qué método especial decide lo que muestra print(objeto)?',
+    options: [{ text: '__str__', correct: true }, { text: '__init__' }, { text: '__print__' }],
+    explain: '__str__ devuelve el texto que representa al objeto.',
+  },
+  {
+    id: 'r-herencia', concept: 'herencia', mode: 'text', code: 'class A:\n    def f(self):\n        return "A"\n\nclass B(A):\n    pass\n\nprint(B().f())', answer: 'A',
+    question: '¿Qué muestra este programa?',
+    explain: 'B hereda el método f de A.',
+  },
+  {
+    id: 'r-super', concept: 'herencia', mode: 'choice',
+    question: '¿Para qué sirve super().__init__(…) en el __init__ de una clase hija?',
+    options: [{ text: 'Para que la clase madre guarde también sus atributos', correct: true }, { text: 'Para crear un objeto nuevo de la madre' }, { text: 'Para borrar los atributos de la madre' }],
+    explain: 'El __init__ de la hija sustituye al de la madre; super() permite reutilizarlo.',
+  },
   // ---- Módulo 11 · archivos y excepciones
   {
     id: 'r-modo-w', concept: 'archivos', mode: 'choice',

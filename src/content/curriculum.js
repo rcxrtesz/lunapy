@@ -33,6 +33,8 @@ export const CONCEPTS = {
   archivos: { name: 'Leer y escribir archivos', short: 'Archivos' },
   datos: { name: 'Procesar datos en tabla (CSV)', short: 'Datos' },
   excepciones: { name: 'Excepciones: try, except y raise', short: 'Excepciones' },
+  clases: { name: 'Clases, objetos y métodos', short: 'Clases' },
+  herencia: { name: 'Herencia y polimorfismo', short: 'Herencia' },
 };
 
 export const MODULES = [
@@ -127,7 +129,7 @@ export const MODULES = [
     book: ['Cap. 14 · Clases y funciones', 'Cap. 15 · Clases y métodos', 'Cap. 16 · Clases y objetos', 'Cap. 17 · Herencia'], cisco: 'PE2 · Módulo 3',
     objectives: ['Definir clases y crear objetos', 'Métodos y atributos', 'Herencia'],
     prerequisites: ['Módulo 10'],
-    lessons: [{ title: 'Clases y objetos' }, { title: 'Métodos' }, { title: 'Herencia' }],
+    lessons: [{ id: 'clases', title: 'Clases y objetos' }, { id: 'metodos-clase', title: 'Métodos' }, { id: 'herencia', title: 'Herencia' }],
   },
   {
     id: 'm13', num: 13, title: 'Depuración, buenas prácticas y proyectos',

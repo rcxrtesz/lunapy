@@ -35,6 +35,9 @@ import { ACTIVITIES_PROYECTO_TEXTO } from './lesson-proyecto-texto.js';
 import { ACTIVITIES_ARCHIVOS } from './lesson-archivos.js';
 import { ACTIVITIES_PROCESAR } from './lesson-procesar.js';
 import { ACTIVITIES_EXCEPCIONES } from './lesson-excepciones.js';
+import { ACTIVITIES_CLASES } from './lesson-clases.js';
+import { ACTIVITIES_METODOS_CLASE } from './lesson-metodos-clase.js';
+import { ACTIVITIES_HERENCIA } from './lesson-herencia.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -451,7 +454,8 @@ export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EX
   ...ACTIVITIES_INDICES, ...ACTIVITIES_METODOS, ...ACTIVITIES_REGEX,
   ...ACTIVITIES_LISTAS, ...ACTIVITIES_RECORRER_LISTAS, ...ACTIVITIES_ALIAS,
   ...ACTIVITIES_DICCIONARIOS, ...ACTIVITIES_TUPLAS, ...ACTIVITIES_PROYECTO_TEXTO,
-  ...ACTIVITIES_ARCHIVOS, ...ACTIVITIES_PROCESAR, ...ACTIVITIES_EXCEPCIONES };
+  ...ACTIVITIES_ARCHIVOS, ...ACTIVITIES_PROCESAR, ...ACTIVITIES_EXCEPCIONES,
+  ...ACTIVITIES_CLASES, ...ACTIVITIES_METODOS_CLASE, ...ACTIVITIES_HERENCIA };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);
