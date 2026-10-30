@@ -15,11 +15,15 @@ import { LESSON_RECURSION } from './lesson-recursion.js';
 import { LESSON_RETORNO } from './lesson-retorno.js';
 import { LESSON_INCREMENTAL } from './lesson-incremental.js';
 import { LESSON_COMPOSICION } from './lesson-composicion.js';
+import { LESSON_FOR } from './lesson-for.js';
+import { LESSON_WHILE } from './lesson-while.js';
+import { LESSON_BUSQUEDA } from './lesson-busqueda.js';
 
 const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA, LESSON_LLAMAR_FUNCIONES, LESSON_DEFINIR_FUNCIONES, LESSON_PARAMETROS,
   LESSON_ENCAPSULAR, LESSON_INTERFACES, LESSON_REFACTORIZAR,
   LESSON_BOOLEANAS, LESSON_CONDICIONALES, LESSON_RECURSION,
-  LESSON_RETORNO, LESSON_INCREMENTAL, LESSON_COMPOSICION];
+  LESSON_RETORNO, LESSON_INCREMENTAL, LESSON_COMPOSICION,
+  LESSON_FOR, LESSON_WHILE, LESSON_BUSQUEDA];
 
 export const LESSONS = Object.fromEntries(ALL.map((l) => [l.id, l]));
 export const LESSON_ORDER = ALL.map((l) => l.id);

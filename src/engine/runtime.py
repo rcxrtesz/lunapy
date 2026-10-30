@@ -780,6 +780,12 @@ def _suggestions(tree, spec):
     u.visit(tree)
     tips = []
     allowed_short = set(spec.get("allow_short_names", []))
+    # Contadores de bucle (for i in …) y parámetros (n //= 10) con una letra son una convención aceptada.
+    for node in ast.walk(tree):
+        if isinstance(node, ast.For) and isinstance(node.target, ast.Name):
+            allowed_short.add(node.target.id)
+        elif isinstance(node, ast.FunctionDef):
+            allowed_short.update(a.arg for a in node.args.args)
     short = sorted(n for n in u.stores if len(n) == 1 and n not in allowed_short and n != "_")
     if short:
         tips.append(

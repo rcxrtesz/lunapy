@@ -72,6 +72,39 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 7 · bucles y búsqueda
+  {
+    id: 'r-range', concept: 'bucles', mode: 'choice', code: 'for i in range(1, 4):\n    print(i)', answer: '1\n2\n3',
+    question: '¿Qué muestra este programa?',
+    options: [{ text: '1, 2 y 3, uno por línea', correct: true }, { text: '1, 2, 3 y 4' }, { text: '0, 1, 2 y 3' }],
+    explain: 'range(1, 4) empieza en 1 y no incluye el 4.',
+  },
+  {
+    id: 'r-acumulador', concept: 'bucles', mode: 'text', code: 'total = 0\nfor n in range(1, 5):\n    total += n * 2\nprint(total)', answer: '20',
+    question: '¿Qué muestra este programa?',
+    explain: '2 + 4 + 6 + 8 = 20.',
+  },
+  {
+    id: 'r-while', concept: 'bucles', mode: 'text', code: 'n = 100\nveces = 0\nwhile n > 1:\n    n //= 2\n    veces += 1\nprint(veces)', answer: '6',
+    question: '¿Qué muestra este programa?',
+    explain: '100 → 50 → 25 → 12 → 6 → 3 → 1: seis divisiones.',
+  },
+  {
+    id: 'r-break', concept: 'bucles', mode: 'text', code: 'for i in range(10):\n    if i == 3:\n        break\n    print(i, end="")', answer: '012',
+    question: '¿Qué muestra este programa?',
+    explain: 'Al llegar a 3, break sale del bucle antes del print.',
+  },
+  {
+    id: 'r-in', concept: 'busqueda', mode: 'text', code: 'print("ola" in "Hola", "h" in "Hola")', answer: 'True False',
+    question: '¿Qué muestra este programa?',
+    explain: '"ola" aparece dentro de "Hola"; "h" minúscula no (la de Hola es mayúscula).',
+  },
+  {
+    id: 'r-return-bucle', concept: 'busqueda', mode: 'choice',
+    question: 'En una función es_primo, ¿dónde va el return True?',
+    options: [{ text: 'Después del bucle, cuando se han probado todos los divisores', correct: true }, { text: 'En un else dentro del bucle' }, { text: 'Antes del bucle' }],
+    explain: 'Solo se sabe que no tiene divisores después de probarlos todos.',
+  },
   // ---- Módulo 6 · valores de retorno y composición
   {
     id: 'r-muerto', concept: 'retorno', mode: 'text', code: 'def f():\n    return 1\n    return 2\n\nprint(f())', answer: '1',

@@ -512,6 +512,11 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def f(n):\n    return n % 2 = 0", {"cases": [{}]})
         self.assertEqual(r["title"], "Para comparar se usa ==")
 
+    def test_loop_counters_and_params_are_not_short_names(self):
+        code = "def suma(n):\n    total = 0\n    for i in range(n):\n        total += i\n    n //= 2\n    return total"
+        self.assertEqual(runtime._suggestions(ast.parse(code), {}), [])
+        self.assertTrue(runtime._suggestions(ast.parse("x = 5\nprint(x)"), {}))
+
     def test_test_call_arguments_are_not_magic_numbers(self):
         code = "def doble(x):\n    return x * 2\n\nprint(doble(7))\nprint(doble(7) + 7)"
         tips = runtime._suggestions(ast.parse(code), {})

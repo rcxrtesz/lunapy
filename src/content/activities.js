@@ -20,6 +20,9 @@ import { ACTIVITIES_RECURSION } from './lesson-recursion.js';
 import { ACTIVITIES_RETORNO } from './lesson-retorno.js';
 import { ACTIVITIES_INCREMENTAL } from './lesson-incremental.js';
 import { ACTIVITIES_COMPOSICION } from './lesson-composicion.js';
+import { ACTIVITIES_FOR } from './lesson-for.js';
+import { ACTIVITIES_WHILE } from './lesson-while.js';
+import { ACTIVITIES_BUSQUEDA } from './lesson-busqueda.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -431,7 +434,8 @@ for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
 export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS,
   ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR,
   ...ACTIVITIES_BOOLEANAS, ...ACTIVITIES_CONDICIONALES, ...ACTIVITIES_RECURSION,
-  ...ACTIVITIES_RETORNO, ...ACTIVITIES_INCREMENTAL, ...ACTIVITIES_COMPOSICION };
+  ...ACTIVITIES_RETORNO, ...ACTIVITIES_INCREMENTAL, ...ACTIVITIES_COMPOSICION,
+  ...ACTIVITIES_FOR, ...ACTIVITIES_WHILE, ...ACTIVITIES_BUSQUEDA };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

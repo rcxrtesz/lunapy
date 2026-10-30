@@ -22,6 +22,8 @@ export const CONCEPTS = {
   retorno: { name: 'Valores de retorno', short: 'return' },
   incremental: { name: 'Desarrollo incremental', short: 'Incremental' },
   composicion: { name: 'Composición de funciones', short: 'Composición' },
+  bucles: { name: 'Bucles for y while', short: 'Bucles' },
+  busqueda: { name: 'Patrones de búsqueda', short: 'Búsqueda' },
 };
 
 export const MODULES = [
@@ -81,7 +83,7 @@ export const MODULES = [
     book: ['Cap. 7 · Iteración y búsqueda'], cisco: 'PE1 · Módulo 3',
     objectives: ['Repetir con for y while', 'Acumuladores y contadores', 'Buscar elementos'],
     prerequisites: ['Módulo 5'],
-    lessons: [{ title: 'Bucles for' }, { title: 'Bucles while' }, { title: 'Patrones de búsqueda' }],
+    lessons: [{ id: 'bucle-for', title: 'Bucles for' }, { id: 'bucle-while', title: 'Bucles while' }, { id: 'busqueda', title: 'Patrones de búsqueda' }],
   },
   {
     id: 'm8', num: 8, title: 'Cadenas de texto',
