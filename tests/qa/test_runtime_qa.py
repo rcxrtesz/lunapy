@@ -527,6 +527,8 @@ class FunctionCallTests(unittest.TestCase):
         code = "def doble(x):\n    return x * 2\n\nprint(doble(7))\nprint(doble(7) + 7)"
         tips = runtime._suggestions(ast.parse(code), {})
         self.assertFalse(any("7" in t for t in tips), tips)
+        code = "def unicos(v):\n    return list(set(v))\n\nprint(unicos([3, 1, 3, 3]))"
+        self.assertEqual(runtime._suggestions(ast.parse(code), {}), [])
 
     def test_argument_count_errors_are_explained(self):
         for code in ("def f(a, b):\n    return a\nf(1)", "def f():\n    pass\nf(3)", "print(len('a', 'b'))", "print(abs(-3, -4))"):

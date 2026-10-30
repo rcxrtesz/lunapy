@@ -72,6 +72,38 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 9 · listas
+  {
+    id: 'r-lista-indice', concept: 'listas', mode: 'text', code: 'v = [10, 20, 30, 40]\nprint(v[1], v[-1], len(v))', answer: '20 40 4',
+    question: '¿Qué muestra este programa?',
+    explain: 'Posición 1: 20. Última: 40. Cuatro elementos.',
+  },
+  {
+    id: 'r-append-pop', concept: 'listas', mode: 'text', code: 'v = [1, 2]\nv.append(3)\nv.pop(0)\nprint(v)', answer: '[2, 3]',
+    question: '¿Qué muestra este programa?',
+    explain: 'append añade el 3; pop(0) quita el primero.',
+  },
+  {
+    id: 'r-sort-none', concept: 'listas', mode: 'text', code: 'v = [2, 1]\nprint(v.sort())', answer: 'None',
+    question: '¿Qué muestra este programa?',
+    explain: 'sort ordena la lista en el sitio y devuelve None. sorted(v) devolvería [1, 2].',
+  },
+  {
+    id: 'r-comprension', concept: 'listas', mode: 'text', code: 'print([n * n for n in range(4) if n % 2 == 1])', answer: '[1, 9]',
+    question: '¿Qué muestra este programa?',
+    explain: 'Solo los impares (1 y 3), elevados al cuadrado.',
+  },
+  {
+    id: 'r-alias', concept: 'alias', mode: 'text', code: 'a = [1]\nb = a\nb.append(2)\nprint(len(a))', answer: '2',
+    question: '¿Qué muestra este programa?',
+    explain: 'b es un alias de a: los dos nombres apuntan a la misma lista.',
+  },
+  {
+    id: 'r-copia', concept: 'alias', mode: 'choice',
+    question: '¿Cuál de estas líneas NO crea una copia independiente de la lista a?',
+    options: [{ text: 'b = a', correct: true }, { text: 'b = a.copy()' }, { text: 'b = a[:]' }],
+    explain: 'b = a solo crea otro nombre para la misma lista.',
+  },
   // ---- Módulo 8 · cadenas
   {
     id: 'r-indice', concept: 'cadenas', mode: 'text', code: 's = "Python"\nprint(s[1], s[-1])', answer: 'y n',

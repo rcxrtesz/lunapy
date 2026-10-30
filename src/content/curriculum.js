@@ -26,6 +26,8 @@ export const CONCEPTS = {
   busqueda: { name: 'Patrones de búsqueda', short: 'Búsqueda' },
   cadenas: { name: 'Índices, porciones y métodos de cadena', short: 'Cadenas' },
   regex: { name: 'Expresiones regulares', short: 'Regex' },
+  listas: { name: 'Listas: crear, recorrer y transformar', short: 'Listas' },
+  alias: { name: 'Mutabilidad, alias y copias', short: 'Alias' },
 };
 
 export const MODULES = [
@@ -99,7 +101,7 @@ export const MODULES = [
     book: ['Cap. 9 · Listas'], cisco: 'PE1 · Módulo 3',
     objectives: ['Crear y modificar listas', 'Recorrer listas', 'Alias y mutabilidad'],
     prerequisites: ['Módulo 7'],
-    lessons: [{ title: 'Listas y operaciones' }, { title: 'Recorrer listas' }, { title: 'Mutabilidad y alias' }],
+    lessons: [{ id: 'listas', title: 'Listas y operaciones' }, { id: 'recorrer-listas', title: 'Recorrer listas' }, { id: 'alias', title: 'Mutabilidad y alias' }],
   },
   {
     id: 'm10', num: 10, title: 'Diccionarios y tuplas',

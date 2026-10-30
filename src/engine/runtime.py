@@ -801,9 +801,10 @@ def _suggestions(tree, spec):
     # spec["skip_tips"] = ["repeated_numbers"] lo desactiva (p. ej. antes de enseñar las variables).
     # Los argumentos de las llamadas a funciones propias (calificacion(7)) son datos de prueba, no números mágicos.
     own_funcs = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
-    test_args = {id(a) for n in ast.walk(tree)
+    test_args = {id(sub) for n in ast.walk(tree)
                  if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in own_funcs
-                 for a in n.args + [kw.value for kw in n.keywords]}
+                 for a in n.args + [kw.value for kw in n.keywords]
+                 for sub in ast.walk(a)}  # también lo que va dentro: sin_repetidos([3, 1, 3])
     counts = {}
     for node in ast.walk(tree):
         if (isinstance(node, ast.Constant) and type(node.value) in (int, float) and node.value not in (0, 1)
