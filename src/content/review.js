@@ -72,6 +72,39 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 13 · depuración y estilo
+  {
+    id: 'r-logica', concept: 'depuracion', mode: 'choice',
+    question: 'Un programa se ejecuta sin mensajes de error, pero el total sale mal. ¿Qué tipo de error es?',
+    options: [{ text: 'De lógica', correct: true }, { text: 'De sintaxis' }, { text: 'De ejecución' }],
+    explain: 'Los errores de lógica no avisan: el programa hace algo distinto de lo que querías.',
+  },
+  {
+    id: 'r-assert', concept: 'depuracion', mode: 'choice', code: 'assert 2 + 2 == 5',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'AssertionError', correct: true }, { text: 'No pasa nada' }, { text: 'Muestra False' }],
+    explain: 'assert detiene el programa si su condición es falsa.',
+    expectError: 'AssertionError',
+  },
+  {
+    id: 'r-limite', concept: 'depuracion', mode: 'choice',
+    question: 'Tu función cuenta las notas de 5 o más. ¿Qué prueba es más útil para detectar un > en lugar de >=?',
+    options: [{ text: 'Una lista con un 5', correct: true }, { text: 'Una lista con notas altas' }, { text: 'Una lista con notas bajas' }],
+    explain: 'Los valores justo en el límite son los que distinguen > de >=.',
+  },
+  {
+    id: 'r-pep8-clase', concept: 'estilo', mode: 'choice',
+    question: 'Según PEP 8, ¿cómo se escribe el nombre de una clase?',
+    options: [{ text: 'CuentaBancaria', correct: true }, { text: 'cuenta_bancaria' }, { text: 'CUENTA_BANCARIA' }],
+    explain: 'Clases en PalabrasConMayúscula; funciones y variables en minúsculas con guion bajo; constantes en mayúsculas.',
+  },
+  {
+    id: 'r-global', concept: 'estilo', mode: 'choice', code: 'n = 0\n\ndef f():\n    n += 1\n\nf()',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'UnboundLocalError', correct: true }, { text: 'n pasa a valer 1' }, { text: 'NameError' }],
+    explain: 'Asignar a n dentro de la función la convierte en local. Mejor: pasar n como parámetro y devolver el resultado.',
+    expectError: 'UnboundLocalError',
+  },
   // ---- Módulo 12 · clases
   {
     id: 'r-clase-objeto', concept: 'clases', mode: 'choice',

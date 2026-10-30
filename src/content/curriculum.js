@@ -35,6 +35,8 @@ export const CONCEPTS = {
   excepciones: { name: 'Excepciones: try, except y raise', short: 'Excepciones' },
   clases: { name: 'Clases, objetos y métodos', short: 'Clases' },
   herencia: { name: 'Herencia y polimorfismo', short: 'Herencia' },
+  depuracion: { name: 'Estrategias de depuración y pruebas', short: 'Depuración' },
+  estilo: { name: 'Estilo y buenas prácticas', short: 'Estilo' },
 };
 
 export const MODULES = [
@@ -136,6 +138,6 @@ export const MODULES = [
     book: ['Cap. 18 · Extras de Python', 'Cap. 19 · Reflexiones finales', 'Secciones de depuración de cada capítulo'], cisco: 'PE1/PE2 · Proyectos',
     objectives: ['Depurar de forma sistemática', 'Escribir código legible', 'Desarrollar un proyecto completo'],
     prerequisites: ['Módulos anteriores'],
-    lessons: [{ title: 'Estrategias de depuración' }, { title: 'Estilo y buenas prácticas' }, { title: 'Proyecto final' }],
+    lessons: [{ id: 'depuracion', title: 'Estrategias de depuración' }, { id: 'estilo', title: 'Estilo y buenas prácticas' }, { id: 'proyecto-final', title: 'Proyecto final: gestor de gastos' }],
   },
 ];

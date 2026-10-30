@@ -545,6 +545,23 @@ class FunctionCallTests(unittest.TestCase):
         self.assertEqual(r["title"], "Ese atributo o método no existe")
         self.assertIn("self.x", r["error"]["suggestion"])
 
+    def test_index_error_is_explained(self):
+        r = runtime.check('print("sol"[3])', {"cases": [{}]})
+        self.assertEqual(r["title"], "Posición fuera de rango")
+        self.assertIn("texto", r["message"])
+        r = runtime.check('print([][0])', {"cases": [{}]})
+        self.assertIn("lista", r["message"])
+
+    def test_assertion_is_explained(self):
+        r = runtime.check("assert 1 + 1 == 3, 'la suma falla'", {"cases": [{}]})
+        self.assertEqual(r["title"], "Una comprobación (assert) ha fallado")
+        self.assertIn("la suma falla", r["message"])
+
+    def test_unbound_local_is_explained(self):
+        r = runtime.check("total = 0\n\ndef sumar(x):\n    total += x\n\nsumar(5)", {"cases": [{}]})
+        self.assertEqual(r["title"], "Variable local usada antes de darle valor")
+        self.assertIn("total", r["message"])
+
     def test_class_and_method_args_are_test_data(self):
         code = ("class R:\n    def __init__(self, a, b):\n        self.a = a\n        self.b = b\n    def doble(self, k):\n"
                 "        return self.a * k\n\nrect = R(2, 2)\nprint(rect.doble(2))")

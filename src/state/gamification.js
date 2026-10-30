@@ -18,6 +18,7 @@ const M9_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm9');
 const M10_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm10');
 const M11_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm11');
 const M12_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm12');
+const M13_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm13');
 
 export const ACHIEVEMENTS = [
   { id: 'first-run', name: 'Hola, mundo', desc: 'Ejecuta tu primer programa', icon: 'play', test: (s) => Object.values(s.daily).some((d) => (d.runs || 0) > 0 || d.labRuns > 0) },
@@ -39,6 +40,7 @@ export const ACHIEVEMENTS = [
   { id: 'module-10', name: 'Analista de textos', desc: 'Completa las lecciones del Módulo 10', icon: 'chart', test: (s) => M10_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'module-11', name: 'A prueba de errores', desc: 'Completa las lecciones del Módulo 11', icon: 'save', test: (s) => M11_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'module-12', name: 'Diseñadora de objetos', desc: 'Completa las lecciones del Módulo 12', icon: 'layers', test: (s) => M12_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-13', name: 'Programadora LunaPy', desc: 'Completa el Módulo 13 y el proyecto final', icon: 'trophy', test: (s) => M13_LESSONS.every((id) => s.lessons[id]?.completed) },
   { id: 'streak-3', name: 'Constancia', desc: 'Mantén una racha de 3 días', icon: 'flame', test: (s) => streak(s).days >= 3 },
   { id: 'reviewer', name: 'Memoria a largo plazo', desc: 'Completa una sesión de repaso', icon: 'repeat', test: (s) => Object.values(s.daily).some((d) => (d.reviewSessions || 0) > 0) },
 ];

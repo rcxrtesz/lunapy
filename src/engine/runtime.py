@@ -378,6 +378,24 @@ def explain(exc, code, names):
             sug = "Revisa comillas, paréntesis, comas y el signo «=» en esa línea (o en la anterior)."
         if not stripped and line and line > 1:
             sug += " El problema puede estar en la línea anterior."
+    elif isinstance(exc, IndexError) and "out of range" in low:
+        que = "texto" if "string" in low else "tupla" if "tuple" in low else "lista"
+        title = "Posición fuera de rango"
+        expl = f"Pides una posición que no existe en la {que}: las posiciones van de 0 a len − 1."
+        sug = (f"Si quieres el último elemento, usa [-1]. Si la {que} puede estar vacía, compruébalo antes "
+               "(if not datos: …).")
+    elif isinstance(exc, AssertionError):
+        title = "Una comprobación (assert) ha fallado"
+        expl = f"La condición del assert de esta línea es falsa{': ' + msg if msg else ''}."
+        sug = "Calcula a mano qué debería salir y muestra con print qué devuelve realmente la función: la diferencia te dirá dónde está el fallo."
+    elif isinstance(exc, UnboundLocalError):  # subclase de NameError: va antes
+        m_loc = re.search(r"local variable '(\w+)'|cannot access local variable '(\w+)'", msg)
+        nombre = (m_loc.group(1) or m_loc.group(2)) if m_loc else "?"
+        title = "Variable local usada antes de darle valor"
+        expl = (f"Dentro de la función asignas un valor a «{nombre}», así que Python la trata como una variable local… "
+                "pero la usas antes de haberle dado ese valor.")
+        sug = (f"Si «{nombre}» es una variable de fuera, no la modifiques desde la función: pásala como parámetro "
+               "y devuelve el resultado con return.")
     elif isinstance(exc, NameError):
         m = re.search(r"name '(\w+)' is not defined", msg)
         name = m.group(1) if m else "?"

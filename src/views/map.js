@@ -8,7 +8,7 @@ import { useStore } from '../state/store.js';
 import { lessonProgress, isUnlocked, currentLessonId } from '../state/gamification.js';
 
 // Módulos con contenido. El resto se muestra bloqueado hasta que se desarrolle.
-const OPEN_MODULES = new Set(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12']);
+const OPEN_MODULES = new Set(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13']);
 
 export function MapView() {
   const s = useStore();
@@ -20,7 +20,7 @@ export function MapView() {
       <div class="eyebrow">Mapa de aprendizaje</div>
       <h1>De cero a nivel intermedio</h1>
       <p>13 módulos que siguen el orden de <a href="https://libropython.es/" target="_blank" rel="noopener">«Piensa en Python»</a>, el libro de referencia de tu asignatura, complementado con Cisco Python Essentials. Cada módulo indica a qué capítulos corresponde.</p>
-      <span class="demo-note"><${Icon} name="info" size=${13} /> En desarrollo: módulos 1 a 12 disponibles</span>
+      <span class="demo-note"><${Icon} name="check" size=${13} /> Curso completo: los 13 módulos están disponibles</span>
     </div>
     <div class="path">
       ${MODULES.map((m) => {
