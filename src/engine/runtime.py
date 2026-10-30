@@ -821,7 +821,10 @@ def _suggestions(tree, spec):
 def _has_blanks(code):
     """¿Quedan huecos ___ en el código? Los ___ dentro de comentarios no cuentan."""
     try:
-        return any(isinstance(n, ast.Name) and n.id == "___" for n in ast.walk(ast.parse(code)))
+        return any((isinstance(n, ast.Name) and n.id == "___")
+                   or (isinstance(n, ast.Attribute) and n.attr == "___")              # re.___(…)
+                   or (isinstance(n, ast.Constant) and isinstance(n.value, str) and "___" in n.value)  # r"\d{___}"
+                   for n in ast.walk(ast.parse(code)))
     except SyntaxError:
         return any("___" in line.split("#", 1)[0] for line in code.splitlines())
 

@@ -23,6 +23,9 @@ import { ACTIVITIES_COMPOSICION } from './lesson-composicion.js';
 import { ACTIVITIES_FOR } from './lesson-for.js';
 import { ACTIVITIES_WHILE } from './lesson-while.js';
 import { ACTIVITIES_BUSQUEDA } from './lesson-busqueda.js';
+import { ACTIVITIES_INDICES } from './lesson-indices.js';
+import { ACTIVITIES_METODOS } from './lesson-metodos.js';
+import { ACTIVITIES_REGEX } from './lesson-regex.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -435,7 +438,8 @@ export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EX
   ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR,
   ...ACTIVITIES_BOOLEANAS, ...ACTIVITIES_CONDICIONALES, ...ACTIVITIES_RECURSION,
   ...ACTIVITIES_RETORNO, ...ACTIVITIES_INCREMENTAL, ...ACTIVITIES_COMPOSICION,
-  ...ACTIVITIES_FOR, ...ACTIVITIES_WHILE, ...ACTIVITIES_BUSQUEDA };
+  ...ACTIVITIES_FOR, ...ACTIVITIES_WHILE, ...ACTIVITIES_BUSQUEDA,
+  ...ACTIVITIES_INDICES, ...ACTIVITIES_METODOS, ...ACTIVITIES_REGEX };
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

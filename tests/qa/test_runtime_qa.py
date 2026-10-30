@@ -512,6 +512,12 @@ class FunctionCallTests(unittest.TestCase):
         r = runtime.check("def f(n):\n    return n % 2 = 0", {"cases": [{}]})
         self.assertEqual(r["title"], "Para comparar se usa ==")
 
+    def test_blanks_in_attributes_and_strings(self):
+        spec = {"blanks": True, "cases": [{}]}
+        self.assertEqual(runtime.check('import re\nprint(re.___("a", "b"))', spec)["category"], "incompleto")
+        self.assertEqual(runtime.check('import re\nprint(re.findall(r"\\d{___}", "12"))', spec)["category"], "incompleto")
+        self.assertEqual(runtime.check('# ___ en un comentario\nprint(1)', spec)["status"], "pass")
+
     def test_loop_counters_and_params_are_not_short_names(self):
         code = "def suma(n):\n    total = 0\n    for i in range(n):\n        total += i\n    n //= 2\n    return total"
         self.assertEqual(runtime._suggestions(ast.parse(code), {}), [])

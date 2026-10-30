@@ -24,6 +24,8 @@ export const CONCEPTS = {
   composicion: { name: 'Composición de funciones', short: 'Composición' },
   bucles: { name: 'Bucles for y while', short: 'Bucles' },
   busqueda: { name: 'Patrones de búsqueda', short: 'Búsqueda' },
+  cadenas: { name: 'Índices, porciones y métodos de cadena', short: 'Cadenas' },
+  regex: { name: 'Expresiones regulares', short: 'Regex' },
 };
 
 export const MODULES = [
@@ -90,7 +92,7 @@ export const MODULES = [
     book: ['Cap. 8 · Cadenas y expresiones regulares'], cisco: 'PE2 · Módulo 2',
     objectives: ['Indexar y trocear cadenas', 'Métodos de cadena', 'Introducción a expresiones regulares'],
     prerequisites: ['Módulo 7'],
-    lessons: [{ title: 'Índices y porciones' }, { title: 'Métodos de cadena' }, { title: 'Expresiones regulares básicas' }],
+    lessons: [{ id: 'indices', title: 'Índices y porciones' }, { id: 'metodos', title: 'Métodos de cadena' }, { id: 'regex', title: 'Expresiones regulares básicas' }],
   },
   {
     id: 'm9', num: 9, title: 'Listas',

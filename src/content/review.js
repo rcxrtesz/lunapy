@@ -72,6 +72,40 @@ export const REVIEW_ITEMS = [
     options: [{ text: '`(a + b + c) / 3`', correct: true }, { text: '`a + b + c / 3`' }, { text: '`a + b + c // 3`' }],
     explain: 'Sin paréntesis solo se divide c, porque la división va antes que la suma.',
   },
+  // ---- Módulo 8 · cadenas
+  {
+    id: 'r-indice', concept: 'cadenas', mode: 'text', code: 's = "Python"\nprint(s[1], s[-1])', answer: 'y n',
+    question: '¿Qué muestra este programa?',
+    explain: 'La posición 1 es la segunda letra; −1 es la última.',
+  },
+  {
+    id: 'r-porcion', concept: 'cadenas', mode: 'text', code: 'print("Valencia"[2:5])', answer: 'len',
+    question: '¿Qué muestra este programa?',
+    explain: 'Posiciones 2, 3 y 4: l, e, n.',
+  },
+  {
+    id: 'r-inmutable', concept: 'cadenas', mode: 'choice', code: 's = "hola"\ns[0] = "H"',
+    question: '¿Qué ocurre al ejecutar este programa?',
+    options: [{ text: 'TypeError: los textos no se pueden modificar', correct: true }, { text: 's pasa a ser "Hola"' }, { text: 'IndexError' }],
+    explain: 'Para obtener "Hola": s = "H" + s[1:].',
+    expectError: 'TypeError',
+  },
+  {
+    id: 'r-metodo-nuevo', concept: 'cadenas', mode: 'text', code: 'x = "abc"\nx.upper()\nprint(x)', answer: 'abc',
+    question: '¿Qué muestra este programa?',
+    explain: 'upper() devuelve un texto nuevo que no se ha guardado: x sigue igual.',
+  },
+  {
+    id: 'r-find', concept: 'cadenas', mode: 'text', code: 'print("banana".find("n"), "banana".count("a"))', answer: '2 3',
+    question: '¿Qué muestra este programa?',
+    explain: 'La primera n está en la posición 2; hay tres a.',
+  },
+  {
+    id: 'r-regex', concept: 'regex', mode: 'choice', code: 'import re\nprint(re.findall(r"\\d+", "1 y 22"))', answer: "['1', '22']",
+    question: '¿Qué muestra este programa?',
+    options: [{ text: "['1', '22']", correct: true }, { text: "['1', '2', '2']" }, { text: '[1, 22]' }],
+    explain: '\\d+ agrupa los dígitos seguidos, y findall devuelve textos.',
+  },
   // ---- Módulo 7 · bucles y búsqueda
   {
     id: 'r-range', concept: 'bucles', mode: 'choice', code: 'for i in range(1, 4):\n    print(i)', answer: '1\n2\n3',
