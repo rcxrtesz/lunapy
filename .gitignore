@@ -15,3 +15,6 @@ desktop.ini
 # API: configuración con contraseñas y base de datos de pruebas (nunca al repositorio)
 api/config.php
 api/datos/
+
+# Paquete para subir al hosting (se genera en local)
+publicar/
