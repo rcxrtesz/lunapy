@@ -83,7 +83,7 @@ Archivos: `src/content/module1.js`, `lesson-variables.js` + `activities.js` (2.1
 `src/content/lesson-<id>.js` por lección; registro en `lessons.js`, `activities.js`,
 `curriculum.js`; repaso en `review.js`; logros en `src/state/gamification.js`.
 
-### 3.3 Cuenta y sincronización (hecho y probado en local, **sin publicar**)
+### 3.3 Cuenta y sincronización (probado en local; publicado, falta crear la cuenta real)
 - **API PHP 8.4** en `api/` (`index.php`, `lib.php`, `.htaccess`, `config.example.php`,
   `herramientas/hash_contrasena.php`):
   - Rutas: `POST registro`, `POST/DELETE sesion`, `GET cuenta`, `POST cuenta/borrar`,
@@ -126,25 +126,32 @@ Archivos: `src/content/module1.js`, `lesson-variables.js` + `activities.js` (2.1
 
 ## 5. Lo que QUEDA por hacer
 
-### 5.1 Publicar en Dinahosting (siguiente paso; la usuaria lo hace guiada)
-Plan contratado: **Hosting Avanzado** (PHP 8.4, MySQL 8.4 LTS, bases ilimitadas de 2 GB).
-Seguir `DESPLIEGUE.md`. La usuaria quiere hacerlo **ella misma, guiada paso a paso**, con el
-asistente mirando su Chrome (extensión Claude in Chrome). Se estaba empezando: el acceso al
-panel está en el enlace «Panel de Control» de la web de Dinahosting.
+### 5.1 Publicar en Dinahosting (casi terminado)
+Publicada en **`https://lunapy.lunadev.es`** («Hosting Profesional Linux» de `lunadev.es`,
+servidor `hl1707.dinaserver.com`). Detalles y avisos aprendidos en `DESPLIEGUE.md`.
 
-Pasos:
-1. Entrar al panel (lo hace la usuaria, con su contraseña).
-2. Crear una base de datos MySQL y anotar nombre, usuario, servidor (la contraseña la elige
-   ella).
-3. Decidir dominio y carpeta (por ejemplo `https://dominio/lunapy/`).
-4. Subir los archivos (lista exacta en `DESPLIEGUE.md`; **no** subir `tests/`, `tools/`,
-   `.git/`, `api/config.php` local ni `api/datos/`).
-5. Crear `api/config.php` en el servidor con los datos de la base y su correo en
-   `emails_permitidos` (la contraseña la escribe ella).
-6. Activar SSL (Let's Encrypt) en el panel.
-7. Abrir la web → Perfil → Crear cuenta. Comprobar que se crean las tablas y sincroniza
+Hecho:
+1. ✅ PHP cambiado de 7.4 a **8.4** en el panel.
+2. ✅ Base MariaDB 11.8 `lunad_lunapy` (usuario igual, solo `localhost`; la contraseña la
+   guarda la usuaria, nunca en el repositorio).
+3. ✅ Subdominio `lunapy.lunadev.es` → carpeta `~/www/lunapy`.
+4. ✅ Archivos subidos en ZIP y descomprimidos con el SSH web del panel.
+5. ✅ `api/config.php` en el servidor, conexión a la base comprobada; único correo
+   autorizado: el de la usuaria.
+6. ✅ `.htaccess` corregido (bucle http→https por el proxy de Dinahosting; excepción para
+   `/.well-known/acme-challenge/`). Comprobado: app, wasm y manifiesto cargan; `config.php`,
+   `tests.html` y `.md` dan 403; API 401 sin sesión y 403 con correo no autorizado.
+
+Pendiente:
+7. ⏳ **Certificado SSL del subdominio.** Let's Encrypt cubría solo `lunadev.es` y
+   `www.lunadev.es`. Tras el arreglo del `.htaccess` se ha vuelto a pulsar «Instalar
+   certificado»; falta comprobar que incluye `lunapy` (comando en `DESPLIEGUE.md`, o abrir la
+   web y ver que no sale aviso). Si no, chat de soporte de Dinahosting: «el certificado Let's
+   Encrypt de lunadev.es no incluye el subdominio lunapy, carpeta www/lunapy».
+8. Abrir la web → Perfil → Crear cuenta. Comprobar que se crean las tablas y sincroniza
    (**la ruta MySQL solo se ha probado indirectamente, con SQLite**).
-8. Instalar la app en el móvil e iniciar sesión.
+9. Instalar la app en el móvil (iPhone: Safari → Compartir → «Añadir a pantalla de inicio»;
+   Android: Chrome → «Instalar aplicación») e iniciar sesión.
 
 ### 5.2 Después
 - **Revisión del contenido con uso real** (la usuaria aún no ha revisado los módulos 2–13 en
