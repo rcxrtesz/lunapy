@@ -12,6 +12,8 @@ AddType font/woff2 .woff2
   # En Dinahosting el https termina antes de Apache (proxy): sin esto, la redirección no acaba nunca
   RewriteCond %{HTTP:X-Forwarded-Proto} !=https
   RewriteCond %{ENV:HTTPS} !=on
+  # Let's Encrypt valida el dominio por http: esa ruta no se redirige
+  RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
