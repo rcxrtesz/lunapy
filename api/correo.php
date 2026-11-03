@@ -120,21 +120,53 @@ function usar_token_correo(mixed $token, string $tipo): ?int
 
 // ---------- Plantillas ----------
 
+/**
+ * Plantilla de los correos con la estética de la pantalla de bienvenida de la app: fondo lila, tarjeta
+ * blanca redondeada, la carita de Kuromi junto al nombre, botón lila y tipografía Inter (o la del
+ * sistema si el gestor de correo no la tiene). Maquetada con tablas y estilos en línea, que es lo
+ * que respetan Gmail, Outlook y compañía.
+ */
 function plantilla_correo(string $titulo, string $parrafosHtml, ?string $boton = null, ?string $url = null): string
 {
     $app = htmlspecialchars(url_app(), ENT_QUOTES);
-    $botonHtml = $boton && $url
-        ? '<p style="text-align:center;margin:28px 0"><a href="' . htmlspecialchars($url, ENT_QUOTES) . '" style="background:#7a4cc2;color:#ffffff;text-decoration:none;font-weight:bold;padding:13px 26px;border-radius:12px;display:inline-block">' . htmlspecialchars($boton) . '</a></p>'
-          . '<p style="font-size:13px;color:#605870">Si el botón no funciona, copia este enlace en el navegador:<br><a href="' . htmlspecialchars($url, ENT_QUOTES) . '" style="color:#7a4cc2;word-break:break-all">' . htmlspecialchars($url) . '</a></p>'
-        : '';
-    return '<!doctype html><html lang="es"><body style="margin:0;background:#f7f3fc;font-family:Segoe UI,Arial,sans-serif;color:#1d1824">'
-        . '<div style="max-width:520px;margin:0 auto;padding:28px 16px">'
-        . '<div style="text-align:center;margin-bottom:14px"><img src="' . $app . 'icons/icon-192.png" width="72" height="72" alt="LunaPy"></div>'
-        . '<div style="background:#ffffff;border:1px solid #e6dff0;border-radius:18px;padding:28px 26px">'
-        . '<h1 style="font-size:22px;margin:0 0 14px;color:#2b2433">' . htmlspecialchars($titulo) . '</h1>'
-        . '<div style="font-size:15px;line-height:1.6">' . $parrafosHtml . '</div>' . $botonHtml
-        . '</div><p style="text-align:center;font-size:12px;color:#8a8197;margin-top:16px">LunaPy · Aprende Python pensando</p>'
-        . '</div></body></html>';
+    $fuente = "Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+    $botonHtml = '';
+    if ($boton && $url) {
+        $u = htmlspecialchars($url, ENT_QUOTES);
+        $botonHtml = '<tr><td align="center" style="padding:6px 0 22px">'
+            . '<a href="' . $u . '" style="display:inline-block;background:#7a4cc2;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;'
+            . 'padding:13px 28px;border-radius:12px;box-shadow:0 4px 14px rgba(122,76,194,.30)">' . htmlspecialchars($boton) . '</a></td></tr>'
+            . '<tr><td style="font-size:12.5px;line-height:1.5;color:#6c6478;padding:0 0 4px">Si el botón no funciona, copia este enlace en el navegador:<br>'
+            . '<a href="' . $u . '" style="color:#7a4cc2;word-break:break-all">' . htmlspecialchars($url) . '</a></td></tr>';
+    }
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+        . '<meta name="color-scheme" content="light"><title>' . htmlspecialchars($titulo) . '</title></head>'
+        . '<body style="margin:0;padding:0;background:#f7f3fc">'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+        . 'style="background:#f7f3fc;background-image:radial-gradient(ellipse at 50% 0%,#e3d2f7 0%,#f7f3fc 70%)"><tr><td align="center" style="padding:32px 14px">'
+        // Tarjeta
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+        . 'style="max-width:460px;background:#ffffff;border:1px solid #e6dff0;border-radius:22px;box-shadow:0 20px 50px rgba(43,36,51,.12);font-family:' . $fuente . ';color:#1d1824">'
+        . '<tr><td style="padding:24px 26px 8px">'
+        // Cabecera: carita de Kuromi + nombre (como en la bienvenida de la app)
+        . '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
+        . '<td style="padding-right:14px;vertical-align:middle"><img src="' . $app . 'img/kuromi_luna.png" width="64" height="63" alt="LunaPy" style="display:block;border:0"></td>'
+        . '<td style="vertical-align:middle"><div style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:#1d1824">LunaPy</div>'
+        . '<div style="font-size:13px;color:#605870">Aprende Python pensando</div></td>'
+        . '</tr></table></td></tr>'
+        . '<tr><td style="padding:10px 26px 4px"><div style="height:1px;background:#e6dff0;line-height:1px;font-size:0">&nbsp;</div></td></tr>'
+        // Contenido
+        . '<tr><td style="padding:14px 26px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+        . '<tr><td style="font-size:22px;font-weight:800;letter-spacing:-.015em;line-height:1.25;color:#1d1824;padding:0 0 10px">' . htmlspecialchars($titulo) . '</td></tr>'
+        . '<tr><td style="font-size:15px;line-height:1.6;color:#3a3345;padding:0 0 8px">' . $parrafosHtml . '</td></tr>'
+        . $botonHtml
+        . '</table></td></tr>'
+        . '<tr><td style="padding:8px 26px 22px;font-size:12px;color:#8a8197">Este correo lo envía LunaPy automáticamente: no hace falta que respondas.</td></tr>'
+        . '</table>'
+        // Pie
+        . '<div style="font-family:' . $fuente . ';font-size:12px;color:#8a8197;padding-top:16px">developed by '
+        . '<a href="https://lunadev.es" style="color:#605870;font-weight:700;text-decoration:none">lunadev</a></div>'
+        . '</td></tr></table></body></html>';
 }
 
 function correo_verificacion(string $email, string $token): bool
