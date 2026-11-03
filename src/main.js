@@ -17,7 +17,9 @@ import { AsistenteView } from './views/asistente.js';
 import { AsistenteFlotante } from './components/asistente.js';
 import { ErrorBoundary } from './components/boundary.js';
 import { initPWA, usePWA, applyUpdate } from './lib/pwa.js';
-import { initSync } from './lib/sync.js';
+import { initSync, useSync } from './lib/sync.js';
+import { ocultarSplash, useSplashFuera } from './lib/splash.js';
+import { FormularioEntrar } from './components/cuenta.js';
 
 const NAV = [
   { href: '#/', icon: 'home', label: 'Inicio', match: (r) => r[0] === '' },
@@ -71,6 +73,22 @@ function Appearance({ theme, resolved, palette, onClose }) {
   </div>`;
 }
 
+/** Bienvenida al abrir la app sin sesión: iniciar sesión o entrar como invitado.
+ *  Con la sesión iniciada no vuelve a aparecer en este dispositivo (la sesión se recuerda). */
+function Bienvenida({ alEntrar }) {
+  return html`<div class="bienvenida" role="dialog" aria-modal="true" aria-labelledby="bienvenida-titulo">
+    <div class="bienvenida-tarjeta">
+      <img class="bienvenida-kuromi" src="./img/kuromi_luna.png" alt="" width="120" height="119" />
+      <h1 id="bienvenida-titulo">Te damos la bienvenida a LunaPy</h1>
+      <p class="muted">Aprende Python pensando, paso a paso. Inicia sesión para guardar tu progreso en tu cuenta y seguir en cualquier dispositivo.</p>
+      <${FormularioEntrar} alEntrar=${alEntrar} idPrefijo="bienvenida" />
+      <div class="bienvenida-o"><span>o</span></div>
+      <button class="btn lg bienvenida-invitado" onClick=${alEntrar}><${Icon} name="user" size=${17} /> Entrar como invitado</button>
+      <p class="tiny muted" style="margin:10px 0 0">Como invitado, tu progreso se guarda solo en este dispositivo. Puedes iniciar sesión más tarde en el Perfil.</p>
+    </div>
+  </div>`;
+}
+
 function Onboarding() {
   const s = getState();
   const [name, setName] = useState(s.profile.name);
@@ -78,7 +96,7 @@ function Onboarding() {
   const done = () => { actions.setProfile({ name: name.trim().slice(0, 30), dailyGoal: goal, onboarded: true }); location.hash = '#/'; };
   return html`<${Modal} label="Bienvenida">
     <div class="brand-mark" style="width:48px;height:48px;border-radius:14px;margin-bottom:14px"><${Logo} size=${28} /></div>
-    <h2>Te damos la bienvenida a LunaPy</h2>
+    <h2>Antes de empezar</h2>
     <p class="muted">Aquí no se trata de memorizar sintaxis, sino de <b>aprender a pensar</b> como programadora o programador. Cada problema sigue el mismo ciclo:</p>
     <div class="method" style="margin:10px 0 18px"><span>Comprender</span><i>→</i><span>Razonar</span><i>→</i><span>Planificar</span><i>→</i><span>Programar</span><i>→</i><span>Ejecutar</span><i>→</i><span>Analizar</span><i>→</i><span>Mejorar</span></div>
     <label class="small" style="font-weight:700" for="ob-name">¿Cómo quieres que te llamemos? <span class="muted" style="font-weight:400">(opcional)</span></label>
@@ -89,7 +107,9 @@ function Onboarding() {
         <button class=${`goal-opt ${goal === v ? 'on' : ''}`} role="radio" aria-checked=${goal === v} onClick=${() => setGoal(v)}>
           <strong>${v} XP</strong><span class="small">${l}</span><div class="tiny muted">${t}</div></button>`)}
     </div>
-    <p class="tiny muted" style="margin-top:14px">Tu progreso se guarda solo en este navegador. No hay cuentas ni se envían datos a ningún servidor.</p>
+    <p class="tiny muted" style="margin-top:14px">${useSync().status === 'off'
+      ? 'Tu progreso se guarda en este dispositivo. Si inicias sesión en el Perfil, también se copia en tu cuenta.'
+      : 'Tu progreso se guarda en este dispositivo y se sincroniza con tu cuenta.'}</p>
     <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn primary lg" onClick=${done}>Empezar <${Icon} name="arrowRight" size=${16} /></button></div>
   </${Modal}>`;
 }
@@ -104,10 +124,15 @@ function App() {
   const due = dueReviews(s).length;
   const resolved = useResolvedTheme(s.theme);
   const [appearance, setAppearance] = useState(false);
+  const sync = useSync();
+  const splashFuera = useSplashFuera();
+  // Sin sesión, cada vez que se abre la app se ofrece iniciarla o entrar como invitado.
+  const [puerta, setPuerta] = useState(() => sync.status === 'off');
+  useEffect(() => { ocultarSplash(); }, []);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = resolved;
-    document.documentElement.dataset.palette = s.palette || 'indigo';
+    document.documentElement.dataset.palette = s.palette || 'kuromi';
   }, [resolved, s.palette]);
 
   let view;
@@ -156,7 +181,7 @@ function App() {
         <div class="appearance-wrap">
           <button class="icon-btn" data-appearance-toggle onClick=${() => setAppearance(!appearance)} aria-expanded=${appearance} aria-label="Personalizar colores" title="Personalizar colores">
             <${Icon} name="palette" size=${17} /></button>
-          ${appearance && html`<${Appearance} theme=${s.theme} resolved=${resolved} palette=${s.palette || 'indigo'} onClose=${() => setAppearance(false)} />`}
+          ${appearance && html`<${Appearance} theme=${s.theme} resolved=${resolved} palette=${s.palette || 'kuromi'} onClose=${() => setAppearance(false)} />`}
         </div>
         <a class=${`avatar-btn ${route[0] === 'perfil' ? 'active' : ''}`} href="#/perfil" aria-label="Perfil" title="Perfil">
           ${(s.profile.name || '').trim().charAt(0).toUpperCase() || html`<${Icon} name="user" size=${16} />`}</a>
@@ -169,13 +194,13 @@ function App() {
     <nav class="bottom-nav" aria-label="Principal (móvil)">
       ${NAV.filter((n) => !n.desktopOnly).map((n) => html`<a class=${n.match(route) ? 'active' : ''} href=${n.href}><${Icon} name=${n.icon} size=${21} />${n.short || n.label}</a>`)}
     </nav>
-    ${!s.profile.onboarded && html`<${Onboarding} />`}
+    ${puerta ? html`<${Bienvenida} alEntrar=${() => setPuerta(false)} />` : !s.profile.onboarded && html`<${Onboarding} />`}
     ${pwa.updateReady && html`<div class="update-banner" role="status">
       <${Icon} name="sparkle" size=${18} />
       <span>Hay una versión nueva de LunaPy.</span>
       <button class="btn sm primary" onClick=${applyUpdate}>Actualizar</button>
     </div>`}
-    <${AsistenteFlotante} oculto=${route[0] === 'asistente' || !s.profile.onboarded} />
+    <${AsistenteFlotante} oculto=${route[0] === 'asistente' || !s.profile.onboarded || puerta} saludar=${splashFuera} />
     <${Toasts} />
   </div>`;
 }
@@ -184,6 +209,14 @@ function App() {
 engine.start(); // Python se carga en segundo plano desde el primer momento
 initPWA(); // app instalable y sin conexión
 initSync(); // cuenta: sincroniza el progreso entre dispositivos
+
+// Kuromi pasa a ser el color predeterminado: quien seguía con el de antes (índigo) cambia una sola vez.
+try {
+  if (!localStorage.getItem('lunapy.paleta-kuromi')) {
+    localStorage.setItem('lunapy.paleta-kuromi', '1');
+    if (getState().palette === 'indigo') actions.setPalette('kuromi');
+  }
+} catch { /* sin almacenamiento */ }
 
 // Logros: se comprueban tras cada cambio de estado
 subscribe((s) => {

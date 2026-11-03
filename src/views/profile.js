@@ -96,7 +96,7 @@ export function ProfileView() {
       <div class="card span-6">
         <div class="card-title"><${Icon} name="palette" /> Apariencia</div>
         <div class="appearance-title">Color</div>
-        <${PaletteChoices} palette=${s.palette || 'indigo'} />
+        <${PaletteChoices} palette=${s.palette || 'kuromi'} />
         <div class="appearance-title">Modo</div>
         <${ModeChoices} theme=${s.theme} resolved=${resolved} />
       </div>

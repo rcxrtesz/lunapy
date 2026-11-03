@@ -1,6 +1,7 @@
 // Paletas de color. Cada una tiene variante de día (light) y de noche (dark).
 // styles.css contiene los valores; aquí solo lo que necesita el selector.
 export const PALETTES = [
+  { id: 'kuromi', name: 'Kuromi', swatch: ['#2b2433', '#b98ce8'] },
   { id: 'indigo', name: 'Índigo', swatch: ['#4f5dff', '#8a5cf6'] },
   { id: 'ocean', name: 'Océano', swatch: ['#0e7fc0', '#0f8a9a'] },
   { id: 'emerald', name: 'Esmeralda', swatch: ['#0f9a6e', '#157f8f'] },
@@ -10,4 +11,4 @@ export const PALETTES = [
   { id: 'graphite', name: 'Grafito', swatch: ['#334155', '#64748b'] },
 ];
 
-export const DEFAULT_PALETTE = 'indigo';
+export const DEFAULT_PALETTE = 'kuromi';

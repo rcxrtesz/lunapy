@@ -71,6 +71,11 @@ const SUGERENCIAS = [
   'Explícame qué hace return con un ejemplo',
 ];
 
+/** Carita de Lunakiri (Kuromi con casco y luna) que acompaña sus mensajes. */
+export function AvatarLunakiri({ grande }) {
+  return html`<img class=${`asis-avatar-img ${grande ? 'lg' : ''}`} src="./img/kuromi_luna.png" alt="" width="64" height="63" />`;
+}
+
 function Aviso({ icono, children }) {
   return html`<div class="asis-aviso"><${Icon} name=${icono} size=${22} /><div>${children}</div></div>`;
 }
@@ -101,8 +106,8 @@ export function Chat() {
 
   if (sync.status === 'off') {
     return html`<${Aviso} icono="lock">
-      <b>Inicia sesión para usar el asistente.</b>
-      <p class="small muted">El asistente funciona a través de tu servidor de LunaPy. Entra con tu cuenta en el Perfil.</p>
+      <b>Inicia sesión para hablar con Lunakiri.</b>
+      <p class="small muted">Lunakiri funciona a través de tu servidor de LunaPy. Entra con tu cuenta en el Perfil.</p>
       <a class="btn sm primary" href="#/perfil" onClick=${cerrarAsistente}>Ir al Perfil</a>
     </${Aviso}>`;
   }
@@ -128,15 +133,15 @@ export function Chat() {
   return html`<div class="asis-chat">
     <div class="asis-mensajes" ref=${lista} aria-live="polite">
       ${!mensajes.length && html`<div class="asis-bienvenida">
-        <div class="asis-avatar lg"><${Icon} name="sparkle" size=${22} /></div>
-        <b>¿En qué te ayudo?</b>
+        <img class="asis-motera" src="./img/kuromi_motera.png" alt="Lunakiri" width="120" height="173" />
+        <b>¡Hola! Soy Lunakiri. ¿En qué te ayudo?</b>
         <p class="small muted">Pregúntame cualquier duda de Python: conceptos, errores, ejercicios… Te explico el porqué y te doy pistas sin destriparte las soluciones.</p>
         <div class="asis-sugerencias">${SUGERENCIAS.map((s) => html`<button class="btn sm" onClick=${() => preguntar(s, { conContexto })} disabled=${estado.enviando || !pwa.online}>${s}</button>`)}</div>
       </div>`}
       ${mensajes.map((m, i) => (m.role === 'user'
         ? html`<div class="asis-msg yo" key=${i}>${m.content}</div>`
         : html`<div class="asis-msg ella" key=${i}>
-            <div class="asis-avatar"><${Icon} name="sparkle" size=${14} /></div>
+            <${AvatarLunakiri} />
             ${m.content ? html`<${Respuesta} texto=${m.content} />` : html`<div class="asis-pensando" aria-label="Pensando"><span /><span /><span /></div>`}
           </div>`))}
       ${estado.error && html`<div class="asis-error" role="alert"><${Icon} name="alert" size=${16} /> ${estado.error}</div>`}
@@ -163,8 +168,18 @@ export function Chat() {
 
 // ---------- Botón flotante y panel ----------
 
-export function AsistenteFlotante({ oculto }) {
+let saludado = false; // Lunakiri saluda una vez cada vez que se abre la app
+
+export function AsistenteFlotante({ oculto, saludar }) {
   const { estado } = useAsistente();
+  const [saludo, setSaludo] = useState(false);
+  useEffect(() => {
+    if (saludado || oculto || !saludar || estado.abierto) return undefined;
+    saludado = true;
+    setSaludo(true);
+    const t = setTimeout(() => setSaludo(false), 3000);
+    return () => clearTimeout(t);
+  }, [oculto, saludar]);
   useEffect(() => {
     if (!estado.abierto) return undefined;
     const esc = (e) => e.key === 'Escape' && cerrarAsistente();
@@ -174,13 +189,17 @@ export function AsistenteFlotante({ oculto }) {
   if (oculto) return null;
 
   if (!estado.abierto) {
-    return html`<button class="asis-fab" onClick=${() => abrirAsistente()}
-      aria-label="Abrir el asistente" title="Pregunta tus dudas al asistente"><${Icon} name="chat" size=${24} /></button>`;
+    return html`<div class="asis-fab-wrap">
+      ${saludo && html`<div class="asis-saludo" role="status">¡Hola! Soy <b>Lunakiri</b> 🌙<br />¿Te ayudo con Python?</div>`}
+      <button class="asis-fab" onClick=${() => { setSaludo(false); abrirAsistente(); }}
+        aria-label="Abrir a Lunakiri, la asistente" title="Pregunta tus dudas a Lunakiri">
+        <img src="./img/kuromi_vespa.png" alt="" width="79" height="102" draggable="false" /></button>
+    </div>`;
   }
-  return html`<section class="asis-panel" role="dialog" aria-label="Asistente">
+  return html`<section class="asis-panel" role="dialog" aria-label="Lunakiri, la asistente">
     <header class="asis-cabecera">
-      <div class="asis-avatar"><${Icon} name="sparkle" size=${14} /></div>
-      <b>Asistente</b>
+      <${AvatarLunakiri} />
+      <b>Lunakiri</b>
       <span class="spacer" />
       <button class="icon-btn" onClick=${nuevaConversacion} disabled=${estado.enviando} aria-label="Conversación nueva" title="Conversación nueva"><${Icon} name="plus" size=${16} /></button>
       <a class="icon-btn" href="#/asistente" onClick=${cerrarAsistente} aria-label="Abrir en pantalla completa" title="Ver todas las conversaciones"><${Icon} name="expand" size=${16} /></a>

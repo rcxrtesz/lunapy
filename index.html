@@ -8,9 +8,9 @@
 
   <!-- Aplicación instalable (PWA) -->
   <link rel="manifest" href="./manifest.webmanifest" />
-  <meta name="theme-color" content="#4a57f0" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#0a0d18" media="(prefers-color-scheme: dark)" />
-  <link rel="icon" href="./icons/favicon.svg" type="image/svg+xml" />
+  <meta name="theme-color" content="#2b2433" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#121015" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="./icons/favicon.png" type="image/png" sizes="64x64" />
   <link rel="icon" href="./icons/icon-192.png" type="image/png" sizes="192x192" />
   <!-- iPhone / iPad: «Añadir a pantalla de inicio» -->
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
@@ -28,14 +28,24 @@
       const s = JSON.parse((localStorage.getItem('lunapy.v1') || localStorage.getItem('pyensa.v1')) || '{}');
       const t = s.theme && s.theme !== 'system' ? s.theme : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.dataset.theme = t;
-      document.documentElement.dataset.palette = s.palette || 'indigo';
+      document.documentElement.dataset.palette = s.palette || 'kuromi';
     } catch (e) { document.documentElement.dataset.theme = 'light'; }
   </script>
 </head>
 <body>
-  <div id="app">
-    <div class="boot">Cargando LunaPy…</div>
+  <!-- Pantalla de carga: Kuromi arranca la moto; al terminar de cargar se va (src/lib/splash.js) -->
+  <div id="splash" class="splash" role="status" aria-label="Cargando LunaPy">
+    <div class="splash-escena">
+      <div class="splash-moto">
+        <img src="./img/kuromi_kawasaki.png" alt="" width="250" height="256" />
+        <span class="splash-humo h1"></span><span class="splash-humo h2"></span><span class="splash-humo h3"></span>
+      </div>
+      <div class="splash-suelo"></div>
+    </div>
+    <div class="splash-nombre">LunaPy</div>
+    <div class="splash-texto">Arrancando motores<span class="splash-puntos"><i>.</i><i>.</i><i>.</i></span></div>
   </div>
+  <div id="app"></div>
   <noscript>LunaPy necesita JavaScript para funcionar.</noscript>
   <script src="./vendor/codemirror/codemirror.min.js"></script>
   <script src="./vendor/codemirror/python.min.js"></script>

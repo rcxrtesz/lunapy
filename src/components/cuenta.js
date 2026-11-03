@@ -42,6 +42,17 @@ export function CuentaCard() {
 }
 
 function FormularioCuenta({ aviso }) {
+  return html`<div class="card span-6">
+    <div class="card-title"><${Icon} name="lock" /> Cuenta</div>
+    <p class="small">Tu progreso se guarda en este dispositivo. Con una cuenta se copia en tu servidor y es el mismo en el ordenador y en el móvil. Sin conexión sigue funcionando: los cambios se suben al volver la red.</p>
+    ${aviso && html`<p class="small" style="color:var(--err)" role="alert">${aviso}</p>`}
+    <${FormularioEntrar} />
+    <p class="tiny muted" style="margin-top:10px">Solo pueden crear cuenta los correos autorizados en tu servidor. La contraseña debe tener al menos 8 caracteres.</p>
+  </div>`;
+}
+
+/** Correo, contraseña y botones de entrar / crear cuenta. Se usa en el Perfil y en la bienvenida. */
+export function FormularioEntrar({ alEntrar, idPrefijo = 'cuenta' }) {
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState(null);
@@ -54,24 +65,18 @@ function FormularioCuenta({ aviso }) {
     const r = await entrar(email.trim(), contrasena, nueva);
     setEnviando(false);
     if (!r.ok) setError(r.error);
-    else setContrasena('');
+    else { setContrasena(''); if (alEntrar) alEntrar(); }
   };
 
-  return html`<div class="card span-6">
-    <div class="card-title"><${Icon} name="lock" /> Cuenta</div>
-    <p class="small">Tu progreso se guarda en este dispositivo. Con una cuenta se copia en tu servidor y es el mismo en el ordenador y en el móvil. Sin conexión sigue funcionando: los cambios se suben al volver la red.</p>
-    ${aviso && html`<p class="small" style="color:var(--err)" role="alert">${aviso}</p>`}
-    <form onSubmit=${(ev) => { ev.preventDefault(); enviar(false); }} style="display:grid;gap:8px">
-      <label class="small" for="cuenta-email">Correo electrónico</label>
-      <input id="cuenta-email" class="input" type="email" autocomplete="username" value=${email} onInput=${(ev) => setEmail(ev.target.value)} />
-      <label class="small" for="cuenta-pass">Contraseña</label>
-      <input id="cuenta-pass" class="input" type="password" autocomplete="current-password" value=${contrasena} onInput=${(ev) => setContrasena(ev.target.value)} />
+  return html`<form onSubmit=${(ev) => { ev.preventDefault(); enviar(false); }} style="display:grid;gap:8px">
+      <label class="small" for=${`${idPrefijo}-email`}>Correo electrónico</label>
+      <input id=${`${idPrefijo}-email`} class="input" type="email" autocomplete="username" value=${email} onInput=${(ev) => setEmail(ev.target.value)} />
+      <label class="small" for=${`${idPrefijo}-pass`}>Contraseña</label>
+      <input id=${`${idPrefijo}-pass`} class="input" type="password" autocomplete="current-password" value=${contrasena} onInput=${(ev) => setContrasena(ev.target.value)} />
       ${error && html`<p class="small" style="color:var(--err);margin:0" role="alert">${error}</p>`}
       <div class="row wrap" style="margin-top:4px">
         <button class="btn primary" type="submit" disabled=${enviando}>${enviando ? 'Conectando…' : 'Iniciar sesión'}</button>
         <button class="btn" type="button" disabled=${enviando} onClick=${() => enviar(true)}>Crear cuenta</button>
       </div>
-    </form>
-    <p class="tiny muted" style="margin-top:10px">Solo pueden crear cuenta los correos autorizados en tu servidor. La contraseña debe tener al menos 8 caracteres.</p>
-  </div>`;
+    </form>`;
 }

@@ -19,7 +19,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 OUTPUT = os.path.join(ROOT, "sw-assets.js")
 
 ROOT_FILES = ["index.html", "manifest.webmanifest"]
-DIRS = {"src": (".js", ".css", ".py"), "icons": (".png", ".svg"), "vendor": (".js", ".css", ".wasm", ".zip", ".json", ".woff2")}
+DIRS = {"src": (".js", ".css", ".py"), "icons": (".png", ".svg"), "img": (".png",), "vendor": (".js", ".css", ".wasm", ".zip", ".json", ".woff2")}
 
 
 def collect():

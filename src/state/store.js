@@ -17,7 +17,7 @@ const fresh = () => ({
   updatedAt: 0, // última modificación (para decidir qué dispositivo tiene los ajustes más recientes)
   profile: { name: '', dailyGoal: 30, onboarded: false },
   theme: 'system', // 'light' | 'dark' | 'system'
-  palette: 'indigo',
+  palette: 'kuromi',
   dayOffset: 0, // herramienta de demo: simular el paso de los días
   xp: 0,
   daily: {}, // 'AAAA-MM-DD' → { xp, seconds, activities, labRuns, reviews }

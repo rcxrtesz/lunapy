@@ -28,7 +28,7 @@ Con Python real en el navegador: `http://localhost:5173/tests.html` y la suite Q
 | Pieza | Archivo |
 |---|---|
 | Manifiesto (nombre, iconos, colores, atajos) | `manifest.webmanifest` |
-| Iconos (generados con `python tools/make_icons.py`) | `icons/` |
+| Iconos e imágenes de Kuromi (generados con `python tools/kuromi_assets.py` desde `assets-src/kuromi/`) | `icons/`, `img/` |
 | Service worker (guarda la app en el dispositivo) | `sw.js` |
 | Lista de archivos y versión (generada) | `sw-assets.js` |
 | Registro, actualizaciones e instalación | `src/lib/pwa.js` |
@@ -77,7 +77,7 @@ src/
   lib/         ui.js · icons.js · highlight.js · backup.js · pwa.js
 vendor/        pyodide · codemirror · preact · fonts   (dependencias incluidas)
 icons/         iconos de la app
-tools/         vendor.py · build_sw.py · make_icons.py
+tools/         vendor.py · build_sw.py · kuromi_assets.py
 tests/         test_runtime.py · test_pwa.py · qa/
 ```
 

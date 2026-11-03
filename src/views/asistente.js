@@ -10,9 +10,12 @@ export function AsistenteView() {
   const { datos, estado } = useAsistente();
   const convs = datos.conversaciones.filter((c) => c.mensajes.length);
   return html`<div class="asis-vista">
-    <div class="page-head" style="margin:14px 0 18px">
-      <h1 style="margin:0">Asistente</h1>
-      <p class="muted" style="margin:4px 0 0">Pregunta tus dudas de Python. Te explica el porqué y te guía con pistas.</p>
+    <div class="page-head asis-vista-cabecera">
+      <img class="asis-vista-kuromi" src="./img/kuromi_motera.png" alt="" width="62" height="89" />
+      <div>
+        <h1 style="margin:0">Lunakiri</h1>
+        <p class="muted" style="margin:4px 0 0">Tu asistente de Python. Pregúntale tus dudas: te explica el porqué y te guía con pistas.</p>
+      </div>
     </div>
     <div class="asis-vista-grid">
       <aside class="card flat asis-historial" aria-label="Conversaciones">
