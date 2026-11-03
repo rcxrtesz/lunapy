@@ -33,7 +33,7 @@ return [
         'modo' => 'smtp',                    // 'smtp' | 'mail' | 'archivo' (pruebas: se guardan en api/datos/correos/)
         'remitente' => 'no-reply@lunadev.es',
         'nombre' => 'LunaPy',
-        'smtp_host' => 'smtp.lunadev.es',    // el servidor de salida que indica el panel para ese buzón
+        'smtp_host' => 'lunadev-es.correoseguro.dinaserver.com', // «Servidor de correo saliente» en el panel
         'smtp_puerto' => 465,                // 465 (SSL) o 587 (STARTTLS)
         'smtp_usuario' => 'no-reply@lunadev.es',
         'smtp_contrasena' => 'CONTRASEÑA_DEL_BUZÓN',
