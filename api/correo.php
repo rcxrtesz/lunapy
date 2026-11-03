@@ -53,34 +53,43 @@ function enviar_correo(string $para, string $asunto, string $html, string $texto
         file_put_contents($nombre, json_encode(compact('para', 'asunto', 'html', 'texto'), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
         return true;
     }
-    require_once __DIR__ . '/vendor/autoload.php';
-    $m = new PHPMailer(true);
+    $m = preparar_correo($c, $para, $asunto, $html, $texto);
     try {
-        $m->CharSet = PHPMailer::CHARSET_UTF8;
-        if ($c['modo'] === 'smtp') {
-            $m->isSMTP();
-            $m->Host = $c['smtp_host'];
-            $m->Port = (int) $c['smtp_puerto'];
-            $m->SMTPAuth = true;
-            $m->Username = $c['smtp_usuario'] ?: $c['remitente'];
-            $m->Password = $c['smtp_contrasena'];
-            $m->SMTPSecure = (int) $c['smtp_puerto'] === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-            $m->Timeout = 15;
-        } else {
-            $m->isMail();
-        }
-        $m->setFrom($c['remitente'], $c['nombre']);
-        $m->addAddress($para);
-        $m->Subject = $asunto;
-        $m->isHTML(true);
-        $m->Body = $html;
-        $m->AltBody = $texto;
         $m->send();
         return true;
     } catch (Throwable $e) {
         error_log('[LunaPy] No se pudo enviar el correo a ' . $para . ': ' . $m->ErrorInfo . ' ' . $e->getMessage());
         return false;
     }
+}
+
+/** Construye el mensaje (sin enviarlo). Todo en UTF-8: asunto, cuerpo HTML y versión de texto. */
+function preparar_correo(array $c, string $para, string $asunto, string $html, string $texto): PHPMailer
+{
+    require_once __DIR__ . '/vendor/autoload.php';
+    $m = new PHPMailer(true);
+    $m->CharSet = PHPMailer::CHARSET_UTF8;
+    // base64: las tildes, eñes y emojis llegan intactos aunque algún servidor intermedio no admita 8 bits.
+    $m->Encoding = PHPMailer::ENCODING_BASE64;
+    if ($c['modo'] === 'smtp') {
+        $m->isSMTP();
+        $m->Host = $c['smtp_host'];
+        $m->Port = (int) $c['smtp_puerto'];
+        $m->SMTPAuth = true;
+        $m->Username = $c['smtp_usuario'] ?: $c['remitente'];
+        $m->Password = $c['smtp_contrasena'];
+        $m->SMTPSecure = (int) $c['smtp_puerto'] === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+        $m->Timeout = 15;
+    } else {
+        $m->isMail();
+    }
+    $m->setFrom($c['remitente'], $c['nombre']);
+    $m->addAddress($para);
+    $m->Subject = $asunto;
+    $m->isHTML(true);
+    $m->Body = $html;
+    $m->AltBody = $texto;
+    return $m;
 }
 
 // ---------- Enlaces de un solo uso (verificar la cuenta, restablecer la contraseña) ----------
