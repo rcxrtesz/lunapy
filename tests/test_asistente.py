@@ -80,6 +80,7 @@ class AsistenteTests(unittest.TestCase):
         with open(config, "w", encoding="utf-8") as f:
             f.write(f"""<?php return [
                 'dsn' => 'sqlite:{cls.db}', 'emails_permitidos' => ['{EMAIL}'],
+                'correo' => ['modo' => 'archivo', 'carpeta' => '{cls.tmp.replace(os.sep, "/")}/correos'],
                 'anthropic_api_key' => 'clave-de-prueba', 'asistente_max_diario' => {MAXIMO},
                 'anthropic_base_url' => 'http://127.0.0.1:{cls.falsa.server_address[1]}',
             ];\n""")
@@ -96,7 +97,11 @@ class AsistenteTests(unittest.TestCase):
                     break
             except OSError:
                 time.sleep(0.1)
-        _, datos = cls.call("POST", "registro", {"email": EMAIL, "contrasena": CLAVE})
+        cls.call("POST", "registro", {"email": EMAIL, "contrasena": CLAVE})
+        # La verificación por correo se prueba en test_api: aquí se activa la cuenta directamente.
+        with sqlite3.connect(cls.db) as con:
+            con.execute("UPDATE usuarias SET verificada = 1")
+        _, datos = cls.call("POST", "sesion", {"email": EMAIL, "contrasena": CLAVE})
         cls.token = datos["token"]
 
     @classmethod

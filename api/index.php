@@ -1,8 +1,12 @@
 <?php
 // API de LunaPy: cuenta y sincronización del progreso entre dispositivos.
 //
-//   POST   index.php/registro       { email, contrasena }        → { token, email }
-//   POST   index.php/sesion         { email, contrasena }        → { token, email }
+//   POST   index.php/registro       { email, contrasena }        → 202 { pendiente, email } (envía el correo de verificación)
+//   POST   index.php/verificacion   { token }                    → { token, email } (activa la cuenta y envía la bienvenida)
+//   POST   index.php/verificacion/reenviar { email }             → { ok }
+//   POST   index.php/recuperar      { email }                    → { ok } (envía el enlace para cambiar la contraseña)
+//   POST   index.php/restablecer    { token, contrasena }        → { token, email }
+//   POST   index.php/sesion         { email, contrasena }        → { token, email } | 403 { sin_verificar }
 //   DELETE index.php/sesion                                       → { ok }
 //   GET    index.php/cuenta                                       → { email }
 //   POST   index.php/cuenta/borrar  { contrasena }               → { ok }
@@ -16,6 +20,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/lib.php';
 require __DIR__ . '/asistente.php';
+require __DIR__ . '/correo.php';
 
 $ruta = trim((string) ($_SERVER['PATH_INFO'] ?? ''), '/');
 $metodo = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -23,6 +28,10 @@ $metodo = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 try {
     match ("$metodo $ruta") {
         'POST registro' => registro(),
+        'POST verificacion' => verificar_cuenta(),
+        'POST verificacion/reenviar' => reenviar_verificacion(),
+        'POST recuperar' => recuperar_contrasena(),
+        'POST restablecer' => restablecer_contrasena(),
         'POST sesion' => iniciar_sesion(),
         'DELETE sesion' => cerrar_sesion(),
         'GET cuenta' => cuenta(),
@@ -50,24 +59,114 @@ function registro(): never
         responder(400, ['error' => 'Escribe un correo electrónico válido.']);
     }
     $permitidos = array_map('normalizar_email', config()['emails_permitidos']);
-    if (!in_array($email, $permitidos, true)) {
+    if (!config()['registro_abierto'] && !in_array($email, $permitidos, true)) {
         responder(403, ['error' => 'Este servidor es privado: ese correo no está autorizado para crear una cuenta.']);
     }
-    if (mb_strlen($contrasena) < 8 || mb_strlen($contrasena) > 200) {
-        responder(400, ['error' => 'La contraseña debe tener al menos 8 caracteres.']);
-    }
+    validar_contrasena($contrasena);
 
     try {
-        db()->prepare('INSERT INTO usuarias (email, hash_contrasena, creada_en) VALUES (?, ?, ?)')
+        db()->prepare('INSERT INTO usuarias (email, hash_contrasena, creada_en, verificada) VALUES (?, ?, ?, 0)')
             ->execute([$email, password_hash($contrasena, PASSWORD_DEFAULT), time()]);
+        $id = (int) db()->lastInsertId();
     } catch (PDOException $e) {
         if (!es_duplicado($e)) {
             throw $e;
         }
-        responder(409, ['error' => 'Ya existe una cuenta con ese correo. Inicia sesión.']);
+        $st = db()->prepare('SELECT id, verificada FROM usuarias WHERE email = ?');
+        $st->execute([$email]);
+        $existente = $st->fetch();
+        if ((int) $existente['verificada'] === 1) {
+            responder(409, ['error' => 'Ya existe una cuenta con ese correo. Inicia sesión.']);
+        }
+        $id = (int) $existente['id']; // registrada pero sin activar: se reenvía el correo
     }
-    $id = (int) db()->lastInsertId();
-    responder(201, ['token' => crear_sesion($id), 'email' => $email]);
+    $token = crear_token_correo($id, 'verificar', VALIDEZ_VERIFICACION);
+    if ($token !== null && !correo_verificacion($email, $token)) {
+        responder(502, ['error' => 'La cuenta se ha creado, pero no se ha podido enviar el correo de verificación. Prueba a reenviarlo en un momento.', 'pendiente' => true]);
+    }
+    responder(202, ['pendiente' => true, 'email' => $email]);
+}
+
+function validar_contrasena(string $contrasena): void
+{
+    if (mb_strlen($contrasena) < 8 || mb_strlen($contrasena) > 200) {
+        responder(400, ['error' => 'La contraseña debe tener al menos 8 caracteres.']);
+    }
+}
+
+function email_de(int $id): string
+{
+    $st = db()->prepare('SELECT email FROM usuarias WHERE id = ?');
+    $st->execute([$id]);
+    return (string) $st->fetchColumn();
+}
+
+/** Abre el enlace del correo de verificación: activa la cuenta, inicia sesión y envía la bienvenida. */
+function verificar_cuenta(): never
+{
+    $id = usar_token_correo(leer_json()['token'] ?? null, 'verificar');
+    if ($id === null) {
+        responder(400, ['error' => 'El enlace no es válido o ha caducado. Inicia sesión para recibir uno nuevo.']);
+    }
+    db()->prepare('UPDATE usuarias SET verificada = 1 WHERE id = ?')->execute([$id]);
+    $email = email_de($id);
+    correo_bienvenida($email); // si falla, la cuenta sigue activa: no es imprescindible
+    responder(200, ['token' => crear_sesion($id), 'email' => $email]);
+}
+
+function reenviar_verificacion(): never
+{
+    $email = normalizar_email(leer_json()['email'] ?? '');
+    $st = db()->prepare('SELECT id FROM usuarias WHERE email = ? AND verificada = 0');
+    $st->execute([$email]);
+    $id = $st->fetchColumn();
+    if ($id !== false) {
+        $token = crear_token_correo((int) $id, 'verificar', VALIDEZ_VERIFICACION);
+        if ($token === null) {
+            responder(429, ['error' => 'Acabamos de enviarte un correo. Espera un minuto antes de pedir otro.']);
+        }
+        correo_verificacion($email, $token);
+    }
+    responder(200, ['ok' => true]);
+}
+
+/** Envía el enlace para cambiar la contraseña. Responde lo mismo exista o no la cuenta (no revela qué correos tienen cuenta). */
+function recuperar_contrasena(): never
+{
+    $email = normalizar_email(leer_json()['email'] ?? '');
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        responder(400, ['error' => 'Escribe un correo electrónico válido.']);
+    }
+    $st = db()->prepare('SELECT id FROM usuarias WHERE email = ?');
+    $st->execute([$email]);
+    $id = $st->fetchColumn();
+    if ($id !== false) {
+        $token = crear_token_correo((int) $id, 'restablecer', VALIDEZ_RESTABLECER);
+        if ($token !== null) {
+            correo_restablecer($email, $token);
+        }
+    }
+    responder(200, ['ok' => true]);
+}
+
+/** Cambia la contraseña con el enlace del correo: cierra las demás sesiones e inicia una nueva. */
+function restablecer_contrasena(): never
+{
+    $datos = leer_json();
+    $contrasena = (string) ($datos['contrasena'] ?? '');
+    validar_contrasena($contrasena);
+    $id = usar_token_correo($datos['token'] ?? null, 'restablecer');
+    if ($id === null) {
+        responder(400, ['error' => 'El enlace no es válido o ha caducado. Pide uno nuevo desde «¿Has olvidado tu contraseña?».']);
+    }
+    $pdo = db();
+    // Abrir el enlace demuestra que el correo es suyo: la cuenta queda verificada.
+    $pdo->prepare('UPDATE usuarias SET hash_contrasena = ?, verificada = 1 WHERE id = ?')
+        ->execute([password_hash($contrasena, PASSWORD_DEFAULT), $id]);
+    $pdo->prepare('DELETE FROM sesiones WHERE usuaria_id = ?')->execute([$id]);
+    $email = email_de($id);
+    borrar_intentos($email);
+    responder(200, ['token' => crear_sesion($id), 'email' => $email]);
 }
 
 function iniciar_sesion(): never
@@ -77,7 +176,7 @@ function iniciar_sesion(): never
     $contrasena = (string) ($datos['contrasena'] ?? '');
     comprobar_limite_intentos($email);
 
-    $st = db()->prepare('SELECT id, hash_contrasena FROM usuarias WHERE email = ?');
+    $st = db()->prepare('SELECT id, hash_contrasena, verificada FROM usuarias WHERE email = ?');
     $st->execute([$email]);
     $usuaria = $st->fetch();
     // Se verifica siempre una contraseña (aunque la cuenta no exista) para que el tiempo
@@ -88,6 +187,9 @@ function iniciar_sesion(): never
         responder(401, ['error' => 'Correo o contraseña incorrectos.']);
     }
     borrar_intentos($email);
+    if ((int) $usuaria['verificada'] !== 1) {
+        responder(403, ['error' => 'Aún no has activado tu cuenta: abre el enlace del correo que te enviamos.', 'sin_verificar' => true]);
+    }
     if (password_needs_rehash($hash, PASSWORD_DEFAULT)) {
         db()->prepare('UPDATE usuarias SET hash_contrasena = ? WHERE id = ?')
             ->execute([password_hash($contrasena, PASSWORD_DEFAULT), $usuaria['id']]);
@@ -123,7 +225,7 @@ function borrar_cuenta(): never
     }
     $pdo = db();
     $pdo->beginTransaction();
-    foreach (['DELETE FROM estados WHERE usuaria_id = ?', 'DELETE FROM uso_asistente WHERE usuaria_id = ?', 'DELETE FROM sesiones WHERE usuaria_id = ?', 'DELETE FROM usuarias WHERE id = ?'] as $sql) {
+    foreach (['DELETE FROM estados WHERE usuaria_id = ?', 'DELETE FROM uso_asistente WHERE usuaria_id = ?', 'DELETE FROM sesiones WHERE usuaria_id = ?', 'DELETE FROM tokens_correo WHERE usuaria_id = ?', 'DELETE FROM usuarias WHERE id = ?'] as $sql) {
         $pdo->prepare($sql)->execute([$id]);
     }
     $pdo->commit();

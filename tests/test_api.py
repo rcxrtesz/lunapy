@@ -17,6 +17,8 @@ import unittest
 import urllib.error
 import urllib.request
 
+from tests import correos
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
@@ -48,8 +50,10 @@ class ApiTests(unittest.TestCase):
         cls.tmp = tempfile.mkdtemp()
         db = os.path.join(cls.tmp, "lunapy.sqlite").replace("\\", "/")
         config = os.path.join(cls.tmp, "config.php")
+        cls.buzon = os.path.join(cls.tmp, "correos").replace("\\", "/")
         with open(config, "w", encoding="utf-8") as f:
-            f.write(f"<?php return ['dsn' => 'sqlite:{db}', 'emails_permitidos' => ['{EMAIL}', 'otra@lunapy.test']];\n")
+            f.write(f"<?php return ['dsn' => 'sqlite:{db}', 'emails_permitidos' => ['{EMAIL}', 'otra@lunapy.test', 'nueva@lunapy.test'],\n"
+                    f"  'url_app' => 'https://lunapy.test/app/', 'correo' => ['modo' => 'archivo', 'carpeta' => '{cls.buzon}']];\n")
         cls.port = free_port()
         ext = os.path.join(os.path.dirname(PHP), "ext")
         env = dict(os.environ, LUNAPY_CONFIG=config)
@@ -89,10 +93,17 @@ class ApiTests(unittest.TestCase):
     def login(self, email=EMAIL, password=CLAVE):
         return self.call("POST", "sesion", {"email": email, "contrasena": password})
 
+    def verify(self, email):
+        """Abre el enlace del último correo de verificación enviado a email."""
+        c = correos.ultimo(self.buzon, email, "Activa")
+        self.assertIsNotNone(c, f"no llegó el correo de verificación a {email}")
+        return self.call("POST", "verificacion", {"token": correos.token_del_enlace(c, "verificar")})
+
     def token(self):
         status, body = self.login()
         if status == 401:
             self.register()
+            self.verify(EMAIL)
             status, body = self.login()
         self.assertEqual(status, 200, body)
         return body["token"]
@@ -104,10 +115,49 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.register(EMAIL, "corta")[0], 400)
         self.assertEqual(self.register("no-es-un-correo")[0], 400)
         status, body = self.register(" Prueba@LunaPy.test ")  # se normaliza
-        self.assertEqual(status, 201, body)
-        self.assertEqual(body["email"], EMAIL)
-        self.assertEqual(len(body["token"]), 64)
+        self.assertEqual(status, 202, body)
+        self.assertEqual(body, {"pendiente": True, "email": EMAIL})
+        # Sin abrir el enlace no se puede entrar
+        status, body = self.login()
+        self.assertEqual((status, body.get("sin_verificar")), (403, True))
+        # El correo enlaza a la app configurada
+        c = correos.ultimo(self.buzon, EMAIL, "Activa")
+        self.assertIn("https://lunapy.test/app/#/verificar?t=", c["texto"])
+        status, body = self.verify(EMAIL)
+        self.assertEqual(status, 200, body)
+        self.assertEqual((body["email"], len(body["token"])), (EMAIL, 64))
+        self.assertIsNotNone(correos.ultimo(self.buzon, EMAIL, "bienvenida"))
         self.assertEqual(self.register()[0], 409)
+
+    def test_01b_verification_link_is_single_use(self):
+        self.register("nueva@lunapy.test", CLAVE)
+        token = correos.token_del_enlace(correos.ultimo(self.buzon, "nueva@lunapy.test", "Activa"), "verificar")
+        # Reenviar enseguida está limitado (un correo por minuto)
+        self.assertEqual(self.call("POST", "verificacion/reenviar", {"email": "nueva@lunapy.test"})[0], 429)
+        self.assertEqual(self.call("POST", "verificacion", {"token": "f" * 64})[0], 400)
+        self.assertEqual(self.call("POST", "verificacion", {"token": token})[0], 200)
+        self.assertEqual(self.call("POST", "verificacion", {"token": token})[0], 400)
+        self.assertEqual(self.login("nueva@lunapy.test")[0], 200)
+
+    def test_01c_password_recovery(self):
+        viejo = self.token()
+        antes = len(correos.correos(self.buzon))
+        # Mismo resultado exista o no la cuenta (no revela qué correos están registrados)
+        self.assertEqual(self.call("POST", "recuperar", {"email": "nadie@lunapy.test"}), (200, {"ok": True}))
+        self.assertEqual(len(correos.correos(self.buzon)), antes)
+        self.assertEqual(self.call("POST", "recuperar", {"email": EMAIL}), (200, {"ok": True}))
+        token = correos.token_del_enlace(correos.ultimo(self.buzon, EMAIL, "contraseña"), "restablecer")
+        self.assertEqual(self.call("POST", "restablecer", {"token": token, "contrasena": "corta"})[0], 400)
+        status, body = self.call("POST", "restablecer", {"token": token, "contrasena": "otra-clave-nueva"})
+        self.assertEqual(status, 200, body)
+        self.assertEqual(self.call("POST", "restablecer", {"token": token, "contrasena": "otra-clave-nueva"})[0], 400)
+        self.assertEqual(self.call("GET", "cuenta", token=viejo)[0], 401)  # se cierran las sesiones anteriores
+        self.assertEqual(self.login()[0], 401)
+        self.assertEqual(self.login(password="otra-clave-nueva")[0], 200)
+        # Se deja la contraseña como estaba para el resto de pruebas
+        self.call("POST", "cuenta/borrar", {"contrasena": "otra-clave-nueva"}, body["token"])
+        self.register()
+        self.verify(EMAIL)
 
     def test_02_login_and_account(self):
         self.assertEqual(self.login(password="incorrecta")[0], 401)

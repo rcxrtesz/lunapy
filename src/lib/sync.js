@@ -31,6 +31,9 @@ function fijar(patch) {
   oyentes.forEach((f) => f(estado));
 }
 
+/** Estado actual de la cuenta (fuera de un componente). */
+export const estadoSync = () => estado;
+
 export function useSync() {
   const [s, set] = useState(estado);
   useEffect(() => { oyentes.add(set); return () => oyentes.delete(set); }, []);
@@ -72,17 +75,51 @@ const mensajeRed = 'No se ha podido contactar con el servidor. Tu progreso sigue
 export async function entrar(email, contrasena, nueva = false) {
   try {
     const { status, datos } = await api('POST', nueva ? 'registro' : 'sesion', { email, contrasena });
-    if (status !== 200 && status !== 201) return { ok: false, error: datos.error || `Error ${status}` };
-    cuenta = { email: datos.email, token: datos.token, revision: 0, ultima: null };
-    guardarCuenta();
-    escribir(BASE, null);
-    pendiente = true;
-    fijar({ status: 'idle', email: cuenta.email, ultima: null, error: null });
-    await sincronizar();
+    // Registro: la cuenta queda pendiente hasta abrir el enlace del correo de verificación.
+    if (status === 202) return { ok: true, pendiente: true, email: datos.email };
+    if (status !== 200) return { ok: false, error: datos.error || `Error ${status}`, sinVerificar: !!datos.sin_verificar, pendiente: !!datos.pendiente };
+    await iniciarCon(datos);
     return { ok: true };
   } catch {
     return { ok: false, error: mensajeRed };
   }
+}
+
+/** Guarda la sesión recibida de la API y sincroniza. */
+async function iniciarCon(datos) {
+  cuenta = { email: datos.email, token: datos.token, revision: 0, ultima: null };
+  guardarCuenta();
+  escribir(BASE, null);
+  pendiente = true;
+  fijar({ status: 'idle', email: cuenta.email, ultima: null, error: null });
+  await sincronizar();
+}
+
+/** Llamada sencilla a la API: devuelve { ok, error?, datos }. */
+async function pedir(ruta, cuerpo) {
+  try {
+    const { status, datos } = await api('POST', ruta, cuerpo);
+    return status === 200 ? { ok: true, datos } : { ok: false, error: datos.error || `Error ${status}` };
+  } catch {
+    return { ok: false, error: mensajeRed };
+  }
+}
+
+/** Abre el enlace del correo de verificación: activa la cuenta e inicia sesión. */
+export async function verificarCorreo(token) {
+  const r = await pedir('verificacion', { token });
+  if (r.ok) await iniciarCon(r.datos);
+  return r;
+}
+
+export const reenviarVerificacion = (email) => pedir('verificacion/reenviar', { email });
+export const recuperarContrasena = (email) => pedir('recuperar', { email });
+
+/** Cambia la contraseña con el enlace del correo e inicia sesión. */
+export async function restablecerContrasena(token, contrasena) {
+  const r = await pedir('restablecer', { token, contrasena });
+  if (r.ok) await iniciarCon(r.datos);
+  return r;
 }
 
 /** Cierra la sesión en este dispositivo. El progreso local se conserva. */

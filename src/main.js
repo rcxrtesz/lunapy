@@ -17,9 +17,9 @@ import { AsistenteView } from './views/asistente.js';
 import { AsistenteFlotante } from './components/asistente.js';
 import { ErrorBoundary } from './components/boundary.js';
 import { initPWA, usePWA, applyUpdate } from './lib/pwa.js';
-import { initSync, useSync } from './lib/sync.js';
+import { initSync, useSync, estadoSync as getSyncEstado } from './lib/sync.js';
 import { ocultarSplash, useSplashFuera } from './lib/splash.js';
-import { FormularioEntrar } from './components/cuenta.js';
+import { FormularioEntrar, PantallaEnlace } from './components/cuenta.js';
 import { imagenAvatar } from './state/avatares.js';
 
 const NAV = [
@@ -78,14 +78,18 @@ function Appearance({ theme, resolved, palette, onClose }) {
  *  Con la sesión iniciada no vuelve a aparecer en este dispositivo (la sesión se recuerda). */
 function Bienvenida({ alEntrar }) {
   return html`<div class="bienvenida" role="dialog" aria-modal="true" aria-labelledby="bienvenida-titulo">
-    <div class="bienvenida-tarjeta">
-      <img class="bienvenida-kuromi" src="./img/kuromi_luna.png" alt="" width="120" height="119" />
-      <h1 id="bienvenida-titulo">Te damos la bienvenida a LunaPy</h1>
-      <p class="muted">Aprende Python pensando, paso a paso. Inicia sesión para guardar tu progreso en tu cuenta y seguir en cualquier dispositivo.</p>
+    <div class="bienvenida-tarjeta compacta">
+      <div class="bienvenida-cabecera">
+        <img class="bienvenida-kuromi" src="./img/kuromi_luna.png" alt="" width="72" height="71" />
+        <div>
+          <h1 id="bienvenida-titulo">Bienvenida a LunaPy</h1>
+          <p class="muted">Inicia sesión para guardar tu progreso en todos tus dispositivos.</p>
+        </div>
+      </div>
       <${FormularioEntrar} alEntrar=${alEntrar} idPrefijo="bienvenida" />
       <div class="bienvenida-o"><span>o</span></div>
-      <button class="btn lg bienvenida-invitado" onClick=${alEntrar}><${Icon} name="user" size=${17} /> Entrar como invitado</button>
-      <p class="tiny muted" style="margin:10px 0 0">Como invitado, tu progreso se guarda solo en este dispositivo. Puedes iniciar sesión más tarde en el Perfil.</p>
+      <button class="btn bienvenida-invitado" onClick=${alEntrar}><${Icon} name="user" size=${17} /> Entrar como invitado</button>
+      <p class="tiny muted" style="margin:8px 0 0">Como invitado, tu progreso se guarda solo en este dispositivo.</p>
     </div>
   </div>`;
 }
@@ -130,6 +134,12 @@ function App() {
   // Sin sesión, cada vez que se abre la app se ofrece iniciarla o entrar como invitado.
   const [puerta, setPuerta] = useState(() => sync.status === 'off');
   useEffect(() => { ocultarSplash(); }, []);
+  // Enlaces de los correos: #/verificar?t=… y #/restablecer?t=…
+  const enlace = /^(verificar|restablecer)\?t=([0-9a-f]{64})$/.exec(route.join('/'));
+  const terminarEnlace = () => {
+    location.hash = '#/';
+    if (getSyncEstado().status !== 'off') setPuerta(false);
+  };
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = resolved;
@@ -195,13 +205,14 @@ function App() {
     <nav class="bottom-nav" aria-label="Principal (móvil)">
       ${NAV.filter((n) => !n.desktopOnly).map((n) => html`<a class=${n.match(route) ? 'active' : ''} href=${n.href}><${Icon} name=${n.icon} size=${21} />${n.short || n.label}</a>`)}
     </nav>
-    ${puerta ? html`<${Bienvenida} alEntrar=${() => setPuerta(false)} />` : !s.profile.onboarded && html`<${Onboarding} />`}
+    ${enlace ? html`<${PantallaEnlace} tipo=${enlace[1]} token=${enlace[2]} alTerminar=${terminarEnlace} key=${enlace[2]} />`
+      : puerta ? html`<${Bienvenida} alEntrar=${() => setPuerta(false)} />` : !s.profile.onboarded && html`<${Onboarding} />`}
     ${pwa.updateReady && html`<div class="update-banner" role="status">
       <${Icon} name="sparkle" size=${18} />
       <span>Hay una versión nueva de LunaPy.</span>
       <button class="btn sm primary" onClick=${applyUpdate}>Actualizar</button>
     </div>`}
-    <${AsistenteFlotante} oculto=${route[0] === 'asistente' || !s.profile.onboarded || puerta} saludar=${splashFuera} />
+    <${AsistenteFlotante} oculto=${route[0] === 'asistente' || !s.profile.onboarded || puerta || !!enlace} saludar=${splashFuera} />
     <${Toasts} />
   </div>`;
 }

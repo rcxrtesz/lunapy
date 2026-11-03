@@ -17,6 +17,23 @@ return [
     'emails_permitidos' => [
         'tu-correo@ejemplo.com',
     ],
+    // true: cualquiera puede registrarse (con el correo de verificación); se ignora la lista anterior.
+    'registro_abierto' => false,
+
+    // Dirección pública de la app, para los enlaces de los correos.
+    'url_app' => 'https://lunadev.es/lunapy/',
+
+    // Correos (verificación, bienvenida y recuperación de contraseña).
+    // Crea el buzón en el panel de Dinahosting (Correo → Buzones) y pon aquí sus datos.
+    'correo' => [
+        'modo' => 'smtp',                    // 'smtp' | 'mail' | 'archivo' (pruebas: se guardan en api/datos/correos/)
+        'remitente' => 'no-reply@lunadev.es',
+        'nombre' => 'LunaPy',
+        'smtp_host' => 'smtp.lunadev.es',    // el servidor de salida que indica el panel para ese buzón
+        'smtp_puerto' => 465,                // 465 (SSL) o 587 (STARTTLS)
+        'smtp_usuario' => 'no-reply@lunadev.es',
+        'smtp_contrasena' => 'CONTRASEÑA_DEL_BUZÓN',
+    ],
 
     // Asistente (Claude): clave de la API de Anthropic. Se crea en console.anthropic.com →
     // API Keys. Déjala vacía para desactivar el asistente.

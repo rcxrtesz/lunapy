@@ -121,7 +121,26 @@ Las conversaciones se guardan solo en el dispositivo; no pasan por la base de da
 Si las respuestas aparecen de golpe en vez de poco a poco, el proxy del hosting está
 acumulándolas: funciona igual, solo se ve menos fluido.
 
+## Correos (verificación, bienvenida y recuperar la contraseña)
+
+Al crear una cuenta llega un correo con un enlace para activarla; al abrirlo, la cuenta se activa,
+se inicia sesión y llega un correo de bienvenida. «¿Has olvidado tu contraseña?» envía un enlace
+(válido 1 hora) para elegir otra. Las cuentas que ya existían quedan activadas.
+
+1. Panel → Correo → crea un buzón para enviar (por ejemplo `no-reply@lunadev.es`) y anota su
+   servidor de salida SMTP y el puerto que indica el panel.
+2. En `~/www/lunapy/api/config.php` añade el bloque `'correo' => [...]` y `'url_app'` de
+   `config.example.php` con esos datos (la contraseña del buzón la escribes tú en el servidor).
+3. Sube también `api/vendor/` (incluye PHPMailer).
+4. Prueba: crea una cuenta con un correo permitido y comprueba que llega el mensaje (mira en spam).
+   Si no llega, el motivo queda en el registro de errores de PHP del panel («No se pudo enviar el correo…»).
+
+`'registro_abierto' => true` deja registrarse a cualquiera (siguen haciendo falta el correo de
+verificación); por defecto solo pueden los de `emails_permitidos`.
+
 ## Si olvidas la contraseña
+
+Ahora basta con «¿Has olvidado tu contraseña?» en la pantalla de inicio. Si el correo no funcionara:
 
 1. En tu ordenador: `php api/herramientas/hash_contrasena.php "nueva contraseña"`.
 2. Copia el resultado.

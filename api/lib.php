@@ -17,7 +17,7 @@ function config(): array
             responder(500, ['error' => 'Falta api/config.php: copia config.example.php y rellénalo.']);
         }
         $cfg = require $ruta;
-        $cfg += ['dias_sesion' => 180, 'emails_permitidos' => []];
+        $cfg += ['dias_sesion' => 180, 'emails_permitidos' => [], 'registro_abierto' => false];
     }
     return $cfg;
 }
@@ -76,9 +76,24 @@ function crear_tablas(PDO $pdo): void
             clave CHAR(64) NOT NULL,
             en BIGINT NOT NULL
         )$fin",
+        // Enlaces de un solo uso enviados por correo (verificar la cuenta, restablecer la contraseña).
+        "CREATE TABLE IF NOT EXISTS tokens_correo (
+            hash_token CHAR(64) NOT NULL PRIMARY KEY,
+            usuaria_id INT NOT NULL,
+            tipo VARCHAR(20) NOT NULL,
+            creado_en BIGINT NOT NULL,
+            caduca_en BIGINT NOT NULL
+        )$fin",
     ];
     foreach ($sentencias as $sql) {
         $pdo->exec($sql);
+    }
+    // Columna añadida después: las cuentas que ya existían quedan verificadas (DEFAULT 1);
+    // las nuevas se crean con 0 hasta que abren el enlace del correo.
+    try {
+        $pdo->query('SELECT verificada FROM usuarias LIMIT 1');
+    } catch (PDOException) {
+        $pdo->exec('ALTER TABLE usuarias ADD COLUMN verificada INT NOT NULL DEFAULT 1');
     }
 }
 
