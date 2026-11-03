@@ -8,6 +8,7 @@ import { ACHIEVEMENTS } from '../state/gamification.js';
 import { usePWA, promptInstall, isIOS } from '../lib/pwa.js';
 import { forzarSubida } from '../lib/sync.js';
 import { CuentaCard } from '../components/cuenta.js';
+import { AVATARES, GENEROS, MAX_DESCRIPCION, imagenAvatar } from '../state/avatares.js';
 
 const GOALS = [[20, 'Suave', '≈ 10 min'], [30, 'Constante', '≈ 15 min'], [50, 'Intenso', '≈ 25 min']];
 
@@ -15,6 +16,9 @@ export function ProfileView() {
   const s = useStore();
   const pwa = usePWA();
   const [name, setName] = useState(s.profile.name);
+  const [birthday, setBirthday] = useState(s.profile.birthday || '');
+  const [gender, setGender] = useState(s.profile.gender || '');
+  const [bio, setBio] = useState(s.profile.bio || '');
   const [pending, setPending] = useState(null); // copia a importar, a la espera de confirmación
   const [confirmReset, setConfirmReset] = useState(false);
   const fileRef = useRef(null);
@@ -23,12 +27,15 @@ export function ProfileView() {
   const completed = Object.values(s.activities).filter((a) => a.completed).length;
   const resolved = s.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : s.theme;
   const since = new Date(s.createdAt || Date.now()).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  const initial = (s.profile.name || '').trim().charAt(0).toUpperCase();
-  const dirty = name.trim() !== s.profile.name;
+  const avatar = AVATARES.find((a) => a.id === s.profile.avatar) || AVATARES[0];
+  const hoy = new Date();
+  const esCumple = s.profile.birthday && s.profile.birthday.slice(5) === `${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+  const dirty = name.trim() !== s.profile.name || birthday !== (s.profile.birthday || '')
+    || gender !== (s.profile.gender || '') || bio.trim() !== (s.profile.bio || '');
 
   const saveName = (e) => {
     e.preventDefault();
-    actions.setProfile({ name: name.trim().slice(0, 30) });
+    actions.setProfile({ name: name.trim().slice(0, 30), birthday, gender, bio: bio.trim().slice(0, MAX_DESCRIPCION) });
     toast({ icon: 'check', title: 'Perfil actualizado', duration: 2000 });
   };
 
@@ -61,11 +68,13 @@ export function ProfileView() {
 
     <div class="dash-grid" style="margin-top:0">
       <div class="card span-12 profile-hero">
-        <div class="avatar" aria-hidden="true">${initial || html`<${Icon} name="user" size=${34} />`}</div>
+        <div class="avatar" title=${avatar.nombre}><img src=${imagenAvatar(avatar.id)} alt=${`Avatar: ${avatar.nombre}`} width="84" height="84" /></div>
         <div style="flex:1;min-width:0">
           <h2 style="margin:0">${s.profile.name || 'Estudiante'}</h2>
           <div class="small muted">Aprendiendo Python desde el ${since}</div>
+          ${s.profile.bio && html`<p class="profile-bio">${s.profile.bio}</p>`}
           <div class="row wrap" style="margin-top:10px;gap:6px">
+            ${esCumple && html`<span class="tag accent">🎂 ¡Feliz cumpleaños!</span>`}
             <span class="tag accent"><${Icon} name="star" size=${12} /> Nivel ${lvl.level}</span>
             <span class="tag xp"><${Icon} name="zap" size=${12} /> ${s.xp} XP</span>
             <span class="tag"><${Icon} name="flame" size=${12} /> ${st.days} ${st.days === 1 ? 'día' : 'días'} de racha</span>
@@ -78,10 +87,28 @@ export function ProfileView() {
 
       <div class="card span-6">
         <div class="card-title"><${Icon} name="user" /> Datos personales</div>
-        <form onSubmit=${saveName}>
+        <div class="small" style="font-weight:700;margin-bottom:6px">Avatar</div>
+        <div class="avatares" role="radiogroup" aria-label="Avatar">
+          ${AVATARES.map((a) => html`<button class=${`avatar-opt ${avatar.id === a.id ? 'on' : ''}`} role="radio" aria-checked=${avatar.id === a.id}
+            onClick=${() => actions.setProfile({ avatar: a.id })}>
+            <img src=${imagenAvatar(a.id)} alt="" width="60" height="60" /><span>${a.nombre}</span></button>`)}
+        </div>
+        <form onSubmit=${saveName} style="margin-top:16px">
           <label class="small" style="font-weight:700" for="pf-name">Nombre</label>
-          <div class="row" style="margin:6px 0 18px">
-            <input id="pf-name" class="input" value=${name} onInput=${(e) => setName(e.target.value)} maxlength="30" placeholder="¿Cómo quieres que te llamemos?" />
+          <input id="pf-name" class="input" style="width:100%;margin:6px 0 12px" value=${name} onInput=${(e) => setName(e.target.value)} maxlength="30" placeholder="¿Cómo quieres que te llamemos?" />
+          <div class="datos-grid">
+            <label for="pf-cumple">Cumpleaños</label>
+            <label for="pf-genero">Género</label>
+            <input id="pf-cumple" class="input" type="date" value=${birthday} max=${new Date().toISOString().slice(0, 10)} onInput=${(e) => setBirthday(e.target.value)} />
+            <select id="pf-genero" class="input" value=${gender} onChange=${(e) => setGender(e.target.value)}>
+              ${GENEROS.map(([v, l]) => html`<option value=${v}>${l}</option>`)}
+            </select>
+          </div>
+          <label class="small" style="font-weight:700" for="pf-bio">Descripción breve</label>
+          <textarea id="pf-bio" class="input" style="margin-top:6px" rows="2" maxlength=${MAX_DESCRIPCION} value=${bio} onInput=${(e) => setBio(e.target.value)}
+            placeholder="Algo sobre ti: qué te gustaría programar, por qué aprendes Python…" />
+          <div class="row between" style="margin:4px 0 18px">
+            <span class="tiny muted">${bio.length}/${MAX_DESCRIPCION}</span>
             <button class="btn primary" type="submit" disabled=${!dirty}>Guardar</button>
           </div>
         </form>
@@ -145,7 +172,7 @@ export function ProfileView() {
           const { ok } = actions.importState(pending);
           if (ok) forzarSubida();
           setPending(null);
-          if (ok) { setName(getState().profile.name); toast({ icon: 'check', title: 'Copia restaurada' }); }
+          if (ok) { const pf = getState().profile; setName(pf.name); setBirthday(pf.birthday || ''); setGender(pf.gender || ''); setBio(pf.bio || ''); toast({ icon: 'check', title: 'Copia restaurada' }); }
           else toast({ icon: 'alert', title: 'No se pudo restaurar la copia' });
         }}>Sí, restaurar</button>
       </div>

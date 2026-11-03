@@ -20,6 +20,7 @@ import { initPWA, usePWA, applyUpdate } from './lib/pwa.js';
 import { initSync, useSync } from './lib/sync.js';
 import { ocultarSplash, useSplashFuera } from './lib/splash.js';
 import { FormularioEntrar } from './components/cuenta.js';
+import { imagenAvatar } from './state/avatares.js';
 
 const NAV = [
   { href: '#/', icon: 'home', label: 'Inicio', match: (r) => r[0] === '' },
@@ -95,7 +96,7 @@ function Onboarding() {
   const [goal, setGoal] = useState(s.profile.dailyGoal);
   const done = () => { actions.setProfile({ name: name.trim().slice(0, 30), dailyGoal: goal, onboarded: true }); location.hash = '#/'; };
   return html`<${Modal} label="Bienvenida">
-    <div class="brand-mark" style="width:48px;height:48px;border-radius:14px;margin-bottom:14px"><${Logo} size=${28} /></div>
+    <div class="brand-mark" style="width:56px;height:56px;margin-bottom:10px"><${Logo} size=${56} /></div>
     <h2>Antes de empezar</h2>
     <p class="muted">Aquí no se trata de memorizar sintaxis, sino de <b>aprender a pensar</b> como programadora o programador. Cada problema sigue el mismo ciclo:</p>
     <div class="method" style="margin:10px 0 18px"><span>Comprender</span><i>→</i><span>Razonar</span><i>→</i><span>Planificar</span><i>→</i><span>Programar</span><i>→</i><span>Ejecutar</span><i>→</i><span>Analizar</span><i>→</i><span>Mejorar</span></div>
@@ -148,7 +149,7 @@ function App() {
     default: view = html`<${Dashboard} />`;
   }
   const isDark = resolved === 'dark';
-  const brand = html`<a class="brand" href="#/"><span class="brand-mark"><${Logo} size=${20} /></span>
+  const brand = html`<a class="brand" href="#/"><span class="brand-mark"><${Logo} size=${38} /></span>
     <span><span class="brand-name">LunaPy</span><span class="brand-sub">Aprende Python pensando</span></span></a>`;
 
   return html`<div class="app">
@@ -184,7 +185,7 @@ function App() {
           ${appearance && html`<${Appearance} theme=${s.theme} resolved=${resolved} palette=${s.palette || 'kuromi'} onClose=${() => setAppearance(false)} />`}
         </div>
         <a class=${`avatar-btn ${route[0] === 'perfil' ? 'active' : ''}`} href="#/perfil" aria-label="Perfil" title="Perfil">
-          ${(s.profile.name || '').trim().charAt(0).toUpperCase() || html`<${Icon} name="user" size=${16} />`}</a>
+          <img src=${imagenAvatar(s.profile.avatar)} alt="" width="32" height="32" /></a>
         <button class="icon-btn" onClick=${() => actions.setTheme(isDark ? 'light' : 'dark')} aria-label=${isDark ? 'Cambiar a modo día' : 'Cambiar a modo noche'} title=${isDark ? 'Modo día' : 'Modo noche'}>
           <${Icon} name=${isDark ? 'sun' : 'moon'} size=${17} /></button>
       </header>

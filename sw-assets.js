@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "d9e07328e2ac";
+self.LUNAPY_VERSION = "c2c173c50cb7";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",
@@ -7,6 +7,12 @@ self.LUNAPY_ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
+  "./img/avatares/badtz_maru.png",
+  "./img/avatares/cinnamoroll.png",
+  "./img/avatares/hellokitty.png",
+  "./img/avatares/keroppi.png",
+  "./img/avatares/kuromi.png",
+  "./img/avatares/mymelody.png",
   "./img/kuromi_kawasaki.png",
   "./img/kuromi_luna.png",
   "./img/kuromi_motera.png",
@@ -76,6 +82,7 @@ self.LUNAPY_ASSETS = [
   "./src/lib/sync.js",
   "./src/lib/ui.js",
   "./src/main.js",
+  "./src/state/avatares.js",
   "./src/state/gamification.js",
   "./src/state/merge.js",
   "./src/state/palettes.js",

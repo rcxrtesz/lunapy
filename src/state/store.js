@@ -2,6 +2,7 @@
 // Todo lo que se muestra como estadística sale de aquí: no hay datos inventados.
 import { useEffect, useState } from '../lib/ui.js';
 import { PALETTES } from './palettes.js';
+import { AVATAR_IDS, GENEROS, MAX_DESCRIPCION } from './avatares.js';
 
 const KEY = 'lunapy.v1';
 const LEGACY_KEYS = ['pyensa.v1']; // nombre anterior del proyecto: se migra el progreso
@@ -15,7 +16,7 @@ const fresh = () => ({
   version: 1,
   createdAt: Date.now(),
   updatedAt: 0, // última modificación (para decidir qué dispositivo tiene los ajustes más recientes)
-  profile: { name: '', dailyGoal: 30, onboarded: false },
+  profile: { name: '', dailyGoal: 30, onboarded: false, avatar: 'kuromi', birthday: '', gender: '', bio: '' },
   theme: 'system', // 'light' | 'dark' | 'system'
   palette: 'kuromi',
   dayOffset: 0, // herramienta de demo: simular el paso de los días
@@ -45,7 +46,12 @@ const FIELDS = {
   version: { label: 'versión', ok: (v) => v === 1 },
   createdAt: { label: 'fecha de inicio', ok: isCount },
   updatedAt: { label: 'última modificación', ok: isCount },
-  profile: { label: 'perfil', ok: (v) => isObj(v) && typeof v.name === 'string' && v.name.length <= 60 && [20, 30, 50].includes(v.dailyGoal) && typeof v.onboarded === 'boolean' },
+  profile: { label: 'perfil', ok: (v) => isObj(v) && typeof v.name === 'string' && v.name.length <= 60 && [20, 30, 50].includes(v.dailyGoal) && typeof v.onboarded === 'boolean'
+    // Campos añadidos después: opcionales (las copias antiguas no los tienen).
+    && (v.avatar === undefined || AVATAR_IDS.includes(v.avatar))
+    && (v.birthday === undefined || v.birthday === '' || /^\d{4}-\d{2}-\d{2}$/.test(v.birthday))
+    && (v.gender === undefined || GENEROS.some(([g]) => g === v.gender))
+    && (v.bio === undefined || (typeof v.bio === 'string' && v.bio.length <= MAX_DESCRIPCION)) },
   theme: { label: 'modo de color', ok: (v) => ['light', 'dark', 'system'].includes(v) },
   palette: { label: 'paleta', ok: (v) => PALETTE_IDS.includes(v) },
   dayOffset: { label: 'días simulados', ok: (v) => Number.isInteger(v) && v >= 0 && v <= 3650 },

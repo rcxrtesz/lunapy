@@ -1,6 +1,6 @@
 """
-Prepara las imágenes de Kuromi de LunaPy a partir de los originales (assets-src/kuromi/*.jpg):
-quita el fondo blanco, recorta, reduce y genera los iconos de la app.
+Prepara las imágenes de LunaPy a partir de los originales: Kuromi (assets-src/kuromi/*.jpg) y los
+avatares (assets-src/avatares/*): quita el fondo blanco, recorta, reduce y genera los iconos de la app.
 
     python tools/kuromi_assets.py
 
@@ -30,6 +30,8 @@ HUECOS = {
     "kuromi_kawasaki": [],
 }
 TAMANO = 512  # lado mayor de las imágenes de la app
+AVATARES = os.path.join(ROOT, "assets-src", "avatares")
+TAMANO_AVATAR = 256
 
 
 def es_fondo(p):
@@ -95,6 +97,12 @@ def main():
         limpia = recortar(sin_fondo(original, huecos))
         limpias[nombre] = limpia
         guardar(reducir(limpia, TAMANO), os.path.join(IMG, f"{nombre}.png"))
+
+    # Avatares del perfil: misma limpieza, cuadrados y más pequeños (img/avatares/<id>.png).
+    os.makedirs(os.path.join(IMG, "avatares"), exist_ok=True)
+    for archivo in sorted(os.listdir(AVATARES)):
+        limpio = recortar(sin_fondo(Image.open(os.path.join(AVATARES, archivo)), []), 0)
+        guardar(icono(limpio, TAMANO_AVATAR, escala=1), os.path.join(IMG, "avatares", os.path.splitext(archivo)[0] + ".png"))
 
     cara = limpias["kuromi_luna"]
     lila = (0xEE, 0xE4, 0xFA, 255)

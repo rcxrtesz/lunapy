@@ -63,9 +63,7 @@ export function Icon({ name, size = 18, stroke = 2, fill = 'none', className = '
   </svg>`;
 }
 
+/** Logo de LunaPy: la carita de Kuromi con casco y luna (la misma imagen que el favicon). */
 export function Logo({ size = 18 }) {
-  return html`<svg width=${size} height=${size} viewBox="0 0 32 32" aria-hidden="true">
-    <path d="M18.5 6.5A10 10 0 1 0 25.5 22 8 8 0 0 1 18.5 6.5z" fill="white" />
-    <circle cx="23.5" cy="9.5" r="2.4" fill="#f5b23d" />
-  </svg>`;
+  return html`<img src="./icons/icon-192.png" width=${size} height=${size} alt="" aria-hidden="true" style="display:block" />`;
 }
