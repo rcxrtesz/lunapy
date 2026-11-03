@@ -8,11 +8,14 @@
 //   POST   index.php/cuenta/borrar  { contrasena }               → { ok }
 //   GET    index.php/estado?desde=N                               → { revision, datos? }
 //   PUT    index.php/estado         { revision_base, datos }     → { revision } | 409 { revision, datos }
+//   GET    index.php/asistente                                    → { disponible, restantes, maximo }
+//   POST   index.php/asistente      { mensajes, contexto? }      → respuesta por partes (asistente.php)
 //
 // Las rutas que tocan datos exigen la cabecera X-LunaPy-Token con el token de la sesión.
 declare(strict_types=1);
 
 require __DIR__ . '/lib.php';
+require __DIR__ . '/asistente.php';
 
 $ruta = trim((string) ($_SERVER['PATH_INFO'] ?? ''), '/');
 $metodo = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -26,6 +29,8 @@ try {
         'POST cuenta/borrar' => borrar_cuenta(),
         'GET estado' => leer_estado(),
         'PUT estado' => guardar_estado(),
+        'GET asistente' => estado_asistente(),
+        'POST asistente' => preguntar_asistente(),
         default => responder(404, ['error' => 'Ruta no encontrada.']),
     };
 } catch (Throwable $e) {
@@ -118,7 +123,7 @@ function borrar_cuenta(): never
     }
     $pdo = db();
     $pdo->beginTransaction();
-    foreach (['DELETE FROM estados WHERE usuaria_id = ?', 'DELETE FROM sesiones WHERE usuaria_id = ?', 'DELETE FROM usuarias WHERE id = ?'] as $sql) {
+    foreach (['DELETE FROM estados WHERE usuaria_id = ?', 'DELETE FROM uso_asistente WHERE usuaria_id = ?', 'DELETE FROM sesiones WHERE usuaria_id = ?', 'DELETE FROM usuarias WHERE id = ?'] as $sql) {
         $pdo->prepare($sql)->execute([$id]);
     }
     $pdo->commit();

@@ -13,6 +13,8 @@ import { Challenges, ChallengeView } from './views/challenges.js';
 import { Review } from './views/review.js';
 import { ProgressView } from './views/progress.js';
 import { ProfileView } from './views/profile.js';
+import { AsistenteView } from './views/asistente.js';
+import { AsistenteFlotante } from './components/asistente.js';
 import { ErrorBoundary } from './components/boundary.js';
 import { initPWA, usePWA, applyUpdate } from './lib/pwa.js';
 import { initSync } from './lib/sync.js';
@@ -24,6 +26,7 @@ const NAV = [
   { href: '#/desafios', icon: 'target', label: 'Desafíos', match: (r) => r[0] === 'desafios' },
   { href: '#/repaso', icon: 'repeat', label: 'Repaso', match: (r) => r[0] === 'repaso', desktopOnly: true },
   { href: '#/progreso', icon: 'chart', label: 'Mi progreso', short: 'Progreso', match: (r) => r[0] === 'progreso' },
+  { href: '#/asistente', icon: 'chat', label: 'Asistente', match: (r) => r[0] === 'asistente', desktopOnly: true },
   { href: '#/perfil', icon: 'user', label: 'Perfil', match: (r) => r[0] === 'perfil', desktopOnly: true },
 ];
 
@@ -116,6 +119,7 @@ function App() {
     case 'repaso': view = html`<${Review} />`; break;
     case 'progreso': view = html`<${ProgressView} />`; break;
     case 'perfil': view = html`<${ProfileView} />`; break;
+    case 'asistente': view = html`<${AsistenteView} />`; break;
     default: view = html`<${Dashboard} />`;
   }
   const isDark = resolved === 'dark';
@@ -171,6 +175,7 @@ function App() {
       <span>Hay una versión nueva de LunaPy.</span>
       <button class="btn sm primary" onClick=${applyUpdate}>Actualizar</button>
     </div>`}
+    <${AsistenteFlotante} oculto=${route[0] === 'asistente' || !s.profile.onboarded} />
     <${Toasts} />
   </div>`;
 }

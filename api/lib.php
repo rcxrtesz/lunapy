@@ -63,6 +63,14 @@ function crear_tablas(PDO $pdo): void
             datos $texto NOT NULL,
             actualizado_en BIGINT NOT NULL
         )$fin",
+        "CREATE TABLE IF NOT EXISTS uso_asistente (
+            usuaria_id INT NOT NULL,
+            dia CHAR(10) NOT NULL,
+            preguntas INT NOT NULL,
+            tokens_entrada BIGINT NOT NULL,
+            tokens_salida BIGINT NOT NULL,
+            PRIMARY KEY (usuaria_id, dia)
+        )$fin",
         "CREATE TABLE IF NOT EXISTS intentos_fallidos (
             id $id,
             clave CHAR(64) NOT NULL,

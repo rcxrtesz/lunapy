@@ -7,3 +7,8 @@ Options -Indexes
 <FilesMatch "^index\.php$">
     Require all granted
 </FilesMatch>
+
+# El asistente responde por partes: sin comprimir, para que cada trozo llegue en cuanto sale.
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase Request_URI "/asistente$" no-gzip=1
+</IfModule>

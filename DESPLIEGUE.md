@@ -38,7 +38,7 @@ Archivos:
 |---|---|
 | `index.html`, `manifest.webmanifest`, `sw.js`, `sw-assets.js`, `.htaccess` | `tests/`, `tests.html`, `tools/`, `serve.py` |
 | `src/`, `vendor/`, `icons/` | `.git/`, `.claude/`, los `.md` |
-| `api/index.php`, `api/lib.php`, `api/.htaccess`, `api/config.example.php`, `api/herramientas/` | `api/config.php` de tu ordenador y `api/datos/` (son de pruebas) |
+| `api/index.php`, `api/lib.php`, `api/asistente.php`, `api/.htaccess`, `api/config.example.php`, `api/herramientas/`, `api/vendor/` | `api/config.php` de tu ordenador y `api/datos/` (son de pruebas) |
 
 ## 3. Configurar la API en el servidor
 
@@ -98,6 +98,29 @@ no autorizado.
 - «Reiniciar todo el progreso» o «Importar copia» con la sesión iniciada sustituyen
   también la copia del servidor.
 
+## Asistente (Claude)
+
+El asistente usa la API de Anthropic con el modelo **Claude Haiku 5.5**. La clave vive solo en
+`api/config.php` del servidor: la app nunca la ve.
+
+1. **Dependencias de PHP** (en tu ordenador, una vez y cuando cambie `api/composer.json`):
+   `cd api` y `php composer.phar install --no-dev --optimize-autoloader`. Crea `api/vendor/`,
+   que se sube con el resto (no está en GitHub). El `api/.htaccess` impide abrirla desde fuera.
+2. **Clave**: en [console.anthropic.com](https://console.anthropic.com) → *API Keys* → crea una.
+   Recarga saldo en *Billing* y pon un **límite de gasto mensual** (*Limits*).
+3. En el `config.php` del servidor añade:
+   ```php
+   'anthropic_api_key' => 'sk-ant-…',
+   'asistente_max_diario' => 60, // preguntas por día
+   ```
+4. Comprueba que funciona: con la sesión iniciada, abre el botón flotante y pregunta algo.
+
+El consumo de cada día (preguntas y tokens) queda en la tabla `uso_asistente` (phpMyAdmin).
+Las conversaciones se guardan solo en el dispositivo; no pasan por la base de datos.
+
+Si las respuestas aparecen de golpe en vez de poco a poco, el proxy del hosting está
+acumulándolas: funciona igual, solo se ve menos fluido.
+
 ## Si olvidas la contraseña
 
 1. En tu ordenador: `php api/herramientas/hash_contrasena.php "nueva contraseña"`.
@@ -111,3 +134,5 @@ no autorizado.
 - Registro limitado a los correos autorizados; 5 intentos fallidos de inicio de sesión
   cada 15 minutos por correo y dirección IP.
 - Consultas preparadas (sin inyección SQL) y peticiones de 2 MB como máximo.
+- Asistente: solo con sesión iniciada, con un máximo de preguntas al día por persona; la clave
+  de Anthropic no sale del servidor.

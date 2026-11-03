@@ -18,6 +18,12 @@ return [
         'tu-correo@ejemplo.com',
     ],
 
+    // Asistente (Claude): clave de la API de Anthropic. Se crea en console.anthropic.com →
+    // API Keys. Déjala vacía para desactivar el asistente.
+    'anthropic_api_key' => '',
+    // Preguntas al asistente permitidas por persona y día (protege de gastos inesperados).
+    'asistente_max_diario' => 60,
+
     // Días que dura una sesión sin usarse antes de pedir de nuevo la contraseña.
     'dias_sesion' => 180,
 ];

@@ -805,3 +805,93 @@ select.input { flex: none; min-width: 0; cursor: pointer; }
 @media (max-width: 900px) { .update-banner { bottom: calc(84px + var(--sab)); } }
 .install-steps { margin: 8px 0 0; padding-left: 20px; }
 .install-steps li + li { margin-top: 4px; }
+
+/* ---------- Asistente ---------- */
+.asis-fab {
+  position: fixed; right: calc(24px + var(--sar)); bottom: calc(24px + var(--sab)); z-index: 40;
+  width: 56px; height: 56px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-text); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: transform .15s var(--ease), background .15s;
+}
+.asis-fab:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.asis-panel {
+  position: fixed; right: calc(24px + var(--sar)); bottom: calc(24px + var(--sab)); z-index: 45;
+  width: min(410px, calc(100vw - 48px)); height: min(640px, calc(100dvh - 48px - var(--sat) - var(--sab)));
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  animation: slideIn .2s var(--ease);
+}
+.asis-cabecera { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.asis-cabecera .spacer { flex: 1; }
+.asis-cabecera .icon-btn { width: 32px; height: 32px; }
+@media (max-width: 900px) {
+  .asis-fab { bottom: calc(80px + var(--sab)); right: calc(16px + var(--sar)); width: 52px; height: 52px; }
+}
+@media (max-width: 600px) {
+  .asis-panel { inset: 0; width: auto; height: auto; border: 0; border-radius: 0; z-index: 60; padding: var(--sat) var(--sar) var(--sab) var(--sal); }
+}
+
+.asis-chat { display: flex; flex-direction: column; flex: 1 1 0; min-width: 0; min-height: 0; }
+.asis-mensajes { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; overscroll-behavior: contain; }
+.asis-msg.yo {
+  align-self: flex-end; max-width: 85%; padding: 9px 13px; border-radius: 14px 14px 4px 14px;
+  background: var(--accent); color: var(--accent-text); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.asis-msg.ella { display: flex; gap: 10px; align-items: flex-start; }
+.asis-avatar { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.asis-avatar.lg { width: 44px; height: 44px; margin: 0 auto 10px; }
+.asis-texto { flex: 1; min-width: 0; line-height: 1.6; overflow-wrap: anywhere; }
+.asis-texto > :first-child { margin-top: 2px; }
+.asis-texto p { margin: 0 0 .65em; }
+.asis-texto ul, .asis-texto ol { margin: 0 0 .65em; padding-left: 1.3em; }
+.asis-texto li + li { margin-top: 3px; }
+.asis-texto > :last-child { margin-bottom: 0; }
+.asis-code { margin: .3em 0 .8em; }
+.asis-code .code-pre { font-size: .82rem; padding: 10px 0; }
+.asis-code .code-line .ln { width: 30px; padding-right: 10px; }
+.asis-pensando { display: flex; gap: 5px; padding: 9px 2px; }
+.asis-pensando span { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); animation: pulse 1.1s infinite; }
+.asis-pensando span:nth-child(2) { animation-delay: .18s; }
+.asis-pensando span:nth-child(3) { animation-delay: .36s; }
+.asis-error { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: var(--err-soft); color: var(--err); font-size: .9rem; }
+.asis-error svg { flex: none; margin-top: 2px; }
+.asis-bienvenida { text-align: center; padding: 14px 6px; margin: auto 0; }
+.asis-bienvenida p { max-width: 330px; margin: 6px auto 14px; }
+.asis-sugerencias { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.asis-sugerencias .btn { white-space: normal; text-align: left; }
+.asis-aviso { display: flex; gap: 12px; padding: 22px 18px; color: var(--muted); }
+.asis-aviso b { color: var(--text); }
+.asis-aviso p { margin: 4px 0 12px; }
+
+.asis-entrada { border-top: 1px solid var(--border); padding: 10px 12px; }
+.asis-contexto { display: flex; gap: 7px; align-items: flex-start; font-size: .78rem; color: var(--muted); margin-bottom: 8px; cursor: pointer; }
+.asis-contexto input { margin: 2px 0 0; accent-color: var(--accent); }
+.asis-caja { display: flex; gap: 8px; align-items: flex-end; }
+.asis-texto-entrada {
+  flex: 1; resize: none; font: inherit; line-height: 1.45; color: var(--text); background: var(--surface);
+  padding: 9px 12px; border-radius: 12px; border: 1.5px solid var(--border-strong); max-height: 160px;
+}
+.asis-texto-entrada:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.asis-enviar { width: 40px; height: 40px; flex: none; }
+.asis-enviar.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.asis-enviar:disabled { opacity: .45; cursor: not-allowed; }
+.asis-pie { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; }
+@media (pointer: coarse) { .asis-pie span:first-child { visibility: hidden; } }
+.asis-preguntar { margin-top: 10px; }
+
+.asis-vista-grid { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 18px; align-items: start; }
+.asis-principal { padding: 0; display: flex; height: calc(100dvh - 230px); min-height: 460px; overflow: hidden; }
+.asis-historial { padding: 12px; position: sticky; top: 16px; }
+.asis-historial ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; max-height: calc(100dvh - 300px); overflow-y: auto; }
+.asis-historial li { display: flex; align-items: center; gap: 2px; border-radius: 9px; min-width: 0; }
+.asis-historial li.on { background: var(--accent-soft); }
+.asis-conv { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; text-align: left; padding: 7px 9px; border: 0; background: none; color: var(--text); font: inherit; font-size: .88rem; cursor: pointer; border-radius: 9px; }
+.asis-conv:hover { background: var(--surface-2); }
+.asis-conv-titulo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asis-borrar { width: 28px; height: 28px; border-color: transparent; background: transparent; }
+@media (max-width: 900px) {
+  .asis-vista-grid { grid-template-columns: minmax(0, 1fr); }
+  .asis-historial { position: static; }
+  .asis-historial ul { max-height: 170px; }
+  .asis-principal { height: calc(100dvh - 190px - var(--sat) - var(--sab)); min-height: 420px; }
+}

@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "1cc24f8d9c88";
+self.LUNAPY_VERSION = "f5f66fcbecf8";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",
@@ -11,6 +11,7 @@ self.LUNAPY_ASSETS = [
   "./manifest.webmanifest",
   "./src/components/activities.js",
   "./src/components/appearance.js",
+  "./src/components/asistente.js",
   "./src/components/boundary.js",
   "./src/components/code.js",
   "./src/components/common.js",
@@ -62,6 +63,7 @@ self.LUNAPY_ASSETS = [
   "./src/engine/python.js",
   "./src/engine/runtime.py",
   "./src/engine/worker.js",
+  "./src/lib/asistente.js",
   "./src/lib/backup.js",
   "./src/lib/highlight.js",
   "./src/lib/icons.js",
@@ -74,6 +76,7 @@ self.LUNAPY_ASSETS = [
   "./src/state/palettes.js",
   "./src/state/store.js",
   "./src/styles.css",
+  "./src/views/asistente.js",
   "./src/views/challenges.js",
   "./src/views/dashboard.js",
   "./src/views/lab.js",

@@ -50,6 +50,10 @@ function url(ruta) {
   return new URL(`${base}/${ruta}`, location.href).href;
 }
 
+// Para otros módulos que hablan con la API (el asistente).
+export const urlApi = url;
+export const tokenSesion = () => cuenta?.token || null;
+
 async function api(metodo, ruta, cuerpo) {
   const headers = { Accept: 'application/json' };
   if (cuerpo) headers['Content-Type'] = 'application/json';

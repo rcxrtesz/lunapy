@@ -18,3 +18,6 @@ api/datos/
 
 # Paquete para subir al hosting (se genera en local)
 publicar/
+
+# API: dependencias de PHP (se instalan con Composer: composer install en api/)
+api/vendor/

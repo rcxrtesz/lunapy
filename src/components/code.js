@@ -3,6 +3,7 @@ import { Icon } from '../lib/icons.js';
 import { highlightLine } from '../lib/highlight.js';
 import { engine, newSeed } from '../engine/python.js';
 import { actions } from '../state/store.js';
+import { registrarEjecucion, abrirAsistente } from '../lib/asistente.js';
 
 /** Código de solo lectura con resaltado y marcas de línea. */
 export function CodeView({ code, next = null, prev = null, errLine = null }) {
@@ -101,6 +102,7 @@ export function useRunner({ onRun } = {}) {
     set((s) => ({ ...s, status: 'running', stdin }));
     const res = await engine.run(code, stdin, ctx.current.seed).catch((e) => ({ status: 'error', segs: [], error: { title: 'Error interno', explanation: String(e.message), suggestion: '', kind: 'ejecucion', original: '' } }));
     set({ status: res.status === 'need_input' ? 'input' : res.status === 'error' ? 'error' : 'done', segs: res.segs || [], error: res.error, prompt: res.prompt, stdin });
+    registrarEjecucion(code, res.status === 'error' ? res.error : null); // contexto para el asistente
     return res;
   }, []);
 
@@ -162,6 +164,8 @@ export function ErrorCard({ error, compact = false }) {
     <div>${error.explanation}</div>
     ${error.suggestion && html`<div class="sug"><strong>Qué probar:</strong> ${error.suggestion}</div>`}
     ${!compact && error.original && html`<div class="orig">Mensaje original de Python → ${error.original}</div>`}
+    ${!compact && html`<button class="btn sm asis-preguntar" onClick=${() => abrirAsistente('No entiendo este error. ¿Qué significa y por qué me sale?')}>
+      <${Icon} name="chat" size=${14} /> Pregúntale al asistente</button>`}
   </div>`;
 }
 
