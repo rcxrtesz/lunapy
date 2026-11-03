@@ -59,8 +59,15 @@ function registro(): never
         responder(400, ['error' => 'Escribe un correo electrónico válido.']);
     }
     $permitidos = array_map('normalizar_email', config()['emails_permitidos']);
-    if (!config()['registro_abierto'] && !in_array($email, $permitidos, true)) {
-        responder(403, ['error' => 'Este servidor es privado: ese correo no está autorizado para crear una cuenta.']);
+    if (!in_array($email, $permitidos, true)) {
+        if (!config()['registro_abierto']) {
+            responder(403, ['error' => 'Este servidor es privado: ese correo no está autorizado para crear una cuenta.']);
+        }
+        // Registro abierto: solo correos de proveedores fiables (Gmail, Outlook…) con un servidor de correo real.
+        $error = problema_dominio($email);
+        if ($error !== null) {
+            responder(403, ['error' => $error]);
+        }
     }
     validar_contrasena($contrasena);
 

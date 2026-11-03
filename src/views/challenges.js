@@ -24,7 +24,7 @@ export function Challenges() {
       <p>Problemas por tema y dificultad. Los más exigentes se desbloquean cuando demuestras dominio resolviendo los anteriores, no por haber leído la teoría.</p>
     </div>
     <div class="filters" role="group" aria-label="Filtrar por tema">
-      ${['', ...TOPICS].map((t) => html`<button class=${`chip ${topic === t ? 'on' : ''}`} onClick=${() => setTopic(t)} aria-pressed=${topic === t}>${t || 'Todos los temas'}</button>`)}
+      ${['', ...TOPICS].map((t) => html`<button class=${`chip ${topic === t ? 'on' : ''}`} onClick=${() => setTopic(t)} aria-pressed=${topic === t}>${t === 'Motos' ? '🏍️ Motos' : t || 'Todos los temas'}</button>`)}
       ${UPCOMING.map((t) => html`<span class="tag" title="Llegará con los siguientes módulos">${t} · próximamente</span>`)}
     </div>
     <div class="filters" role="group" aria-label="Filtrar por dificultad">

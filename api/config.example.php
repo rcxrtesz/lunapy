@@ -17,8 +17,12 @@ return [
     'emails_permitidos' => [
         'tu-correo@ejemplo.com',
     ],
-    // true: cualquiera puede registrarse (con el correo de verificación); se ignora la lista anterior.
+    // true: cualquiera puede registrarse (con el correo de verificación), pero solo con correos de
+    // proveedores fiables (Gmail, Outlook, Hotmail, Yahoo, iCloud, Proton…: lista en lib.php,
+    // DOMINIOS_FIABLES) cuyo dominio tenga servidor de correo. Los de emails_permitidos entran siempre.
     'registro_abierto' => false,
+    // Para cambiar la lista de proveedores admitidos:
+    // 'dominios_fiables' => ['gmail.com', 'outlook.com', 'hotmail.com', 'tu-universidad.es'],
 
     // Dirección pública de la app, para los enlaces de los correos.
     'url_app' => 'https://lunadev.es/lunapy/',

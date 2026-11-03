@@ -66,6 +66,7 @@ export function Respuesta({ texto }) {
 // ---------- Chat ----------
 
 const SUGERENCIAS = [
+  'Explícame los bucles con un ejemplo de motos 🏍️',
   '¿Qué diferencia hay entre una lista y una tupla?',
   '¿Cuándo uso for y cuándo while?',
   'Explícame qué hace return con un ejemplo',

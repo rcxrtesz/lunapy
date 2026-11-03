@@ -128,6 +128,34 @@ function es_duplicado(PDOException $e): bool
     return $e->getCode() === '23000';
 }
 
+/** Proveedores de correo conocidos y fiables admitidos con el registro abierto (se pueden cambiar en config.php). */
+const DOMINIOS_FIABLES = [
+    'gmail.com', 'googlemail.com',
+    'outlook.com', 'outlook.es', 'hotmail.com', 'hotmail.es', 'live.com', 'live.es', 'msn.com',
+    'yahoo.com', 'yahoo.es', 'ymail.com',
+    'icloud.com', 'me.com', 'mac.com',
+    'proton.me', 'protonmail.com', 'pm.me',
+    'gmx.com', 'gmx.es', 'aol.com', 'zoho.com',
+];
+
+/**
+ * Con el registro abierto, ¿el correo es de un proveedor fiable? Devuelve el mensaje de error o null.
+ * Se exige un dominio de la lista (así se descartan los correos desechables y los dominios
+ * desconocidos) y que el dominio tenga servidor de correo (registro MX).
+ */
+function problema_dominio(string $email): ?string
+{
+    $dominio = substr(strrchr($email, '@') ?: '', 1);
+    $fiables = array_map('strtolower', config()['dominios_fiables'] ?? DOMINIOS_FIABLES);
+    if (!in_array($dominio, $fiables, true)) {
+        return 'Usa un correo de un proveedor conocido (Gmail, Outlook, Hotmail, Yahoo, iCloud, Proton…).';
+    }
+    if ((config()['comprobar_mx'] ?? true) && function_exists('checkdnsrr') && !checkdnsrr($dominio, 'MX')) {
+        return 'No hemos podido comprobar el servidor de correo de ese dominio. Revisa que esté bien escrito.';
+    }
+    return null;
+}
+
 function normalizar_email(mixed $email): string
 {
     return is_string($email) ? strtolower(trim($email)) : '';
