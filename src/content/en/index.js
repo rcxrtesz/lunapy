@@ -9,8 +9,12 @@
 
 import * as curriculo from './curriculum.js';
 import * as m1 from './module1.js';
+import * as m2Actividades from './activities.js';
+import * as variables from './lesson-variables.js';
+import * as expresiones from './lesson-expresiones.js';
+import * as entrada from './lesson-entrada.js';
 
-const PAQUETES = [curriculo, m1];
+const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))
