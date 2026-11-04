@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "9c6a723435ee";
+self.LUNAPY_VERSION = "b97d4acefe6c";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",
@@ -45,11 +45,14 @@ self.LUNAPY_ASSETS = [
   "./src/content/en/lesson-expresiones.js",
   "./src/content/en/lesson-for.js",
   "./src/content/en/lesson-incremental.js",
+  "./src/content/en/lesson-indices.js",
   "./src/content/en/lesson-interfaces.js",
   "./src/content/en/lesson-llamar-funciones.js",
+  "./src/content/en/lesson-metodos.js",
   "./src/content/en/lesson-parametros.js",
   "./src/content/en/lesson-recursion.js",
   "./src/content/en/lesson-refactorizar.js",
+  "./src/content/en/lesson-regex.js",
   "./src/content/en/lesson-retorno.js",
   "./src/content/en/lesson-variables.js",
   "./src/content/en/lesson-while.js",

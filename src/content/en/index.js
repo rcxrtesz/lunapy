@@ -28,13 +28,17 @@ import * as composicion from './lesson-composicion.js';
 import * as bucleFor from './lesson-for.js';
 import * as bucleWhile from './lesson-while.js';
 import * as busqueda from './lesson-busqueda.js';
+import * as indices from './lesson-indices.js';
+import * as metodos from './lesson-metodos.js';
+import * as regex from './lesson-regex.js';
 
 const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   llamarFunciones, definirFunciones, parametros,
   encapsular, interfaces, refactorizar,
   booleanas, condicionales, recursion,
   retorno, incremental, composicion,
-  bucleFor, bucleWhile, busqueda];
+  bucleFor, bucleWhile, busqueda,
+  indices, metodos, regex];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))
