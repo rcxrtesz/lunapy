@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "675105a4ea8d";
+self.LUNAPY_VERSION = "a077965f4167";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",
@@ -36,6 +36,7 @@ self.LUNAPY_ASSETS = [
   "./src/content/en/curriculum.js",
   "./src/content/en/index.js",
   "./src/content/en/lesson-alias.js",
+  "./src/content/en/lesson-archivos.js",
   "./src/content/en/lesson-booleanas.js",
   "./src/content/en/lesson-busqueda.js",
   "./src/content/en/lesson-composicion.js",
@@ -44,6 +45,7 @@ self.LUNAPY_ASSETS = [
   "./src/content/en/lesson-diccionarios.js",
   "./src/content/en/lesson-encapsular.js",
   "./src/content/en/lesson-entrada.js",
+  "./src/content/en/lesson-excepciones.js",
   "./src/content/en/lesson-expresiones.js",
   "./src/content/en/lesson-for.js",
   "./src/content/en/lesson-incremental.js",
@@ -53,6 +55,7 @@ self.LUNAPY_ASSETS = [
   "./src/content/en/lesson-llamar-funciones.js",
   "./src/content/en/lesson-metodos.js",
   "./src/content/en/lesson-parametros.js",
+  "./src/content/en/lesson-procesar.js",
   "./src/content/en/lesson-proyecto-texto.js",
   "./src/content/en/lesson-recorrer-listas.js",
   "./src/content/en/lesson-recursion.js",
