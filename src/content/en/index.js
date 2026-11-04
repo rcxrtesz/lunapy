@@ -16,9 +16,13 @@ import * as entrada from './lesson-entrada.js';
 import * as llamarFunciones from './lesson-llamar-funciones.js';
 import * as definirFunciones from './lesson-definir-funciones.js';
 import * as parametros from './lesson-parametros.js';
+import * as encapsular from './lesson-encapsular.js';
+import * as interfaces from './lesson-interfaces.js';
+import * as refactorizar from './lesson-refactorizar.js';
 
 const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
-  llamarFunciones, definirFunciones, parametros];
+  llamarFunciones, definirFunciones, parametros,
+  encapsular, interfaces, refactorizar];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))
