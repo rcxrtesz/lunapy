@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>lunadev · Diseño y desarrollo web</title>
-  <meta name="description" content="lunadev: diseño y desarrollo web a medida. Nuestra nueva web está en construcción." />
+  <title>lunadev · Web en construcción</title>
+  <meta name="description" content="lunadev: diseño y desarrollo web. Estamos construyendo nuestra nueva web; vuelve pronto." />
   <meta name="theme-color" content="#f7f3fc" />
   <meta name="robots" content="noindex" />
   <link rel="icon" href="/en-construccion/favicon.svg" type="image/svg+xml" />
@@ -20,20 +20,21 @@
 
     :root {
       --texto: #1d1824; --suave: #5a5168; --tenue: #7d7390; --oscuro: #2b2433; --oscuro-2: #3d3448;
-      --acento: #7a4cc2; --acento-suave: #f1e8fc; --borde: #e3d9f0; --tarjeta: rgba(255, 255, 255, .72);
+      --acento: #7a4cc2; --acento-suave: #f1e8fc; --borde: #e3d9f0;
       --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px);
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; }
+    html, body { margin: 0; height: 100%; }
     body {
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; color: var(--texto);
       background: radial-gradient(ellipse 80% 60% at 50% 0%, #e6d6f8 0%, #f3ecfb 50%, #f9f6fd 100%) fixed, #f9f6fd;
       -webkit-font-smoothing: antialiased; line-height: 1.6;
+      /* Una sola pantalla: cabecera, contenido centrado y pie */
+      min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
     }
     a { color: inherit; }
     .contenedor { width: min(1080px, 100% - 40px); margin: 0 auto; }
 
-    /* Cabecera */
     header { padding: calc(22px + var(--sat)) 0 0; }
     header .contenedor { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .marca { font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; text-decoration: none; }
@@ -42,50 +43,53 @@
       border: 1px solid var(--borde); border-radius: 999px; background: rgba(255, 255, 255, .6); transition: border-color .15s, color .15s; }
     .nav-contacto:hover { color: var(--texto); border-color: #c9b6e4; }
 
-    /* Portada */
-    .portada { padding: clamp(56px, 12vh, 120px) 0 clamp(40px, 7vh, 72px); }
+    main { flex: 1; display: flex; align-items: center; padding: 24px 0; }
+    .portada { width: 100%; text-align: center; }
     .estado { display: inline-flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; letter-spacing: .08em;
       text-transform: uppercase; color: var(--acento); padding: 6px 12px; border-radius: 999px;
       background: var(--acento-suave); border: 1px solid #ddc9f6; }
     .estado i { width: 7px; height: 7px; border-radius: 50%; background: var(--acento); box-shadow: 0 0 0 0 rgba(122, 76, 194, .5);
       animation: latido 2s ease-out infinite; }
     @keyframes latido { 70% { box-shadow: 0 0 0 8px rgba(122, 76, 194, 0); } 100% { box-shadow: 0 0 0 0 rgba(122, 76, 194, 0); } }
-    h1 { margin: 22px 0 0; max-width: 15ch; font-size: clamp(2.4rem, 6.4vw, 4.4rem); line-height: 1.04; font-weight: 800; letter-spacing: -.04em; }
+    h1 { margin: 22px auto 0; max-width: 16ch; font-size: clamp(2.3rem, 6.2vw, 4.4rem); line-height: 1.05; font-weight: 800; letter-spacing: -.04em; }
     h1 span { background: linear-gradient(90deg, #8a5cc9, var(--acento) 55%, #4b3470); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .entradilla { margin: 22px 0 0; max-width: 56ch; font-size: clamp(1.02rem, 1.6vw, 1.15rem); color: var(--suave); }
-    .acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
-    .boton { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font-weight: 700; font-size: .98rem;
-      text-decoration: none; transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease; }
-    .boton.principal { background: var(--oscuro); color: #fff; box-shadow: 0 8px 22px rgba(43, 36, 51, .22); }
-    .boton.principal:hover { background: var(--oscuro-2); transform: translateY(-1px); }
-    .boton.secundario { border: 1px solid var(--borde); color: var(--texto); background: #fff; }
-    .boton.secundario:hover { border-color: #c9b6e4; transform: translateY(-1px); }
-    .boton:focus-visible, .nav-contacto:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+    .entradilla { margin: 20px auto 0; max-width: 46ch; font-size: clamp(1.02rem, 1.6vw, 1.15rem); color: var(--suave); }
+
+    /* Mientras, LunaPy */
+    .mientras { margin: 36px auto 0; max-width: 460px; display: flex; align-items: center; gap: 16px; text-align: left;
+      padding: 14px 14px 14px 18px; border-radius: 16px; background: rgba(255, 255, 255, .72); border: 1px solid var(--borde);
+      box-shadow: 0 1px 2px rgba(43, 36, 51, .04), 0 8px 24px rgba(43, 36, 51, .05); }
+    .mientras p { margin: 0; flex: 1; font-size: .92rem; color: var(--suave); line-height: 1.45; }
+    .mientras strong { display: block; color: var(--texto); font-size: .98rem; }
+    .boton { flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 11px; font-weight: 700;
+      font-size: .95rem; text-decoration: none; background: var(--oscuro); color: #fff; box-shadow: 0 6px 18px rgba(43, 36, 51, .2);
+      transition: transform .15s ease, background .15s ease; }
+    .boton:hover { background: var(--oscuro-2); transform: translateY(-1px); }
     .boton svg { transition: transform .15s ease; }
     .boton:hover svg { transform: translateX(3px); }
+    .boton:focus-visible, .nav-contacto:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
 
-    /* Servicios */
-    .servicios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 56px; }
-    .servicio { padding: 22px; border-radius: 18px; background: var(--tarjeta); border: 1px solid var(--borde);
-      box-shadow: 0 1px 2px rgba(43, 36, 51, .04), 0 8px 24px rgba(43, 36, 51, .05); transition: border-color .2s, transform .2s, box-shadow .2s; }
-    .servicio:hover { border-color: #cdb9e8; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(43, 36, 51, .05), 0 14px 30px rgba(43, 36, 51, .08); }
-    .servicio .icono { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; color: var(--acento); background: var(--acento-suave); }
-    .servicio h2 { margin: 16px 0 6px; font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; }
-    .servicio p { margin: 0; font-size: .92rem; color: var(--suave); }
-
-    /* Pie */
-    footer { border-top: 1px solid var(--borde); padding: 22px 0 calc(26px + var(--sab)); }
-    footer .contenedor { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-size: .85rem; color: var(--tenue); }
+    footer { padding: 0 0 calc(22px + var(--sab)); }
+    footer .contenedor { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: .85rem; color: var(--tenue); }
     footer a { color: var(--suave); text-decoration: none; }
     footer a:hover { color: var(--texto); }
 
-    /* Entrada suave */
     .entra { opacity: 0; animation: entrar .7s cubic-bezier(.2, .7, .2, 1) forwards; }
-    .d1 { animation-delay: .08s; } .d2 { animation-delay: .16s; } .d3 { animation-delay: .24s; } .d4 { animation-delay: .32s; }
+    .d1 { animation-delay: .08s; } .d2 { animation-delay: .16s; } .d3 { animation-delay: .26s; }
     @keyframes entrar { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-    @media (max-width: 820px) { .servicios { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { .acciones .boton { flex: 1 1 100%; justify-content: center; } }
+    @media (max-width: 480px) {
+      .mientras { flex-direction: column; align-items: stretch; text-align: center; padding: 16px; gap: 12px; }
+      .boton { justify-content: center; }
+    }
+    @media (max-height: 620px) {
+      header { padding-top: calc(14px + var(--sat)); }
+      main { padding: 12px 0; }
+      h1 { margin-top: 14px; font-size: clamp(2rem, 8.5vw, 3.4rem); }
+      .entradilla { margin-top: 12px; }
+      .mientras { margin-top: 20px; }
+      footer { padding-bottom: calc(14px + var(--sab)); }
+    }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .entra { opacity: 1; } }
   </style>
 </head>
@@ -100,38 +104,14 @@
   <main class="contenedor">
     <section class="portada">
       <span class="estado entra"><i aria-hidden="true"></i> Web en construcción</span>
-      <h1 class="entra d1">Diseño y desarrollo web <span>a medida</span>.</h1>
-      <p class="entradilla entra d2">Creamos webs y aplicaciones rápidas, accesibles y fáciles de usar: del primer boceto a la puesta en marcha. Estamos preparando nuestra nueva web; mientras tanto, cuéntanos tu proyecto.</p>
-      <div class="acciones entra d3">
-        <a class="boton principal" href="mailto:info@lunadev.es">Escríbenos
+      <h1 class="entra d1">Estamos construyendo <span>grandes cosas</span>.</h1>
+      <p class="entradilla entra d2">Nuestra nueva web llegará muy pronto. Vuelve en unos días para verla.</p>
+      <div class="mientras entra d3">
+        <p><strong>Mientras, aprende Python con LunaPy</strong>Lecciones, retos y una asistente que te guía paso a paso.</p>
+        <a class="boton" href="/lunapy/">Ir a LunaPy
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
         </a>
-        <a class="boton secundario" href="/lunapy/">Ver un proyecto: LunaPy</a>
       </div>
-    </section>
-
-    <section class="servicios entra d4" aria-label="Servicios">
-      <article class="servicio">
-        <div class="icono" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2" /><path d="M3 9h18M8 21h8M12 18v3" /></svg>
-        </div>
-        <h2>Diseño web</h2>
-        <p>Interfaces claras y con personalidad, pensadas para el móvil desde el principio.</p>
-      </article>
-      <article class="servicio">
-        <div class="icono" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" /></svg>
-        </div>
-        <h2>Desarrollo a medida</h2>
-        <p>Webs, aplicaciones web e instalables (PWA) que funcionan rápido incluso sin conexión.</p>
-      </article>
-      <article class="servicio">
-        <div class="icono" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z" /><path d="m9 12 2 2 4-4" /></svg>
-        </div>
-        <h2>Puesta en marcha y mantenimiento</h2>
-        <p>Publicación, dominio, correo, seguridad y rendimiento: nos ocupamos de que todo siga en marcha.</p>
-      </article>
     </section>
   </main>
 
