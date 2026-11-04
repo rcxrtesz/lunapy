@@ -19,10 +19,14 @@ import * as parametros from './lesson-parametros.js';
 import * as encapsular from './lesson-encapsular.js';
 import * as interfaces from './lesson-interfaces.js';
 import * as refactorizar from './lesson-refactorizar.js';
+import * as booleanas from './lesson-booleanas.js';
+import * as condicionales from './lesson-condicionales.js';
+import * as recursion from './lesson-recursion.js';
 
 const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   llamarFunciones, definirFunciones, parametros,
-  encapsular, interfaces, refactorizar];
+  encapsular, interfaces, refactorizar,
+  booleanas, condicionales, recursion];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))
