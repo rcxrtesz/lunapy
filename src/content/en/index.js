@@ -13,8 +13,12 @@ import * as m2Actividades from './activities.js';
 import * as variables from './lesson-variables.js';
 import * as expresiones from './lesson-expresiones.js';
 import * as entrada from './lesson-entrada.js';
+import * as llamarFunciones from './lesson-llamar-funciones.js';
+import * as definirFunciones from './lesson-definir-funciones.js';
+import * as parametros from './lesson-parametros.js';
 
-const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada];
+const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
+  llamarFunciones, definirFunciones, parametros];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))

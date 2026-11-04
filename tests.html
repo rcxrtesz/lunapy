@@ -86,7 +86,7 @@
         wrongs: (a.wrongs || []).map((w) => w.category), stages: (a.stages || []).map((s) => s.items.map((it) => [it.id, it.after])),
         cases: a.spec ? (a.spec.cases || []).length : 0, rules: a.spec ? (a.spec.rules || []).map((r) => r.type) : [],
         miscon: a.spec ? (a.spec.misconceptions || []).length : 0, variants: a.spec ? (a.spec.variants || []).length : 0,
-        fns: a.spec && a.spec.functions, blanks: a.spec && a.spec.blanks, hasPlanScaffold: !!a.planScaffold });
+        fns: a.spec ? (a.spec.functions || []).map((f) => f.params) : [], classes: a.spec ? (a.spec.classes || []).length : 0, blanks: a.spec && a.spec.blanks, hasPlanScaffold: !!a.planScaffold });
       for (const l of Object.values(LESSONS).filter((x) => x.en)) {
         log(sameJSON(lessonShape(l), lessonShape(LESSONS_ORIGINAL[l.id])), `traducción · lección ${l.code} con la misma estructura`);
       }
