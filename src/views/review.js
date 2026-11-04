@@ -29,7 +29,6 @@ export function Review() {
         <div class="eyebrow">${t('Repaso inteligente', 'Smart review')}</div>
         <h1>${t('Recordar es practicar', 'Remembering is practising')}</h1>
         <p>${t('Un repaso breve en el momento justo fija lo aprendido en la memoria a largo plazo. Elegimos las preguntas según tus conceptos pendientes de repaso y tus errores recientes.', "A short review at the right moment fixes what you've learnt in your long-term memory. We choose the questions based on the concepts due for review and your recent mistakes.")}</p>
-        ${EN && html`<p class="small muted">The review questions are still in Spanish for now.</p>`}
       </div>
       <div class="card" style="max-width:640px">
         ${!practiced ? html`<div class="empty"><div class="icon-wrap"><${Icon} name="repeat" size=${24} /></div>

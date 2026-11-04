@@ -46,6 +46,8 @@ import * as herencia from './lesson-herencia.js';
 import * as depuracion from './lesson-depuracion.js';
 import * as estilo from './lesson-estilo.js';
 import * as proyectoFinal from './lesson-proyecto-final.js';
+import * as repaso from './review.js';
+import * as motos from './desafios-motos.js';
 
 const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   llamarFunciones, definirFunciones, parametros,
@@ -58,7 +60,8 @@ const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   diccionarios, tuplas, proyectoTexto,
   archivos, procesar, excepciones,
   clases, metodosClase, herencia,
-  depuracion, estilo, proyectoFinal];
+  depuracion, estilo, proyectoFinal,
+  repaso, motos];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))

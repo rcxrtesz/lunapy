@@ -6,7 +6,7 @@ import { ACTIVITIES, CHALLENGES } from '../content/activities.js';
 import { CONCEPTS } from '../content/curriculum.js';
 import { useStore } from '../state/store.js';
 import { isUnlocked } from '../state/gamification.js';
-import { t, EN } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
 
 // Temas con actividades (en el orden del curso) y los que llegarán con los siguientes módulos.
 const TOPICS = [...new Set(CHALLENGES.map((id) => ACTIVITIES[id].topic))];
@@ -23,7 +23,6 @@ export function Challenges() {
       <div class="eyebrow">${t('Zona de desafíos', 'Challenge zone')}</div>
       <h1>${t('Pon a prueba lo que sabes', 'Put what you know to the test')}</h1>
       <p>${t('Problemas por tema y dificultad. Los más exigentes se desbloquean cuando demuestras dominio resolviendo los anteriores, no por haber leído la teoría.', 'Problems by topic and difficulty. The hardest ones unlock when you show mastery by solving the earlier ones, not just by reading the theory.')}</p>
-      ${EN && html`<p class="small muted">The challenges are still in Spanish for now.</p>`}
     </div>
     <div class="filters" role="group" aria-label=${t('Filtrar por tema', 'Filter by topic')}>
       ${['', ...TOPICS].map((tp) => html`<button class=${`chip ${topic === tp ? 'on' : ''}`} onClick=${() => setTopic(tp)} aria-pressed=${topic === tp}>${tp === 'Motos' || tp === 'Motorbikes' ? `🏍️ ${tp === 'Motos' ? t('Motos', 'Motorbikes') : tp}` : tp || t('Todos los temas', 'All topics')}</button>`)}

@@ -6,7 +6,7 @@ import { ACTIVITIES } from '../content/activities.js';
 import { LESSONS } from '../content/lessons.js';
 import { useStore } from '../state/store.js';
 import { lessonProgress, isUnlocked, currentLessonId } from '../state/gamification.js';
-import { t, EN } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
 
 // Módulos con contenido. El resto se muestra bloqueado hasta que se desarrolle.
 const OPEN_MODULES = new Set(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13']);
@@ -22,7 +22,6 @@ export function MapView() {
       <h1>${t('De cero a nivel intermedio', 'From zero to intermediate')}</h1>
       <p>${t(html`13 módulos que siguen el orden de <a href="https://libropython.es/" target="_blank" rel="noopener">«Piensa en Python»</a>, el libro de referencia de tu asignatura, complementado con Cisco Python Essentials. Cada módulo indica a qué capítulos corresponde.`, html`13 modules that follow the order of <a href="https://greenteapress.com/wp/think-python-2e/" target="_blank" rel="noopener">«Think Python»</a>, your course's reference book, complemented by Cisco Python Essentials. Each module shows which chapters it covers.`)}</p>
       <span class="demo-note"><${Icon} name="check" size=${13} /> ${t('Curso completo: los 13 módulos están disponibles', 'Full course: all 13 modules are available')}</span>
-      ${EN && html`<p class="small muted" style="margin-top:8px">The lessons are still in Spanish for now; the English version will arrive module by module.</p>`}
     </div>
     <div class="path">
       ${MODULES.map((m) => {

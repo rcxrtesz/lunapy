@@ -117,7 +117,6 @@ function Onboarding() {
         <button class=${`goal-opt ${goal === v ? 'on' : ''}`} role="radio" aria-checked=${goal === v} onClick=${() => setGoal(v)}>
           <strong>${v} XP</strong><span class="small">${l}</span><div class="tiny muted">${tm}</div></button>`)}
     </div>
-    ${LANG === 'en' && html`<p class="tiny muted" style="margin-top:14px">${'The app is in English, but the lessons, challenges and review are still in Spanish for now. You can change the language in your Profile.'}</p>`}
     <p class="tiny muted" style="margin-top:14px">${useSync().status === 'off'
       ? t('Tu progreso se guarda en este dispositivo. Si inicias sesión en el Perfil, también se copia en tu cuenta.', 'Your progress is saved on this device. If you sign in from your Profile, it is also copied to your account.')
       : t('Tu progreso se guarda en este dispositivo y se sincroniza con tu cuenta.', 'Your progress is saved on this device and synced with your account.')}</p>

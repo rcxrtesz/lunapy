@@ -129,7 +129,6 @@ export function ProfileView() {
         <div class="card-title"><${Icon} name="palette" /> ${t('Apariencia', 'Appearance')}</div>
         <div class="appearance-title">${t('Idioma', 'Language')}</div>
         <${SelectorIdioma} />
-        ${EN && html`<div class="tiny muted" style="margin-top:8px">The lessons, challenges and review are still in Spanish for now.</div>`}
         <div class="appearance-title">${t('Color', 'Colour')}</div>
         <${PaletteChoices} palette=${s.palette || 'kuromi'} />
         <div class="appearance-title">${t('Modo', 'Mode')}</div>
