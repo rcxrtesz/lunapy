@@ -3,6 +3,7 @@
 import { useEffect, useState } from '../lib/ui.js';
 import { PALETTES } from './palettes.js';
 import { AVATAR_IDS, GENEROS, MAX_DESCRIPCION } from './avatares.js';
+import { LANG } from '../lib/i18n.js';
 
 const KEY = 'lunapy.v1';
 const LEGACY_KEYS = ['pyensa.v1']; // nombre anterior del proyecto: se migra el progreso
@@ -19,6 +20,7 @@ const fresh = () => ({
   profile: { name: '', dailyGoal: 30, onboarded: false, avatar: 'kuromi', birthday: '', gender: '', bio: '' },
   theme: 'system', // 'light' | 'dark' | 'system'
   palette: 'kuromi',
+  lang: LANG, // 'es' | 'en' (idioma de la interfaz; ver lib/i18n.js)
   dayOffset: 0, // herramienta de demo: simular el paso de los días
   xp: 0,
   daily: {}, // 'AAAA-MM-DD' → { xp, seconds, activities, labRuns, reviews }
@@ -54,6 +56,7 @@ const FIELDS = {
     && (v.bio === undefined || (typeof v.bio === 'string' && v.bio.length <= MAX_DESCRIPCION)) },
   theme: { label: 'modo de color', ok: (v) => ['light', 'dark', 'system'].includes(v) },
   palette: { label: 'paleta', ok: (v) => PALETTE_IDS.includes(v) },
+  lang: { label: 'idioma', ok: (v) => v === 'es' || v === 'en' },
   dayOffset: { label: 'días simulados', ok: (v) => Number.isInteger(v) && v >= 0 && v <= 3650 },
   xp: { label: 'XP', ok: isCount },
   daily: { label: 'actividad diaria', ok: (v) => isObj(v) && Object.values(v).every((d) => isObj(d) && ['xp', 'seconds', 'activities', 'labRuns', 'reviews'].every((k) => optCount(d[k]))) },
@@ -266,6 +269,12 @@ export const actions = {
   setProfile(patch) { update((s) => { Object.assign(s.profile, patch); }); },
   setTheme(theme) { update((s) => { s.theme = theme; }); },
   setPalette(palette) { update((s) => { s.palette = palette; }); },
+  /** Cambia el idioma y recarga: los textos se eligen al cargar la app (lib/i18n.js). */
+  setLang(lang) {
+    if (lang !== 'es' && lang !== 'en') return;
+    update((s) => { s.lang = lang; });
+    location.reload();
+  },
 
   markSeen(conceptIds) {
     update((s) => { conceptIds.forEach((id) => { concept(s, id).seen = true; }); });
@@ -460,8 +469,8 @@ export const actions = {
     return { ok: true, invalid: [] };
   },
   reset() {
-    const { theme, palette } = state;
-    state = { ...fresh(), theme, palette };
+    const { theme, palette, lang } = state;
+    state = { ...fresh(), theme, palette, lang };
     persist();
     notify();
   },

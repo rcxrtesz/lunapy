@@ -45,6 +45,20 @@
     <div class="splash-nombre">LunaPy</div>
     <div class="splash-texto">Arrancando motores<span class="splash-puntos"><i>.</i><i>.</i><i>.</i></span></div>
   </div>
+  <script>
+    // Idioma antes de que cargue la app (la misma regla que src/lib/i18n.js): textos de la carga.
+    try {
+      const s = JSON.parse(localStorage.getItem('lunapy.v1') || 'null');
+      const nav = ((navigator.languages && navigator.languages[0]) || navigator.language || 'es').toLowerCase();
+      const en = s && (s.lang === 'es' || s.lang === 'en') ? s.lang === 'en' : !nav.startsWith('es');
+      if (en) {
+        document.documentElement.lang = 'en';
+        document.title = 'LunaPy · Learn Python by thinking';
+        document.getElementById('splash').setAttribute('aria-label', 'Loading LunaPy');
+        document.querySelector('.splash-texto').firstChild.textContent = 'Starting engines';
+      }
+    } catch (e) { /* sin almacenamiento: se queda en español */ }
+  </script>
   <div id="app"></div>
   <noscript>LunaPy necesita JavaScript para funcionar.</noscript>
   <script src="./vendor/codemirror/codemirror.min.js"></script>

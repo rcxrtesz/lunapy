@@ -145,10 +145,10 @@ function plantilla_correo(string $titulo, string $parrafosHtml, ?string $boton =
         $botonHtml = '<tr><td align="center" style="padding:6px 0 22px">'
             . '<a href="' . $u . '" style="display:inline-block;background:#7a4cc2;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;'
             . 'padding:13px 28px;border-radius:12px;box-shadow:0 4px 14px rgba(122,76,194,.30)">' . htmlspecialchars($boton) . '</a></td></tr>'
-            . '<tr><td style="font-size:12.5px;line-height:1.5;color:#6c6478;padding:0 0 4px">Si el botón no funciona, copia este enlace en el navegador:<br>'
+            . '<tr><td style="font-size:12.5px;line-height:1.5;color:#6c6478;padding:0 0 4px">' . tr('Si el botón no funciona, copia este enlace en el navegador:', "If the button doesn't work, copy this link into your browser:") . '<br>'
             . '<a href="' . $u . '" style="color:#7a4cc2;word-break:break-all">' . htmlspecialchars($url) . '</a></td></tr>';
     }
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    return '<!doctype html><html lang="' . idioma() . '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
         . '<meta name="color-scheme" content="light"><title>' . htmlspecialchars($titulo) . '</title></head>'
         . '<body style="margin:0;padding:0;background:#f7f3fc">'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
@@ -161,7 +161,7 @@ function plantilla_correo(string $titulo, string $parrafosHtml, ?string $boton =
         . '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
         . '<td style="padding-right:14px;vertical-align:middle"><img src="' . $app . 'img/kuromi_luna.png" width="64" height="63" alt="LunaPy" style="display:block;border:0"></td>'
         . '<td style="vertical-align:middle"><div style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:#1d1824">LunaPy</div>'
-        . '<div style="font-size:13px;color:#605870">Aprende Python pensando</div></td>'
+        . '<div style="font-size:13px;color:#605870">' . tr('Aprende Python pensando', 'Learn Python by thinking') . '</div></td>'
         . '</tr></table></td></tr>'
         . '<tr><td style="padding:10px 26px 4px"><div style="height:1px;background:#e6dff0;line-height:1px;font-size:0">&nbsp;</div></td></tr>'
         // Contenido
@@ -170,7 +170,7 @@ function plantilla_correo(string $titulo, string $parrafosHtml, ?string $boton =
         . '<tr><td style="font-size:15px;line-height:1.6;color:#3a3345;padding:0 0 8px">' . $parrafosHtml . '</td></tr>'
         . $botonHtml
         . '</table></td></tr>'
-        . '<tr><td style="padding:8px 26px 22px;font-size:12px;color:#8a8197">Este correo lo envía LunaPy automáticamente: no hace falta que respondas.</td></tr>'
+        . '<tr><td style="padding:8px 26px 22px;font-size:12px;color:#8a8197">' . tr('Este correo lo envía LunaPy automáticamente: no hace falta que respondas.', "This email is sent automatically by LunaPy: there's no need to reply.") . '</td></tr>'
         . '</table>'
         // Pie
         . '<div style="font-family:' . $fuente . ';font-size:12px;color:#8a8197;padding-top:16px">developed by '
@@ -181,6 +181,14 @@ function plantilla_correo(string $titulo, string $parrafosHtml, ?string $boton =
 function correo_verificacion(string $email, string $token): bool
 {
     $url = url_app() . '#/verificar?t=' . $token;
+    if (idioma() === 'en') {
+        $html = plantilla_correo('Activate your LunaPy account',
+            '<p>Hi! To finish creating your LunaPy account, please confirm that this email address is yours.</p>'
+            . "<p>The link expires in 48 hours. If this wasn't you, just ignore this message: no account will be created.</p>",
+            'Activate my account', $url);
+        $texto = "To finish creating your LunaPy account, open this link (it expires in 48 hours):\n$url\n\nIf this wasn't you, ignore this message.";
+        return enviar_correo($email, 'Activate your LunaPy account', $html, $texto);
+    }
     $html = plantilla_correo('Activa tu cuenta de LunaPy',
         '<p>¡Hola! Para terminar de crear tu cuenta en LunaPy, confirma que este correo es tuyo.</p>'
         . '<p>El enlace caduca en 48 horas. Si no has sido tú, ignora este mensaje: no se creará ninguna cuenta.</p>',
@@ -192,6 +200,16 @@ function correo_verificacion(string $email, string $token): bool
 function correo_bienvenida(string $email): bool
 {
     $url = url_app();
+    if (idioma() === 'en') {
+        $html = plantilla_correo('Welcome to LunaPy!',
+            '<p>Your account is now active. 🌙</p>'
+            . "<p>Your progress will be saved to your account, so you'll have the same progress on your computer and your phone. "
+            . 'If you get stuck, ask <b>Lunakiri</b>, your assistant: she explains the why and guides you with hints.</p>'
+            . '<p>Remember the method: <b>Understand → Reason → Plan → Code → Run → Analyse → Improve</b>.</p>',
+            'Start learning', $url);
+        $texto = "Your LunaPy account is now active.\nYour progress will be saved to your account and available on all your devices.\nStart here: $url";
+        return enviar_correo($email, 'Welcome to LunaPy!', $html, $texto);
+    }
     $html = plantilla_correo('¡Te damos la bienvenida a LunaPy!',
         '<p>Tu cuenta ya está activa. 🌙</p>'
         . '<p>Tu progreso se guardará en tu cuenta y lo tendrás igual en el ordenador y en el móvil. '
@@ -205,6 +223,14 @@ function correo_bienvenida(string $email): bool
 function correo_restablecer(string $email, string $token): bool
 {
     $url = url_app() . '#/restablecer?t=' . $token;
+    if (idioma() === 'en') {
+        $html = plantilla_correo('Change your password',
+            '<p>We received a request to change the password of your LunaPy account.</p>'
+            . "<p>The link expires in 1 hour. If you didn't ask for this, just ignore this message: your password won't change.</p>",
+            'Choose a new password', $url);
+        $texto = "To choose a new LunaPy password, open this link (it expires in 1 hour):\n$url\n\nIf you didn't ask for this, ignore this message.";
+        return enviar_correo($email, 'Change your LunaPy password', $html, $texto);
+    }
     $html = plantilla_correo('Cambia tu contraseña',
         '<p>Hemos recibido una petición para cambiar la contraseña de tu cuenta de LunaPy.</p>'
         . '<p>El enlace caduca en 1 hora. Si no lo has pedido tú, ignora este mensaje: tu contraseña no cambiará.</p>',

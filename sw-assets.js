@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "b76157f5089b";
+self.LUNAPY_VERSION = "89f3a02466ee";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",
@@ -77,6 +77,7 @@ self.LUNAPY_ASSETS = [
   "./src/lib/asistente.js",
   "./src/lib/backup.js",
   "./src/lib/highlight.js",
+  "./src/lib/i18n.js",
   "./src/lib/icons.js",
   "./src/lib/pwa.js",
   "./src/lib/splash.js",

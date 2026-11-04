@@ -7,6 +7,7 @@ import { Tracer } from './tracer.js';
 import { Hints } from './hints.js';
 import { actions, getState, useStore, currentAttempt } from '../state/store.js';
 import { engine } from '../engine/python.js';
+import { t } from '../lib/i18n.js';
 
 const TYPE_ICON = { predict: 'eye', code: 'code', order: 'list' };
 const VARIANT_ICON = { complete: 'puzzle', fix: 'bug', build: 'pencil' };
@@ -22,7 +23,7 @@ function ActivityHeader({ activity }) {
       <div class="row wrap" style="margin-top:8px;gap:6px">
         <${Difficulty} level=${activity.difficulty} />
         <span class="tag xp"><${Icon} name="zap" size=${12} /> ${activity.xp} XP</span>
-        ${rec && rec.completed && html`<span class="tag ok"><${Icon} name="check" size=${12} /> Completada${rec.solutionViewed ? ' con solución' : ''}</span>`}
+        ${rec && rec.completed && html`<span class="tag ok"><${Icon} name="check" size=${12} /> ${t('Completada', 'Completed')}${rec.solutionViewed ? t(' con solución', ' with solution') : ''}</span>`}
       </div>
     </div>
   </div>`;
@@ -31,11 +32,11 @@ function ActivityHeader({ activity }) {
 function celebrate(activity, res) {
   if (res.first) {
     const bits = [];
-    if (res.breakdown.bonus) bits.push('+5 por resolverlo a la primera sin ayuda');
-    if (res.breakdown.factor < 1) bits.push(`${Math.round(res.breakdown.factor * 100)} % del XP por las ayudas usadas`);
+    if (res.breakdown.bonus) bits.push(t('+5 por resolverlo a la primera sin ayuda', '+5 for solving it first time without help'));
+    if (res.breakdown.factor < 1) bits.push(t(`${Math.round(res.breakdown.factor * 100)} % del XP por las ayudas usadas`, `${Math.round(res.breakdown.factor * 100)}% of the XP because of the help used`));
     toast({ icon: 'zap', title: `+${res.xp} XP · ${activity.title}`, text: bits.join(' · ') });
   } else {
-    toast({ icon: 'repeat', title: 'Práctica registrada', text: 'Ya habías completado esta actividad: cuenta para tus repasos.' });
+    toast({ icon: 'repeat', title: t('Práctica registrada', 'Practice recorded'), text: t('Ya habías completado esta actividad: cuenta para tus repasos.', 'You had already completed this activity: it counts towards your reviews.') });
   }
 }
 
@@ -43,7 +44,7 @@ function RepeatNote({ activity }) {
   const rec = getState().activities[activity.id];
   if (!rec || !rec.completed) return null;
   return html`<div class="callout"><span class="callout-icon"><${Icon} name="repeat" /></span>
-    <div>Ya completaste esta actividad. Puedes repetirla para practicar: no vuelve a dar XP, pero mantiene vivo el concepto en tu memoria y en tu plan de repaso.</div></div>`;
+    <div>${t('Ya completaste esta actividad. Puedes repetirla para practicar: no vuelve a dar XP, pero mantiene vivo el concepto en tu memoria y en tu plan de repaso.', "You've already completed this activity. You can repeat it to practise: it won't give XP again, but it keeps the concept fresh in your memory and in your review plan.")}</div></div>`;
 }
 
 // ===================================================================== Predicción
@@ -84,20 +85,20 @@ export function PredictActivity({ activity, onComplete }) {
       })}
     </div>
     ${wrong.length > 0 && !solved && html`<div class="feedback err">
-      <div class="feedback-title"><${Icon} name="brain" size=${16} /> Idea interesante, pero no</div>
+      <div class="feedback-title"><${Icon} name="brain" size=${16} /> ${t('Idea interesante, pero no', 'Interesting idea, but no')}</div>
       <${Rich} text=${activity.options[wrong[wrong.length - 1]].why} />
-      <div class="small muted" style="margin-top:6px">Vuelve a intentarlo: equivocarse aquí es útil, te muestra qué idea hay que ajustar.</div>
+      <div class="small muted" style="margin-top:6px">${t('Vuelve a intentarlo: equivocarse aquí es útil, te muestra qué idea hay que ajustar.', 'Try again: getting it wrong here is useful, it shows you which idea needs adjusting.')}</div>
     </div>`}
     ${solved && html`<div class="feedback ok">
-      <div class="feedback-title"><${Icon} name="check" size=${16} /> ${wrong.length === 0 ? '¡Correcto a la primera!' : '¡Correcto!'}</div>
-      <div>Así lo razona Python:</div>
+      <div class="feedback-title"><${Icon} name="check" size=${16} /> ${wrong.length === 0 ? t('¡Correcto a la primera!', 'Correct, first time!') : t('¡Correcto!', 'Correct!')}</div>
+      <div>${t('Así lo razona Python:', 'This is how Python reasons it:')}</div>
       <ol style="margin:6px 0 0;padding-left:20px">${activity.explain.map((e) => html`<li><${Rich} text=${e} /></li>`)}</ol>
     </div>
     <div class="row wrap">
-      <button class="btn" onClick=${() => runner.run(activity.code)}><${Icon} name="play" size=${15} /> Compruébalo en Python</button>
-      <button class="btn" onClick=${() => setShowTrace(!showTrace)}><${Icon} name="footsteps" size=${15} /> ${showTrace ? 'Ocultar' : 'Ver'} la ejecución paso a paso</button>
+      <button class="btn" onClick=${() => runner.run(activity.code)}><${Icon} name="play" size=${15} /> ${t('Compruébalo en Python', 'Check it in Python')}</button>
+      <button class="btn" onClick=${() => setShowTrace(!showTrace)}><${Icon} name="footsteps" size=${15} /> ${showTrace ? t('Ocultar la ejecución paso a paso', 'Hide the step-by-step execution') : t('Ver la ejecución paso a paso', 'See the step-by-step execution')}</button>
     </div>
-    ${runner.status !== 'idle' && html`<${Console} runner=${runner} title="Salida real de Python" />`}
+    ${runner.status !== 'idle' && html`<${Console} runner=${runner} title=${t('Salida real de Python', 'Real Python output')} />`}
     ${showTrace && html`<${Tracer} code=${activity.code} />`}`}
   </div>`;
 }
@@ -138,11 +139,11 @@ function Plan({ activity, onDone, onSkip, onAnswer }) {
 
   return html`<div class="plan">
     <div class="row between wrap" style="margin-bottom:8px">
-      <div class="eyebrow" style="margin:0"><${Icon} name="brain" size=${13} /> Antes de programar · Planifica</div>
-      <button class="btn sm ghost" onClick=${onSkip}>Ya lo tengo claro, ir al código</button>
+      <div class="eyebrow" style="margin:0"><${Icon} name="brain" size=${13} /> ${t('Antes de programar · Planifica', 'Before coding · Plan')}</div>
+      <button class="btn sm ghost" onClick=${onSkip}>${t('Ya lo tengo claro, ir al código', "I've got it, go to the code")}</button>
     </div>
     <div class="plan-steps">${activity.plan.map((_, i) => html`<i class=${i <= qi ? 'on' : ''} />`)}</div>
-    <div class="question-text">${q.q}${q.multi && html`<span class="muted small"> (elige todas las que correspondan)</span>`}</div>
+    <div class="question-text">${q.q}${q.multi && html`<span class="muted small"> ${t('(elige todas las que correspondan)', '(choose all that apply)')}</span>`}</div>
     <div class="chips">
       ${shuffledIndices(q.options.length, q.q).map((i) => {
         const o = q.options[i];
@@ -153,16 +154,16 @@ function Plan({ activity, onDone, onSkip, onAnswer }) {
         return html`<button class=${`chip ${cls}`} onClick=${() => pick(i)} aria-pressed=${on}><${Rich} text=${o.text} /></button>`;
       })}
     </div>
-    ${q.multi && !(checked && isOk) && html`<div style="margin-top:12px"><button class="btn sm primary" onClick=${() => verify(sel)} disabled=${!sel.length}>Comprobar</button></div>`}
+    ${q.multi && !(checked && isOk) && html`<div style="margin-top:12px"><button class="btn sm primary" onClick=${() => verify(sel)} disabled=${!sel.length}>${t('Comprobar', 'Check')}</button></div>`}
     ${checked && !isOk && html`<div class="feedback info">
-      <div class="feedback-title"><${Icon} name="info" size=${15} /> Revisa tu plan</div>
+      <div class="feedback-title"><${Icon} name="info" size=${15} /> ${t('Revisa tu plan', 'Review your plan')}</div>
       ${q.options.map((o, i) => (sel.includes(i) && !o.correct ? html`<div><${Rich} text=${o.why} /></div>` : null))}
-      ${q.multi && q.options.some((o, i) => o.correct && !sel.includes(i)) && html`<div>Te falta algún dato que el programa necesita.</div>`}
+      ${q.multi && q.options.some((o, i) => o.correct && !sel.includes(i)) && html`<div>${t('Te falta algún dato que el programa necesita.', "You're missing some data the program needs.")}</div>`}
     </div>`}
-    ${checked && isOk && html`<div class="feedback ok"><div class="feedback-title"><${Icon} name="check" size=${15} /> Bien razonado</div>
+    ${checked && isOk && html`<div class="feedback ok"><div class="feedback-title"><${Icon} name="check" size=${15} /> ${t('Bien razonado', 'Well reasoned')}</div>
       <div class="row wrap" style="justify-content:space-between">
-        <span class="small">${qi + 1 < activity.plan.length ? 'Siguiente pregunta del plan.' : 'Ya tienes el plan. Lo convertimos en comentarios dentro del editor para guiarte.'}</span>
-        <button class="btn sm primary" onClick=${next}>${qi + 1 < activity.plan.length ? 'Continuar' : 'Empezar a programar'} <${Icon} name="arrowRight" size=${14} /></button>
+        <span class="small">${qi + 1 < activity.plan.length ? t('Siguiente pregunta del plan.', 'Next question of the plan.') : t('Ya tienes el plan. Lo convertimos en comentarios dentro del editor para guiarte.', "You have your plan. We'll turn it into comments in the editor to guide you.")}</span>
+        <button class="btn sm primary" onClick=${next}>${qi + 1 < activity.plan.length ? t('Continuar', 'Continue') : t('Empezar a programar', 'Start coding')} <${Icon} name="arrowRight" size=${14} /></button>
       </div></div>`}
   </div>`;
 }
@@ -172,12 +173,14 @@ function Plan({ activity, onDone, onSkip, onAnswer }) {
 // Razonar = responder el plan · Planificar = completarlo · Programar = editar · Ejecutar = ejecutar
 // o ver paso a paso · Analizar = comprobar · Mejorar = pulir una solución que ya funciona.
 const PHASES = ['Comprender', 'Razonar', 'Planificar', 'Programar', 'Ejecutar', 'Analizar', 'Mejorar'];
+const PHASE_EN = { Comprender: 'Understand', Razonar: 'Reason', Planificar: 'Plan', Programar: 'Code', Ejecutar: 'Run', Analizar: 'Analyse', Mejorar: 'Improve' };
+const phaseLabel = (p) => t(p, PHASE_EN[p]);
 
 function PhaseBar({ reached }) {
   const current = [...PHASES].reverse().find((p) => reached.has(p));
-  return html`<div class="thinking" aria-label=${`Fases del método. Fase actual: ${current}`}>
+  return html`<div class="thinking" aria-label=${`${t('Fases del método. Fase actual', 'Method phases. Current phase')}: ${phaseLabel(current)}`}>
     ${PHASES.map((p) => html`<span class=${p === current ? 'on' : reached.has(p) ? 'done' : ''}>
-      ${reached.has(p) && p !== current ? '✓ ' : ''}${p}</span>`)}
+      ${reached.has(p) && p !== current ? '✓ ' : ''}${phaseLabel(p)}</span>`)}
   </div>`;
 }
 
@@ -210,7 +213,7 @@ export function CodeActivity({ activity, onComplete }) {
   const check = async () => {
     setChecking(true);
     mark('Analizar');
-    const res = await engine.check(code, activity.spec).catch((e) => ({ status: 'fail', category: 'ejecucion', title: 'Error interno al comprobar', message: e.message, cases: [] }));
+    const res = await engine.check(code, activity.spec).catch((e) => ({ status: 'fail', category: 'ejecucion', title: t('Error interno al comprobar', 'Internal error while checking'), message: e.message, cases: [] }));
     setChecking(false);
     if (res.status === 'pass') {
       if (passed) {
@@ -219,9 +222,9 @@ export function CodeActivity({ activity, onComplete }) {
           const xp = actions.improveSolution(activity);
           mark('Mejorar');
           setImproving(false);
-          res.title = '¡Solución mejorada!';
-          res.message = 'Has aplicado la sugerencia: ahora tu programa no solo funciona, también se entiende mejor.';
-          toast({ icon: 'sparkle', title: xp ? `+${xp} XP · Solución mejorada` : 'Solución mejorada', text: activity.title });
+          res.title = t('¡Solución mejorada!', 'Solution improved!');
+          res.message = t('Has aplicado la sugerencia: ahora tu programa no solo funciona, también se entiende mejor.', "You applied the suggestion: now your program doesn't just work, it's also easier to understand.");
+          toast({ icon: 'sparkle', title: xp ? `+${xp} XP · ${t('Solución mejorada', 'Solution improved')}` : t('Solución mejorada', 'Solution improved'), text: activity.title });
         }
       } else {
         setPassed(true);
@@ -261,7 +264,7 @@ export function CodeActivity({ activity, onComplete }) {
     ${activity.variant === 'build' && html`<${PhaseBar} reached=${reached} />`}
     <${RepeatNote} activity=${activity} />
     <div class="statement"><${Paragraphs} text=${activity.statement} /></div>
-    ${activity.expected && html`<div><div class="small muted" style="margin-bottom:4px">Salida esperada:</div><div class="expected-output">${activity.expected}</div></div>`}
+    ${activity.expected && html`<div><div class="small muted" style="margin-bottom:4px">${t('Salida esperada:', 'Expected output:')}</div><div class="expected-output">${activity.expected}</div></div>`}
     ${activity.note && html`<div class="small muted"><${Rich} text=${activity.note} /></div>`}
 
     ${!planned ? html`<${Plan} activity=${activity} onAnswer=${() => mark('Razonar')}
@@ -270,16 +273,16 @@ export function CodeActivity({ activity, onComplete }) {
       : html`
       <div class="editor-wrap" ref=${editorRef}>
         <div class="editor-toolbar">
-          <span class="label"><${Icon} name="code" size=${14} /> solucion.py <span class="tiny hide-mobile">· <kbd>Ctrl</kbd>+<kbd>Intro</kbd> ejecuta</span></span>
-          <button class="btn sm" onClick=${restore} title="Restaurar el código inicial"><${Icon} name="rotate" size=${14} /> <span class="hide-mobile">Restaurar</span></button>
-          <button class="btn sm" onClick=${() => { setTracing(code); mark('Ejecutar'); }} title="Ejecutar paso a paso"><${Icon} name="footsteps" size=${14} /> <span class="hide-mobile">Paso a paso</span></button>
-          <button class="btn sm run" onClick=${run} disabled=${runner.status === 'running'}><${Icon} name="play" size=${14} /> Ejecutar</button>
-          <button class="btn sm check" onClick=${check} disabled=${checking}><${Icon} name="check" size=${14} /> ${checking ? 'Comprobando…' : 'Comprobar'}</button>
+          <span class="label"><${Icon} name="code" size=${14} /> ${t('solucion.py', 'solution.py')} <span class="tiny hide-mobile">· <kbd>Ctrl</kbd>+<kbd>${t('Intro', 'Enter')}</kbd> ${t('ejecuta', 'runs')}</span></span>
+          <button class="btn sm" onClick=${restore} title=${t('Restaurar el código inicial', 'Restore the starting code')}><${Icon} name="rotate" size=${14} /> <span class="hide-mobile">${t('Restaurar', 'Restore')}</span></button>
+          <button class="btn sm" onClick=${() => { setTracing(code); mark('Ejecutar'); }} title=${t('Ejecutar paso a paso', 'Run step by step')}><${Icon} name="footsteps" size=${14} /> <span class="hide-mobile">${t('Paso a paso', 'Step by step')}</span></button>
+          <button class="btn sm run" onClick=${run} disabled=${runner.status === 'running'}><${Icon} name="play" size=${14} /> ${t('Ejecutar', 'Run')}</button>
+          <button class="btn sm check" onClick=${check} disabled=${checking}><${Icon} name="check" size=${14} /> ${checking ? t('Comprobando…', 'Checking…') : t('Comprobar', 'Check')}</button>
         </div>
-        <${Editor} value=${code} onChange=${(v) => { setCode(v); mark('Programar'); }} onRun=${run} errorLine=${errLine} minLines=${6} label=${`Editor de ${activity.title}`} />
+        <${Editor} value=${code} onChange=${(v) => { setCode(v); mark('Programar'); }} onRun=${run} errorLine=${errLine} minLines=${6} label=${`${t('Editor de', 'Editor for')} ${activity.title}`} />
       </div>
       <${EngineLoading} />
-      <div class="small muted"><b>Ejecutar</b> prueba tu programa como quieras (si usa input(), la consola te pedirá los datos). <b>Comprobar</b> lo pone a prueba con varios casos, incluidos casos límite.</div>
+      <div class="small muted">${t(html`<b>Ejecutar</b> prueba tu programa como quieras (si usa input(), la consola te pedirá los datos). <b>Comprobar</b> lo pone a prueba con varios casos, incluidos casos límite.`, html`<b>Run</b> tries your program however you like (if it uses input(), the console will ask you for the values). <b>Check</b> tests it with several cases, including edge cases.`)}</div>
       ${runner.status !== 'idle' && html`<${Console} runner=${runner} />`}
       ${runner.error && !result && html`<${ErrorCard} error=${runner.error} />`}
       ${tracing && html`<${Tracer} code=${tracing} />`}
@@ -287,24 +290,24 @@ export function CodeActivity({ activity, onComplete }) {
         <div class="result-title"><${Icon} name=${cat ? cat.icon : 'info'} size=${18} /> ${result.title}
           ${cat && html`<span class=${`tag ${result.status === 'pass' ? 'ok' : result.category === 'sintaxis' || result.category === 'incompleto' ? 'warn' : result.category === 'comprension' ? 'info' : 'err'}`}>${cat.label}</span>`}</div>
         ${result.error ? html`<div style="margin-top:8px"><${ErrorCard} error=${result.error} /></div>` : html`<${Rich} tag="div" text=${result.message || ''} />`}
-        ${result.case && html`<div class="small muted" style="margin-top:6px">Ha fallado en el caso: <b>${result.case}</b></div>`}
+        ${result.case && html`<div class="small muted" style="margin-top:6px">${t('Ha fallado en el caso:', 'It failed on the case:')} <b>${result.case}</b></div>`}
         ${result.detail && html`<div class="diff">
-          <div><div class="lbl">Se esperaba</div><pre>${result.detail.expected}</pre></div>
-          <div><div class="lbl">Tu programa muestra</div><pre>${result.detail.got || '(nada)'}</pre></div>
+          <div><div class="lbl">${t('Se esperaba', 'Expected')}</div><pre>${result.detail.expected}</pre></div>
+          <div><div class="lbl">${t('Tu programa muestra', 'Your program shows')}</div><pre>${result.detail.got || t('(nada)', '(nothing)')}</pre></div>
         </div>`}
-        ${result.cases && result.cases.length > 0 && html`<div class="cases" aria-label="Casos de prueba">
+        ${result.cases && result.cases.length > 0 && html`<div class="cases" aria-label=${t('Casos de prueba', 'Test cases')}>
           ${result.cases.map((c) => html`<span class=${`case ${c.ok ? 'ok' : 'bad'}`}><${Icon} name=${c.ok ? 'check' : 'x'} size=${12} /> ${c.label}</span>`)}
         </div>`}
         ${result.category === 'mejorable' && html`<div class="improve">
-          ${result.suggestions && result.suggestions.length > 1 && html`<ul class="small" style="margin:0 0 10px;padding-left:18px">${result.suggestions.slice(1).map((t) => html`<li><${Rich} text=${t} /></li>`)}</ul>`}
+          ${result.suggestions && result.suggestions.length > 1 && html`<ul class="small" style="margin:0 0 10px;padding-left:18px">${result.suggestions.slice(1).map((sug) => html`<li><${Rich} text=${sug} /></li>`)}</ul>`}
           ${improving
-            ? html`<div class="small"><b>Modo mejora:</b> aplica la sugerencia en el editor y vuelve a pulsar <b>Comprobar</b>. Mejorar una solución que ya funciona también da XP.</div>`
-            : html`<button class="btn sm primary" onClick=${startImproving}><${Icon} name="sparkle" size=${14} /> Mejorar mi solución</button>`}
+            ? html`<div class="small">${t(html`<b>Modo mejora:</b> aplica la sugerencia en el editor y vuelve a pulsar <b>Comprobar</b>. Mejorar una solución que ya funciona también da XP.`, html`<b>Improve mode:</b> apply the suggestion in the editor and press <b>Check</b> again. Improving a solution that already works also gives XP.`)}</div>`
+            : html`<button class="btn sm primary" onClick=${startImproving}><${Icon} name="sparkle" size=${14} /> ${t('Mejorar mi solución', 'Improve my solution')}</button>`}
         </div>`}
         ${result.status === 'pass' && html`<details class="more" style="margin-top:14px">
-          <summary><span class="chev"><${Icon} name="chevRight" size=${14} /></span> Compara con otra solución posible</summary>
+          <summary><span class="chev"><${Icon} name="chevRight" size=${14} /></span> ${t('Compara con otra solución posible', 'Compare with another possible solution')}</summary>
           <div class="more-body"><div class="code-block" style="margin-bottom:8px"><${CodeView} code=${activity.solution.code} /></div><${Rich} text=${activity.solution.explanation} />
-          <div class="small muted" style="margin-top:6px">Tu solución no tiene por qué ser igual: hay muchas formas correctas de resolver un problema.</div></div>
+          <div class="small muted" style="margin-top:6px">${t('Tu solución no tiene por qué ser igual: hay muchas formas correctas de resolver un problema.', "Your solution doesn't have to be the same: there are many correct ways to solve a problem.")}</div></div>
         </details>`}
       </div>`}
       ${(!result || result.status !== 'pass') && html`<${Hints} hints=${activity.hints} solution=${activity.solution} lastResult=${result}
@@ -353,7 +356,7 @@ function OrderStage({ stage, activity, onSolved }) {
 
   return html`<div class="stack" style="gap:12px">
     <h3 style="margin:0">${stage.title}</h3>
-    <div class="small muted">Arrastra los elementos o usa las flechas. Piensa en qué necesita cada paso para poder hacerse.</div>
+    <div class="small muted">${t('Arrastra los elementos o usa las flechas. Piensa en qué necesita cada paso para poder hacerse.', 'Drag the items or use the arrows. Think about what each step needs before it can be done.')}</div>
     <ol class="order-list" style="list-style:none;margin:0;padding:0">
       ${order.map((id, i) => {
         const it = byId[id];
@@ -369,23 +372,23 @@ function OrderStage({ stage, activity, onSolved }) {
           <span class="order-num">${i + 1}</span>
           <span class="order-text">${stage.code ? html`<code dangerouslySetInnerHTML=${{ __html: highlight(it.text) }} />` : it.text}</span>
           <span class="order-btns">
-            <button onClick=${() => move(i, i - 1)} disabled=${i === 0 || (verdict && verdict.ok)} aria-label=${`Subir «${it.text}»`}><${Icon} name="up" size=${16} /></button>
-            <button onClick=${() => move(i, i + 1)} disabled=${i === order.length - 1 || (verdict && verdict.ok)} aria-label=${`Bajar «${it.text}»`}><${Icon} name="down" size=${16} /></button>
+            <button onClick=${() => move(i, i - 1)} disabled=${i === 0 || (verdict && verdict.ok)} aria-label=${`${t('Subir', 'Move up')} «${it.text}»`}><${Icon} name="up" size=${16} /></button>
+            <button onClick=${() => move(i, i + 1)} disabled=${i === order.length - 1 || (verdict && verdict.ok)} aria-label=${`${t('Bajar', 'Move down')} «${it.text}»`}><${Icon} name="down" size=${16} /></button>
           </span>
         </li>`;
       })}
     </ol>
     ${!(verdict && verdict.ok) && html`<div class="row wrap">
-      <button class="btn primary" onClick=${verify}><${Icon} name="check" size=${15} /> Comprobar orden</button>
-      ${stage.code && html`<button class="btn" onClick=${() => runner.run(order.map((id) => byId[id].text).join('\n'))}><${Icon} name="play" size=${15} /> Probar este orden en Python</button>`}
+      <button class="btn primary" onClick=${verify}><${Icon} name="check" size=${15} /> ${t('Comprobar orden', 'Check order')}</button>
+      ${stage.code && html`<button class="btn" onClick=${() => runner.run(order.map((id) => byId[id].text).join('\n'))}><${Icon} name="play" size=${15} /> ${t('Probar este orden en Python', 'Try this order in Python')}</button>`}
     </div>`}
     ${verdict && !verdict.ok && html`<div class="feedback info">
-      <div class="feedback-title"><${Icon} name="list" size=${15} /> Hay pasos que dependen de otros que van después</div>
-      <ul style="margin:4px 0 0;padding-left:20px">${verdict.bad.map((id) => html`<li><${Rich} text=${byId[id].why || 'Este paso necesita algo que se hace más tarde.'} /></li>`)}</ul>
+      <div class="feedback-title"><${Icon} name="list" size=${15} /> ${t('Hay pasos que dependen de otros que van después', 'Some steps depend on others that come later')}</div>
+      <ul style="margin:4px 0 0;padding-left:20px">${verdict.bad.map((id) => html`<li><${Rich} text=${byId[id].why || t('Este paso necesita algo que se hace más tarde.', 'This step needs something that is done later.')} /></li>`)}</ul>
     </div>`}
-    ${verdict && verdict.ok && html`<div class="feedback ok"><div class="feedback-title"><${Icon} name="check" size=${15} /> ¡Orden correcto!</div><${Rich} text=${stage.success} /></div>`}
-    ${verdict && verdict.ok && stage.code && runner.status === 'idle' && html`<div><button class="btn run" onClick=${() => runner.run(order.map((id) => byId[id].text).join('\n'))}><${Icon} name="play" size=${15} /> Ejecuta tu programa</button></div>`}
-    ${runner.status !== 'idle' && html`<${Console} runner=${runner} title="Python real" />`}
+    ${verdict && verdict.ok && html`<div class="feedback ok"><div class="feedback-title"><${Icon} name="check" size=${15} /> ${t('¡Orden correcto!', 'Correct order!')}</div><${Rich} text=${stage.success} /></div>`}
+    ${verdict && verdict.ok && stage.code && runner.status === 'idle' && html`<div><button class="btn run" onClick=${() => runner.run(order.map((id) => byId[id].text).join('\n'))}><${Icon} name="play" size=${15} /> ${t('Ejecuta tu programa', 'Run your program')}</button></div>`}
+    ${runner.status !== 'idle' && html`<${Console} runner=${runner} title=${t('Python real', 'Real Python')} />`}
     <${ErrorCard} error=${runner.error} compact=${true} />
   </div>`;
 }
@@ -410,7 +413,7 @@ export function OrderActivity({ activity, onComplete }) {
     ${activity.stages.map((st, i) => (i <= stage ? html`<div class="card flat" key=${i}>
       <${OrderStage} stage=${st} activity=${activity} onSolved=${() => done(i)} />
       ${solved.includes(i) && i === stage && i + 1 < activity.stages.length && html`<div style="margin-top:14px">
-        <button class="btn primary" onClick=${() => setStage(i + 1)}>Siguiente: traducir a Python <${Icon} name="arrowRight" size=${15} /></button></div>`}
+        <button class="btn primary" onClick=${() => setStage(i + 1)}>${t('Siguiente: traducir a Python', 'Next: translate to Python')} <${Icon} name="arrowRight" size=${15} /></button></div>`}
     </div>` : null))}
   </div>`;
 }

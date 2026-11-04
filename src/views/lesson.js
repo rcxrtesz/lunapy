@@ -9,6 +9,11 @@ import { LESSONS, lessonActivities } from '../content/lessons.js';
 import { ACTIVITIES } from '../content/activities.js';
 import { actions, useStore } from '../state/store.js';
 import { isUnlocked } from '../state/gamification.js';
+import { t, EN } from '../lib/i18n.js';
+
+const METODO = EN
+  ? ['Understand', 'Reason', 'Plan', 'Code', 'Run', 'Analyse', 'Improve']
+  : ['Comprender', 'Razonar', 'Planificar', 'Programar', 'Ejecutar', 'Analizar', 'Mejorar'];
 
 function Block({ b }) {
   switch (b.type) {
@@ -23,7 +28,7 @@ function Block({ b }) {
     case 'five': return html`<div class="five">${Object.entries(b.items).map(([k, v]) => html`<div class="five-item"><h4>${k}</h4><${Rich} tag="p" text=${v} /></div>`)}</div>`;
     case 'more': return html`<details class="more"><summary><span class="chev"><${Icon} name="chevRight" size=${14} /></span> ${b.summary}</summary>
       <div class="more-body"><ul>${b.items.map((i) => html`<li><${Rich} text=${i} /></li>`)}</ul></div></details>`;
-    case 'check': return html`<${Question} item=${b} onFirstAnswer=${(ok) => { const xp = actions.answerCheck(b.id, b.concept, ok, { prediction: !!b.code }); if (xp) toast({ icon: 'zap', title: `+${xp} XP`, text: 'Pregunta de comprensión', duration: 2200 }); }} />`;
+    case 'check': return html`<${Question} item=${b} onFirstAnswer=${(ok) => { const xp = actions.answerCheck(b.id, b.concept, ok, { prediction: !!b.code }); if (xp) toast({ icon: 'zap', title: `+${xp} XP`, text: t('Pregunta de comprensión', 'Comprehension question'), duration: 2200 }); }} />`;
     case 'classify': return html`<${Classify} block=${b} onFirstAnswer=${(ok) => actions.answerCheck(b.id, b.concept, ok)} />`;
     case 'trace': return html`<${Tracer} code=${b.code} />`;
     default: return null;
@@ -37,7 +42,7 @@ export function LessonView({ lessonId, step: stepParam }) {
   // La vista se monta con una clave por lección, así que esta rama es estable para cada instancia.
   if (!L) {
     return html`<div class="empty" style="margin-top:40px"><div class="icon-wrap"><${Icon} name="book" size=${24} /></div>
-      <h3>Esta lección todavía no está disponible</h3><a class="btn primary" href="#/mapa">Ir al mapa</a></div>`;
+      <h3>${t('Esta lección todavía no está disponible', "This lesson isn't available yet")}</h3><a class="btn primary" href="#/mapa">${t('Ir al mapa', 'Go to the map')}</a></div>`;
   }
   const s = useStore();
   const LESSON_ACTIVITIES = lessonActivities(L);
@@ -70,7 +75,7 @@ export function LessonView({ lessonId, step: stepParam }) {
 
   const finish = () => {
     if (actions.completeLesson(L.id, L.bonusXp)) {
-      toast({ icon: 'trophy', title: `+${L.bonusXp} XP · Lección completada` });
+      toast({ icon: 'trophy', title: `+${L.bonusXp} XP · ${t('Lección completada', 'Lesson completed')}` });
     }
     setCelebrate(true);
   };
@@ -89,13 +94,13 @@ export function LessonView({ lessonId, step: stepParam }) {
 
   return html`<div>
     <div class="row between wrap" style="margin-top:14px">
-      <a class="btn ghost sm" href="#/mapa"><${Icon} name="arrowLeft" size=${15} /> Mapa</a>
-      <span class="small muted">Lección ${L.code} · ${L.minutes} min aprox.</span>
+      <a class="btn ghost sm" href="#/mapa"><${Icon} name="arrowLeft" size=${15} /> ${t('Mapa', 'Map')}</a>
+      <span class="small muted">${t('Lección', 'Lesson')} ${L.code} · ${t(`${L.minutes} min aprox.`, `approx. ${L.minutes} min`)}</span>
     </div>
     <div class="lesson-progress-top"><${Progress} value=${pct} /><span class="small muted" style="flex:none">${idx + 1}/${L.steps.length}</span></div>
 
     <div class="lesson-shell">
-      <nav class="lesson-toc card flat" style="padding:12px" aria-label="Pasos de la lección">
+      <nav class="lesson-toc card flat" style="padding:12px" aria-label=${t('Pasos de la lección', 'Lesson steps')}>
         <div class="small" style="font-weight:800;padding:4px 10px 10px">${L.title}</div>
         ${L.steps.map((st, i) => {
           const act = st.activity && ACTIVITIES[st.activity];
@@ -111,15 +116,16 @@ export function LessonView({ lessonId, step: stepParam }) {
 
       <div class="card step-card" key=${idx}>
         ${idx === 0 && html`<div class="card flat" style="background:var(--surface-2);margin-bottom:22px;padding:18px">
-          <div class="eyebrow">Lección ${L.code}</div>
+          ${EN && html`<p class="small muted" style="margin:0 0 10px">This lesson is still in Spanish; the English version is on its way.</p>`}
+          <div class="eyebrow">${t('Lección', 'Lesson')} ${L.code}</div>
           <h1 style="margin-bottom:10px">${L.title}</h1>
           <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
-            <div><div class="small" style="font-weight:700;margin-bottom:4px">Al terminar sabrás…</div>
+            <div><div class="small" style="font-weight:700;margin-bottom:4px">${t('Al terminar sabrás…', "When you finish you'll know…")}</div>
               <ul class="small" style="margin:0;padding-left:18px">${L.objectives.map((o) => html`<li>${o}</li>`)}</ul></div>
-            <div><div class="small" style="font-weight:700;margin-bottom:4px">Necesitas</div>
+            <div><div class="small" style="font-weight:700;margin-bottom:4px">${t('Necesitas', 'You need')}</div>
               <div class="small muted">${L.prerequisites.join('. ')}</div>
-              <div class="small" style="font-weight:700;margin:10px 0 4px">Cómo vas a trabajar</div>
-              <div class="method"><span>Comprender</span><i>→</i><span>Razonar</span><i>→</i><span>Planificar</span><i>→</i><span>Programar</span><i>→</i><span>Ejecutar</span><i>→</i><span>Analizar</span><i>→</i><span>Mejorar</span></div>
+              <div class="small" style="font-weight:700;margin:10px 0 4px">${t('Cómo vas a trabajar', "How you'll work")}</div>
+              <div class="method">${METODO.map((p, i) => html`${i > 0 && html`<i>→</i>`}<span>${p}</span>`)}</div>
             </div>
           </div>
         </div>`}
@@ -129,51 +135,55 @@ export function LessonView({ lessonId, step: stepParam }) {
         ${activity && (locked ? html`<div class="empty">
             <div class="icon-wrap"><${Icon} name="lock" size=${24} /></div>
             <h3>${activity.title}</h3>
-            <p>Este problema integra todo lo anterior. Se desbloquea cuando demuestras que dominas las bases: <b>${activity.unlock.text.toLowerCase()}</b>.</p>
+            <p>${t('Este problema integra todo lo anterior. Se desbloquea cuando demuestras que dominas las bases:', 'This problem brings together everything so far. It unlocks when you show you have mastered the basics:')} <b>${activity.unlock.text.toLowerCase()}</b>.</p>
           </div>` : html`<${ActivityRunner} activity=${activity} key=${activity.id} />`)}
 
         ${step.summary && html`<div>
-          <h2 class="step-title">Resumen de la lección</h2>
+          <h2 class="step-title">${t('Resumen de la lección', 'Lesson summary')}</h2>
           <ul class="stack" style="padding-left:20px;gap:6px">${L.summary.map((x) => html`<li><${Rich} text=${x} /></li>`)}</ul>
           <div class="divider" />
-          <h3>Actividades</h3>
+          <h3>${t('Actividades', 'Activities')}</h3>
           <div class="stack" style="gap:8px">${LESSON_ACTIVITIES.map((id) => {
             const a = ACTIVITIES[id];
             const r = s.activities[id];
             const at = L.steps.findIndex((x) => x.activity === id);
             return html`<div class="row between wrap">
               <span class="row"><${Icon} name=${r?.completed ? 'check' : 'target'} size=${16} /> ${a.title} <span class="tag">${a.kindLabel}</span></span>
-              ${r?.completed ? html`<span class="tag ok">+${r.xpEarned} XP</span>` : html`<button class="btn sm" onClick=${() => go(at)}>Ir a la actividad</button>`}
+              ${r?.completed ? html`<span class="tag ok">+${r.xpEarned} XP</span>` : html`<button class="btn sm" onClick=${() => go(at)}>${t('Ir a la actividad', 'Go to the activity')}</button>`}
             </div>`;
           })}</div>
           <div style="margin-top:20px">
-            ${lesson.completed ? html`<div class="callout tip"><span class="callout-icon"><${Icon} name="trophy" /></span><div><strong>Lección completada</strong>Puedes volver a cualquier paso cuando quieras. Lo que ya has conseguido no se pierde.</div></div>`
-              : allDone ? html`<button class="btn primary lg" onClick=${finish}><${Icon} name="trophy" size=${17} /> Completar lección (+${L.bonusXp} XP)</button>`
-              : html`<div class="callout"><span class="callout-icon"><${Icon} name="info" /></span><div>Para completar la lección tienes que superar ${LESSON_ACTIVITIES.length === 1 ? 'la actividad' : `las ${LESSON_ACTIVITIES.length} actividades`}. Leer la teoría no basta: queremos que demuestres que sabes aplicarla.</div></div>`}
+            ${lesson.completed ? html`<div class="callout tip"><span class="callout-icon"><${Icon} name="trophy" /></span><div><strong>${t('Lección completada', 'Lesson completed')}</strong>${t('Puedes volver a cualquier paso cuando quieras. Lo que ya has conseguido no se pierde.', "You can go back to any step whenever you like. What you've achieved isn't lost.")}</div></div>`
+              : allDone ? html`<button class="btn primary lg" onClick=${finish}><${Icon} name="trophy" size=${17} /> ${t('Completar lección', 'Complete lesson')} (+${L.bonusXp} XP)</button>`
+              : html`<div class="callout"><span class="callout-icon"><${Icon} name="info" /></span><div>${EN
+                ? `To complete the lesson you need to pass ${LESSON_ACTIVITIES.length === 1 ? 'the activity' : `the ${LESSON_ACTIVITIES.length} activities`}. Reading the theory isn't enough: we want you to show you can apply it.`
+                : `Para completar la lección tienes que superar ${LESSON_ACTIVITIES.length === 1 ? 'la actividad' : `las ${LESSON_ACTIVITIES.length} actividades`}. Leer la teoría no basta: queremos que demuestres que sabes aplicarla.`}</div></div>`}
           </div>
         </div>`}
 
         <div class="step-nav">
-          <button class="btn" onClick=${() => go(idx - 1)} disabled=${idx === 0}><${Icon} name="arrowLeft" size=${15} /> Anterior</button>
+          <button class="btn" onClick=${() => go(idx - 1)} disabled=${idx === 0}><${Icon} name="arrowLeft" size=${15} /> ${t('Anterior', 'Previous')}</button>
           ${idx < L.steps.length - 1 && html`<div class="row wrap" style="gap:8px">
-            ${pendingChecks.length > 0 && html`<span class="small muted">Responde ${pendingChecks.length === 1 ? 'la pregunta' : `las ${pendingChecks.length} preguntas`} para continuar</span>`}
-            ${activity && !activityDone && html`<button class="btn ghost" onClick=${() => go(idx + 1)}>Saltar por ahora</button>`}
+            ${pendingChecks.length > 0 && html`<span class="small muted">${EN
+              ? `Answer ${pendingChecks.length === 1 ? 'the question' : `the ${pendingChecks.length} questions`} to continue`
+              : `Responde ${pendingChecks.length === 1 ? 'la pregunta' : `las ${pendingChecks.length} preguntas`} para continuar`}</span>`}
+            ${activity && !activityDone && html`<button class="btn ghost" onClick=${() => go(idx + 1)}>${t('Saltar por ahora', 'Skip for now')}</button>`}
             <button class="btn primary" onClick=${() => go(idx + 1)} disabled=${pendingChecks.length > 0 || (activity && !activityDone)}>
-              ${activity ? 'Siguiente actividad' : 'Continuar'} <${Icon} name="arrowRight" size=${15} /></button>
+              ${activity ? t('Siguiente actividad', 'Next activity') : t('Continuar', 'Continue')} <${Icon} name="arrowRight" size=${15} /></button>
           </div>`}
         </div>
       </div>
     </div>
 
-    ${celebrate && html`<${Modal} onClose=${() => setCelebrate(false)} label="Lección completada">
+    ${celebrate && html`<${Modal} onClose=${() => setCelebrate(false)} label=${t('Lección completada', 'Lesson completed')}>
       <div style="text-align:center">
         <div class="celebrate-badge"><${Icon} name="trophy" size=${36} /></div>
-        <h2>¡Lección completada!</h2>
-        <p class="muted">${L.celebration} Mañana te propondremos un repaso breve para fijarlo en la memoria a largo plazo.</p>
+        <h2>${t('¡Lección completada!', 'Lesson completed!')}</h2>
+        <p class="muted">${L.celebration} ${t('Mañana te propondremos un repaso breve para fijarlo en la memoria a largo plazo.', "Tomorrow we'll suggest a short review to fix it in your long-term memory.")}</p>
         <div class="row wrap" style="justify-content:center;margin-top:18px">
-          <a class="btn" href="#/progreso" onClick=${() => setCelebrate(false)}>Ver mi progreso</a>
-          ${next ? html`<a class="btn primary" href=${`#/leccion/${next.id}/0`} onClick=${() => setCelebrate(false)}>Siguiente lección: ${next.code} <${Icon} name="arrowRight" size=${15} /></a>`
-            : html`<a class="btn primary" href="#/desafios" onClick=${() => setCelebrate(false)}>Ir a los desafíos <${Icon} name="arrowRight" size=${15} /></a>`}
+          <a class="btn" href="#/progreso" onClick=${() => setCelebrate(false)}>${t('Ver mi progreso', 'See my progress')}</a>
+          ${next ? html`<a class="btn primary" href=${`#/leccion/${next.id}/0`} onClick=${() => setCelebrate(false)}>${t('Siguiente lección', 'Next lesson')}: ${next.code} <${Icon} name="arrowRight" size=${15} /></a>`
+            : html`<a class="btn primary" href="#/desafios" onClick=${() => setCelebrate(false)}>${t('Ir a los desafíos', 'Go to the challenges')} <${Icon} name="arrowRight" size=${15} /></a>`}
         </div>
       </div>
     </${Modal}>`}

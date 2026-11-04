@@ -6,6 +6,7 @@ import { ACTIVITIES } from '../content/activities.js';
 import { LESSONS } from '../content/lessons.js';
 import { useStore } from '../state/store.js';
 import { lessonProgress, isUnlocked, currentLessonId } from '../state/gamification.js';
+import { t, EN } from '../lib/i18n.js';
 
 // Módulos con contenido. El resto se muestra bloqueado hasta que se desarrolle.
 const OPEN_MODULES = new Set(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13']);
@@ -17,10 +18,11 @@ export function MapView() {
 
   return html`<div>
     <div class="page-head">
-      <div class="eyebrow">Mapa de aprendizaje</div>
-      <h1>De cero a nivel intermedio</h1>
-      <p>13 módulos que siguen el orden de <a href="https://libropython.es/" target="_blank" rel="noopener">«Piensa en Python»</a>, el libro de referencia de tu asignatura, complementado con Cisco Python Essentials. Cada módulo indica a qué capítulos corresponde.</p>
-      <span class="demo-note"><${Icon} name="check" size=${13} /> Curso completo: los 13 módulos están disponibles</span>
+      <div class="eyebrow">${t('Mapa de aprendizaje', 'Learning map')}</div>
+      <h1>${t('De cero a nivel intermedio', 'From zero to intermediate')}</h1>
+      <p>${t(html`13 módulos que siguen el orden de <a href="https://libropython.es/" target="_blank" rel="noopener">«Piensa en Python»</a>, el libro de referencia de tu asignatura, complementado con Cisco Python Essentials. Cada módulo indica a qué capítulos corresponde.`, html`13 modules that follow the order of <a href="https://greenteapress.com/wp/think-python-2e/" target="_blank" rel="noopener">«Think Python»</a>, your course's reference book, complemented by Cisco Python Essentials. Each module shows which chapters it covers.`)}</p>
+      <span class="demo-note"><${Icon} name="check" size=${13} /> ${t('Curso completo: los 13 módulos están disponibles', 'Full course: all 13 modules are available')}</span>
+      ${EN && html`<p class="small muted" style="margin-top:8px">The lessons are still in Spanish for now; the English version will arrive module by module.</p>`}
     </div>
     <div class="path">
       ${MODULES.map((m) => {
@@ -37,24 +39,24 @@ export function MapView() {
           <div class="card module-body">
             <div class="row between wrap" style="align-items:flex-start">
               <div style="min-width:0;flex:1">
-                <div class="tiny faint" style="font-weight:700;letter-spacing:.05em">MÓDULO ${m.num}</div>
+                <div class="tiny faint" style="font-weight:700;letter-spacing:.05em">${t('MÓDULO', 'MODULE')} ${m.num}</div>
                 <h3 style="margin:2px 0 4px">${m.title}</h3>
                 <div class="book-ref"><${Icon} name="book" size=${13} /> ${m.book.join(' · ')} <span class="faint">· ${m.cisco}</span></div>
               </div>
               <div class="row" style="gap:8px">
-                ${available && (done ? html`<span class="tag ok">Completado</span>` : html`<span class=${`tag ${isCurrent ? 'accent' : ''}`}>${isCurrent ? 'En curso · ' : ''}${modPct} %</span>`)}
-                ${!available && html`<span class="tag">Se desbloquea al dominar el módulo ${m.num - 1}</span>`}
+                ${available && (done ? html`<span class="tag ok">${t('Completado', 'Completed')}</span>` : html`<span class=${`tag ${isCurrent ? 'accent' : ''}`}>${isCurrent ? t('En curso · ', 'In progress · ') : ''}${modPct} %</span>`)}
+                ${!available && html`<span class="tag">${t(`Se desbloquea al dominar el módulo ${m.num - 1}`, `Unlocks when you master module ${m.num - 1}`)}</span>`}
               </div>
             </div>
             ${available && html`<div style="margin-top:12px"><${Progress} value=${modPct} kind=${done ? 'ok' : ''} /></div>`}
             <button class="details-toggle" style="margin-top:12px" onClick=${() => setOpen({ ...open, [m.id]: !expanded })} aria-expanded=${!!expanded}>
-              ${expanded ? 'Ocultar detalles' : 'Ver objetivos y lecciones'}
+              ${expanded ? t('Ocultar detalles', 'Hide details') : t('Ver objetivos y lecciones', 'See objectives and lessons')}
             </button>
             ${expanded && html`<div style="margin-top:12px">
               <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
-                <div><div class="small" style="font-weight:700;margin-bottom:4px">Objetivos</div>
+                <div><div class="small" style="font-weight:700;margin-bottom:4px">${t('Objetivos', 'Objectives')}</div>
                   <ul class="small muted" style="margin:0;padding-left:18px">${m.objectives.map((o) => html`<li>${o}</li>`)}</ul></div>
-                <div><div class="small" style="font-weight:700;margin-bottom:4px">Prerrequisitos</div>
+                <div><div class="small" style="font-weight:700;margin-bottom:4px">${t('Prerrequisitos', 'Prerequisites')}</div>
                   <div class="small muted">${m.prerequisites.join(', ')}</div></div>
               </div>
               <div class="lesson-list">
@@ -65,7 +67,7 @@ export function MapView() {
                     return html`<a class=${`lesson-item ${cls}`} href=${`#/leccion/${l.id}/${lp.step || 0}`}>
                       <span class="li-icon"><${Icon} name=${lp.completed ? 'check' : 'play'} size=${15} /></span>
                       <span style="flex:1"><b>${m.num}.${i + 1}</b> ${l.title}</span>
-                      <span class="tag ${lp.completed ? 'ok' : 'accent'}">${lp.completed ? 'Completada' : `${lp.activitiesDone}/${lp.activitiesTotal} actividades`}</span>
+                      <span class="tag ${lp.completed ? 'ok' : 'accent'}">${lp.completed ? t('Completada', 'Completed') : `${lp.activitiesDone}/${lp.activitiesTotal} ${t('actividades', 'activities')}`}</span>
                     </a>`;
                   }
                   if (l.challenge) {
@@ -77,7 +79,7 @@ export function MapView() {
                       : html`<div class="lesson-item pending"><span class="li-icon"><${Icon} name="lock" size=${15} /></span><span style="flex:1">${l.title}</span><span class="tag">${a.unlock.text}</span></div>`;
                   }
                   return html`<div class="lesson-item pending"><span class="li-icon"><${Icon} name="lock" size=${15} /></span>
-                    <span style="flex:1"><b>${m.num}.${i + 1}</b> ${l.title}</span><span class="tiny faint">Próximamente</span></div>`;
+                    <span style="flex:1"><b>${m.num}.${i + 1}</b> ${l.title}</span><span class="tiny faint">${t('Próximamente', 'Coming soon')}</span></div>`;
                 })}
               </div>
             </div>`}

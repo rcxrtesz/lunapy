@@ -1,7 +1,8 @@
 import { getState, today } from '../state/store.js';
+import { t } from './i18n.js';
 
 /** Descarga una copia del progreso en JSON. Devuelve false si no se pudo generar. */
-export function downloadBackup(prefix = 'lunapy-progreso') {
+export function downloadBackup(prefix = t('lunapy-progreso', 'lunapy-progress')) {
   try {
     // La herramienta de demo «Simular el día siguiente» no forma parte del progreso del alumno.
     const { dayOffset, ...data } = getState();

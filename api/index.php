@@ -40,11 +40,11 @@ try {
         'PUT estado' => guardar_estado(),
         'GET asistente' => estado_asistente(),
         'POST asistente' => preguntar_asistente(),
-        default => responder(404, ['error' => 'Ruta no encontrada.']),
+        default => responder(404, ['error' => tr('Ruta no encontrada.', 'Route not found.')]),
     };
 } catch (Throwable $e) {
     error_log('[LunaPy] ' . $e);
-    responder(500, ['error' => 'Error interno del servidor. Inténtalo más tarde.']);
+    responder(500, ['error' => tr('Error interno del servidor. Inténtalo más tarde.', 'Internal server error. Try again later.')]);
 }
 
 // ---------- Cuenta ----------
@@ -56,12 +56,12 @@ function registro(): never
     $contrasena = (string) ($datos['contrasena'] ?? '');
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        responder(400, ['error' => 'Escribe un correo electrónico válido.']);
+        responder(400, ['error' => tr('Escribe un correo electrónico válido.', 'Enter a valid email address.')]);
     }
     $permitidos = array_map('normalizar_email', config()['emails_permitidos']);
     if (!in_array($email, $permitidos, true)) {
         if (!config()['registro_abierto']) {
-            responder(403, ['error' => 'Este servidor es privado: ese correo no está autorizado para crear una cuenta.']);
+            responder(403, ['error' => tr('Este servidor es privado: ese correo no está autorizado para crear una cuenta.', "This server is private: that email isn't allowed to create an account.")]);
         }
         // Registro abierto: solo correos de proveedores fiables (Gmail, Outlook…) con un servidor de correo real.
         $error = problema_dominio($email);
@@ -83,13 +83,13 @@ function registro(): never
         $st->execute([$email]);
         $existente = $st->fetch();
         if ((int) $existente['verificada'] === 1) {
-            responder(409, ['error' => 'Ya existe una cuenta con ese correo. Inicia sesión.']);
+            responder(409, ['error' => tr('Ya existe una cuenta con ese correo. Inicia sesión.', 'An account with that email already exists. Sign in.')]);
         }
         $id = (int) $existente['id']; // registrada pero sin activar: se reenvía el correo
     }
     $token = crear_token_correo($id, 'verificar', VALIDEZ_VERIFICACION);
     if ($token !== null && !correo_verificacion($email, $token)) {
-        responder(502, ['error' => 'La cuenta se ha creado, pero no se ha podido enviar el correo de verificación. Prueba a reenviarlo en un momento.', 'pendiente' => true]);
+        responder(502, ['error' => tr('La cuenta se ha creado, pero no se ha podido enviar el correo de verificación. Prueba a reenviarlo en un momento.', "The account was created, but the verification email couldn't be sent. Try resending it in a moment."), 'pendiente' => true]);
     }
     responder(202, ['pendiente' => true, 'email' => $email]);
 }
@@ -97,7 +97,7 @@ function registro(): never
 function validar_contrasena(string $contrasena): void
 {
     if (mb_strlen($contrasena) < 8 || mb_strlen($contrasena) > 200) {
-        responder(400, ['error' => 'La contraseña debe tener al menos 8 caracteres.']);
+        responder(400, ['error' => tr('La contraseña debe tener al menos 8 caracteres.', 'The password must be at least 8 characters long.')]);
     }
 }
 
@@ -113,7 +113,7 @@ function verificar_cuenta(): never
 {
     $id = usar_token_correo(leer_json()['token'] ?? null, 'verificar');
     if ($id === null) {
-        responder(400, ['error' => 'El enlace no es válido o ha caducado. Inicia sesión para recibir uno nuevo.']);
+        responder(400, ['error' => tr('El enlace no es válido o ha caducado. Inicia sesión para recibir uno nuevo.', "The link isn't valid or has expired. Sign in to get a new one.")]);
     }
     db()->prepare('UPDATE usuarias SET verificada = 1 WHERE id = ?')->execute([$id]);
     $email = email_de($id);
@@ -130,7 +130,7 @@ function reenviar_verificacion(): never
     if ($id !== false) {
         $token = crear_token_correo((int) $id, 'verificar', VALIDEZ_VERIFICACION);
         if ($token === null) {
-            responder(429, ['error' => 'Acabamos de enviarte un correo. Espera un minuto antes de pedir otro.']);
+            responder(429, ['error' => tr('Acabamos de enviarte un correo. Espera un minuto antes de pedir otro.', 'We just sent you an email. Wait a minute before asking for another one.')]);
         }
         correo_verificacion($email, $token);
     }
@@ -142,7 +142,7 @@ function recuperar_contrasena(): never
 {
     $email = normalizar_email(leer_json()['email'] ?? '');
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        responder(400, ['error' => 'Escribe un correo electrónico válido.']);
+        responder(400, ['error' => tr('Escribe un correo electrónico válido.', 'Enter a valid email address.')]);
     }
     $st = db()->prepare('SELECT id FROM usuarias WHERE email = ?');
     $st->execute([$email]);
@@ -164,7 +164,7 @@ function restablecer_contrasena(): never
     validar_contrasena($contrasena);
     $id = usar_token_correo($datos['token'] ?? null, 'restablecer');
     if ($id === null) {
-        responder(400, ['error' => 'El enlace no es válido o ha caducado. Pide uno nuevo desde «¿Has olvidado tu contraseña?».']);
+        responder(400, ['error' => tr('El enlace no es válido o ha caducado. Pide uno nuevo desde «¿Has olvidado tu contraseña?».', "The link isn't valid or has expired. Ask for a new one from «Forgotten your password?».")]);
     }
     $pdo = db();
     // Abrir el enlace demuestra que el correo es suyo: la cuenta queda verificada.
@@ -191,11 +191,11 @@ function iniciar_sesion(): never
     $hash = $usuaria['hash_contrasena'] ?? '$2y$12$h8/pdfb1qISIsboa9cWq8uvpjpPTmM64L4ZkIK0wKc8LjVn4prcem';
     if (!password_verify($contrasena, $hash) || !$usuaria) {
         registrar_intento_fallido($email);
-        responder(401, ['error' => 'Correo o contraseña incorrectos.']);
+        responder(401, ['error' => tr('Correo o contraseña incorrectos.', 'Incorrect email or password.')]);
     }
     borrar_intentos($email);
     if ((int) $usuaria['verificada'] !== 1) {
-        responder(403, ['error' => 'Aún no has activado tu cuenta: abre el enlace del correo que te enviamos.', 'sin_verificar' => true]);
+        responder(403, ['error' => tr('Aún no has activado tu cuenta: abre el enlace del correo que te enviamos.', "You haven't activated your account yet: open the link in the email we sent you."), 'sin_verificar' => true]);
     }
     if (password_needs_rehash($hash, PASSWORD_DEFAULT)) {
         db()->prepare('UPDATE usuarias SET hash_contrasena = ? WHERE id = ?')
@@ -228,7 +228,7 @@ function borrar_cuenta(): never
     $st = db()->prepare('SELECT hash_contrasena FROM usuarias WHERE id = ?');
     $st->execute([$id]);
     if (!password_verify($contrasena, (string) $st->fetchColumn())) {
-        responder(401, ['error' => 'La contraseña no es correcta.']);
+        responder(401, ['error' => tr('La contraseña no es correcta.', 'The password is incorrect.')]);
     }
     $pdo = db();
     $pdo->beginTransaction();
@@ -270,7 +270,7 @@ function guardar_estado(): never
     $base = $cuerpo['revision_base'] ?? null;
     $datos = $cuerpo['datos'] ?? null;
     if (!is_int($base) || $base < 0 || !is_array($datos) || ($datos['version'] ?? null) !== 1) {
-        responder(400, ['error' => 'Datos de progreso no válidos.']);
+        responder(400, ['error' => tr('Datos de progreso no válidos.', 'Invalid progress data.')]);
     }
     $json = json_encode($datos, JSON_UNESCAPED_UNICODE);
     $ahora = time();
@@ -302,7 +302,7 @@ function conflicto(int $id): never
     $st->execute([$id]);
     $fila = $st->fetch();
     responder(409, [
-        'error' => 'Otro dispositivo ha guardado cambios.',
+        'error' => tr('Otro dispositivo ha guardado cambios.', 'Another device has saved changes.'),
         'revision' => $fila ? (int) $fila['revision'] : 0,
         'datos' => $fila ? json_decode($fila['datos'], true) : null,
     ]);

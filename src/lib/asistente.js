@@ -8,6 +8,7 @@ import { useEffect, useState } from './ui.js';
 import { urlApi, tokenSesion } from './sync.js';
 import { LESSONS } from '../content/lessons.js';
 import { ACTIVITIES } from '../content/activities.js';
+import { t, LANG } from './i18n.js';
 
 const CLAVE = 'lunapy.asistente';
 const MAX_CONVERSACIONES = 30;
@@ -94,7 +95,7 @@ export function registrarEjecucion(codigo, error) {
 }
 
 function textoError(e) {
-  return [e.line && `Línea ${e.line}${e.code_line ? `: ${e.code_line.trim()}` : ''}`, e.original || e.title, e.explanation && `Explicación de LunaPy: ${e.explanation}`]
+  return [e.line && `${t('Línea', 'Line')} ${e.line}${e.code_line ? `: ${e.code_line.trim()}` : ''}`, e.original || e.title, e.explanation && `${t('Explicación de LunaPy', 'LunaPy explanation')}: ${e.explanation}`]
     .filter(Boolean).join('\n');
 }
 
@@ -103,8 +104,8 @@ export function contextoActual() {
   const [vista, id] = location.hash.replace(/^#\/?/, '').split('/');
   let leccion = '';
   if (vista === 'leccion' && LESSONS[id]) leccion = `${LESSONS[id].title}`;
-  else if (vista === 'desafios' && ACTIVITIES[id]) leccion = `Desafío «${ACTIVITIES[id].title}»`;
-  else if (vista === 'lab') leccion = 'Laboratorio (programación libre)';
+  else if (vista === 'desafios' && ACTIVITIES[id]) leccion = `${t('Desafío', 'Challenge')} «${ACTIVITIES[id].title}»`;
+  else if (vista === 'lab') leccion = t('Laboratorio (programación libre)', 'Lab (free coding)');
   const ejec = ultimaEjecucion && ultimaEjecucion.ruta === location.hash ? ultimaEjecucion : null;
   if (!leccion && !ejec) return null;
   return { leccion, codigo: ejec?.codigo || '', error: ejec?.error || '' };
@@ -116,7 +117,7 @@ export function contextoActual() {
 export async function consultarAsistente() {
   if (!tokenSesion()) return;
   try {
-    const res = await fetch(urlApi('asistente'), { headers: { 'X-LunaPy-Token': tokenSesion() }, cache: 'no-store' });
+    const res = await fetch(urlApi('asistente'), { headers: { 'X-LunaPy-Token': tokenSesion(), 'X-LunaPy-Lang': LANG }, cache: 'no-store' });
     if (res.ok) {
       const d = await res.json();
       fijar({ disponible: d.disponible, restantes: d.restantes });
@@ -147,7 +148,7 @@ export async function preguntar(texto, { conContexto = true } = {}) {
   try {
     const res = await fetch(urlApi('asistente'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-LunaPy-Token': tokenSesion() || '' },
+      headers: { 'Content-Type': 'application/json', 'X-LunaPy-Token': tokenSesion() || '', 'X-LunaPy-Lang': LANG },
       body: JSON.stringify({ mensajes: historial, contexto }),
       signal: peticion.signal,
       cache: 'no-store',
@@ -155,7 +156,7 @@ export async function preguntar(texto, { conContexto = true } = {}) {
     if (!(res.headers.get('Content-Type') || '').startsWith('text/event-stream')) {
       let d = {};
       try { d = await res.json(); } catch { /* respuesta sin JSON */ }
-      throw new Error(d.error || `Error ${res.status} del servidor.`);
+      throw new Error(d.error || t(`Error ${res.status} del servidor.`, `Server error ${res.status}.`));
     }
     await leerEventos(res.body, (ev) => {
       if (ev.texto) {
@@ -166,16 +167,16 @@ export async function preguntar(texto, { conContexto = true } = {}) {
         error = ev.error;
       } else if (ev.fin) {
         estado = { ...estado, restantes: ev.restantes };
-        if (ev.motivo === 'max_tokens') respuesta += '\n\n*(La respuesta era muy larga y se ha cortado. Pídeme que continúe.)*';
+        if (ev.motivo === 'max_tokens') respuesta += t('\n\n*(La respuesta era muy larga y se ha cortado. Pídeme que continúe.)*', '\n\n*(The answer was very long and got cut off. Ask me to continue.)*');
       }
     });
   } catch (e) {
-    error = e.name === 'AbortError' ? null : e instanceof TypeError ? 'No se ha podido contactar con el servidor. Comprueba la conexión.' : e.message;
+    error = e.name === 'AbortError' ? null : e instanceof TypeError ? t('No se ha podido contactar con el servidor. Comprueba la conexión.', "Couldn't reach the server. Check your connection.") : e.message;
   }
   peticion = null;
 
   if (respuesta) {
-    if (error) respuesta += '\n\n*(Respuesta incompleta.)*';
+    if (error) respuesta += t('\n\n*(Respuesta incompleta.)*', '\n\n*(Incomplete answer.)*');
     actualizarActiva((c) => ({ ...c, mensajes: [...c.mensajes.slice(0, -1), { role: 'assistant', content: respuesta }] }));
   } else {
     // Sin respuesta: se quita la pregunta (para poder reenviarla) y se devuelve al cuadro de texto.

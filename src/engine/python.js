@@ -5,6 +5,8 @@
 // contar cuando el worker recibe cada programa, y si uno se cuelga solo ese
 // recibe el aviso de tiempo agotado; los demás esperan al worker nuevo.
 
+import { t, LANG } from '../lib/i18n.js';
+
 const TIMEOUTS = { run: 5000, trace: 6000, check: 10000 };
 
 class PythonEngine {
@@ -62,7 +64,7 @@ class PythonEngine {
       else this._pump();
     };
     worker.onerror = (e) => {
-      this._set('error', { error: e.message || 'No se pudo iniciar Python' });
+      this._set('error', { error: e.message || t('No se pudo iniciar Python', 'Python could not be started') });
       this._failAll(new Error(this.error));
     };
   }
@@ -102,17 +104,17 @@ class PythonEngine {
     });
   }
 
-  run(code, stdin = [], seed) { return this.call('run', { code, stdin, seed }); }
-  trace(code, stdin = [], seed) { return this.call('trace', { code, stdin, seed }); }
-  check(code, spec) { return this.call('check', { code, spec }); }
+  run(code, stdin = [], seed) { return this.call('run', { code, stdin, seed, lang: LANG }); }
+  trace(code, stdin = [], seed) { return this.call('trace', { code, stdin, seed, lang: LANG }); }
+  check(code, spec) { return this.call('check', { code, spec, lang: LANG }); }
 }
 
 function timeoutResult(op) {
   const error = {
     type: 'Timeout', kind: 'ejecucion', line: null, code_line: '',
-    title: 'El programa ha tardado demasiado',
-    explanation: `Lo hemos detenido tras ${(TIMEOUTS[op] || 5000) / 1000} segundos para que no bloquee la página.`,
-    suggestion: '¿Hay un bucle que nunca termina? Comprueba que la condición del bucle llega a ser falsa.',
+    title: t('El programa ha tardado demasiado', 'The program took too long'),
+    explanation: t(`Lo hemos detenido tras ${(TIMEOUTS[op] || 5000) / 1000} segundos para que no bloquee la página.`, `We stopped it after ${(TIMEOUTS[op] || 5000) / 1000} seconds so it doesn't freeze the page.`),
+    suggestion: t('¿Hay un bucle que nunca termina? Comprueba que la condición del bucle llega a ser falsa.', 'Is there a loop that never ends? Check that the loop condition eventually becomes false.'),
     original: '',
   };
   if (op === 'check') return { status: 'fail', category: 'ejecucion', title: error.title, message: error.explanation, error, cases: [] };

@@ -8,6 +8,7 @@
 import { useEffect, useState } from './ui.js';
 import { getState, replaceState, subscribe } from '../state/store.js';
 import { merge } from '../state/merge.js';
+import { t, LANG } from './i18n.js';
 
 const CUENTA = 'lunapy.cuenta';    // { email, token, revision, ultima }
 const BASE = 'lunapy.cuenta.base'; // último estado sincronizado: el antepasado común al fusionar
@@ -58,7 +59,8 @@ export const urlApi = url;
 export const tokenSesion = () => cuenta?.token || null;
 
 async function api(metodo, ruta, cuerpo) {
-  const headers = { Accept: 'application/json' };
+  // X-LunaPy-Lang: idioma de los mensajes de error y de los correos que envía la API.
+  const headers = { Accept: 'application/json', 'X-LunaPy-Lang': LANG };
   if (cuerpo) headers['Content-Type'] = 'application/json';
   if (cuenta?.token) headers['X-LunaPy-Token'] = cuenta.token;
   const res = await fetch(url(ruta), { method: metodo, headers, body: cuerpo ? JSON.stringify(cuerpo) : undefined, cache: 'no-store' });
@@ -67,7 +69,7 @@ async function api(metodo, ruta, cuerpo) {
   return { status: res.status, datos };
 }
 
-const mensajeRed = 'No se ha podido contactar con el servidor. Tu progreso sigue guardado en este dispositivo.';
+const mensajeRed = t('No se ha podido contactar con el servidor. Tu progreso sigue guardado en este dispositivo.', "Couldn't reach the server. Your progress is still saved on this device.");
 
 // ---------- Sesión ----------
 
@@ -159,7 +161,7 @@ function aplicar(datos) {
 
 function sesionCaducada(status) {
   if (status !== 401) return false;
-  cerrarLocal('La sesión ha caducado. Vuelve a iniciar sesión para seguir sincronizando.');
+  cerrarLocal(t('La sesión ha caducado. Vuelve a iniciar sesión para seguir sincronizando.', 'Your session has expired. Sign in again to keep syncing.'));
   return true;
 }
 
@@ -184,7 +186,7 @@ async function subir() {
     throw new Error(datos.error || `Error ${status}`);
   }
   pendiente = true;
-  throw new Error('No se ha podido guardar: hay demasiados cambios a la vez. Se volverá a intentar.');
+  throw new Error(t('No se ha podido guardar: hay demasiados cambios a la vez. Se volverá a intentar.', "Couldn't save: too many changes at once. It will be retried."));
 }
 
 async function bajar() {

@@ -52,6 +52,22 @@ Formato: párrafos cortos, listas con guiones, **negrita** para lo importante, `
 Los mensajes pueden empezar con un bloque <contexto> con la lección en la que está la persona, su código y el último error. Úsalo si sirve para la pregunta, pero no lo repitas entero ni lo menciones si no viene al caso.
 TXT;
 
+// Con la app en inglés se añade un segundo bloque (después del que se guarda en caché):
+// las instrucciones siguen siendo las mismas y solo cambia el idioma de las respuestas.
+const INSTRUCCIONES_INGLES = <<<'TXT'
+IMPORTANT — language: this person is using LunaPy in English. Always reply in clear, friendly English (not Spanish), even though the instructions above are written in Spanish, unless the person writes to you in another language. The lessons are still in Spanish, so the <contexto> block and the code may contain Spanish names and text: explain them in English when needed. Keep everything else the same (personality, motorbike examples, format, hints instead of full solutions).
+TXT;
+
+/** Bloques de sistema: las instrucciones (en caché) y, si la app está en inglés, el aviso de idioma. */
+function instrucciones_sistema(): array
+{
+    $bloques = [['type' => 'text', 'text' => INSTRUCCIONES_ASISTENTE, 'cacheControl' => ['type' => 'ephemeral']]];
+    if (idioma() === 'en') {
+        $bloques[] = ['type' => 'text', 'text' => INSTRUCCIONES_INGLES];
+    }
+    return $bloques;
+}
+
 // ---------- Rutas ----------
 
 function estado_asistente(): never
@@ -69,7 +85,7 @@ function preguntar_asistente(): never
 {
     $id = usuaria_autenticada();
     if (clave_anthropic() === '') {
-        responder(503, ['error' => 'El asistente no está configurado en el servidor (falta la clave de Anthropic en config.php).']);
+        responder(503, ['error' => tr('El asistente no está configurado en el servidor (falta la clave de Anthropic en config.php).', "The assistant isn't set up on the server (the Anthropic key is missing in config.php).")]);
     }
     $cuerpo = leer_json();
     $mensajes = validar_mensajes($cuerpo['mensajes'] ?? null);
@@ -80,7 +96,7 @@ function preguntar_asistente(): never
     }
 
     if (preguntas_de_hoy($id) >= maximo_diario()) {
-        responder(429, ['error' => 'Has llegado al límite de preguntas de hoy. Mañana podrás seguir preguntando.']);
+        responder(429, ['error' => tr('Has llegado al límite de preguntas de hoy. Mañana podrás seguir preguntando.', "You've reached today's question limit. You can keep asking tomorrow.")]);
     }
     contar_pregunta($id);
 
@@ -92,7 +108,7 @@ function preguntar_asistente(): never
         $stream = cliente_anthropic()->messages->createStream(
             model: MODELO_ASISTENTE,
             maxTokens: MAX_TOKENS_RESPUESTA,
-            system: [['type' => 'text', 'text' => INSTRUCCIONES_ASISTENTE, 'cacheControl' => ['type' => 'ephemeral']]],
+            system: instrucciones_sistema(),
             outputConfig: ['effort' => 'low'],
             messages: $mensajes,
         );
@@ -119,7 +135,7 @@ function preguntar_asistente(): never
     }
 
     if ($motivo === 'refusal') {
-        enviar_evento(['error' => 'El asistente no puede responder a esa pregunta. Prueba a formularla de otra manera.']);
+        enviar_evento(['error' => tr('El asistente no puede responder a esa pregunta. Prueba a formularla de otra manera.', "The assistant can't answer that question. Try asking it another way.")]);
         exit;
     }
     enviar_evento(['fin' => true, 'motivo' => $motivo, 'restantes' => max(0, maximo_diario() - preguntas_de_hoy($id))]);
@@ -132,26 +148,26 @@ function preguntar_asistente(): never
 function validar_mensajes(mixed $mensajes): array
 {
     if (!is_array($mensajes) || !array_is_list($mensajes) || $mensajes === []) {
-        responder(400, ['error' => 'Falta la pregunta.']);
+        responder(400, ['error' => tr('Falta la pregunta.', 'The question is missing.')]);
     }
     $mensajes = array_slice($mensajes, -MAX_MENSAJES);
     if (($mensajes[0]['role'] ?? null) !== 'user') {
         array_shift($mensajes); // al recortar, el historial debe seguir empezando por la persona
     }
     if ($mensajes === []) {
-        responder(400, ['error' => 'Falta la pregunta.']);
+        responder(400, ['error' => tr('Falta la pregunta.', 'The question is missing.')]);
     }
     $limpios = [];
     foreach ($mensajes as $i => $m) {
         $rol = is_array($m) ? ($m['role'] ?? null) : null;
         $texto = is_array($m) && is_string($m['content'] ?? null) ? trim($m['content']) : '';
         if ($rol !== ($i % 2 === 0 ? 'user' : 'assistant') || $texto === '' || mb_strlen($texto) > MAX_CARACTERES_MENSAJE) {
-            responder(400, ['error' => 'La conversación no es válida o algún mensaje es demasiado largo.']);
+            responder(400, ['error' => tr('La conversación no es válida o algún mensaje es demasiado largo.', "The conversation isn't valid or a message is too long.")]);
         }
         $limpios[] = ['role' => $rol, 'content' => $texto];
     }
     if (end($limpios)['role'] !== 'user') {
-        responder(400, ['error' => 'Falta la pregunta.']);
+        responder(400, ['error' => tr('Falta la pregunta.', 'The question is missing.')]);
     }
     return $limpios;
 }
@@ -195,11 +211,11 @@ function cliente_anthropic(): Client
 function mensaje_de_error(Throwable $e): string
 {
     return match (true) {
-        $e instanceof AuthenticationException => 'La clave de Anthropic del servidor no es válida. Revisa config.php.',
-        $e instanceof RateLimitException => 'El asistente está recibiendo demasiadas preguntas. Espera un momento y vuelve a probar.',
-        $e instanceof APIStatusException && str_contains(strtolower($e->getMessage()), 'credit') => 'La cuenta de Anthropic se ha quedado sin saldo. Recárgala en console.anthropic.com.',
-        $e instanceof APIConnectionException => 'No se ha podido contactar con el asistente. Inténtalo de nuevo en un momento.',
-        default => 'El asistente ha tenido un problema. Inténtalo de nuevo en un momento.',
+        $e instanceof AuthenticationException => tr('La clave de Anthropic del servidor no es válida. Revisa config.php.', "The server's Anthropic key isn't valid. Check config.php."),
+        $e instanceof RateLimitException => tr('El asistente está recibiendo demasiadas preguntas. Espera un momento y vuelve a probar.', 'The assistant is getting too many questions. Wait a moment and try again.'),
+        $e instanceof APIStatusException && str_contains(strtolower($e->getMessage()), 'credit') => tr('La cuenta de Anthropic se ha quedado sin saldo. Recárgala en console.anthropic.com.', 'The Anthropic account has run out of credit. Top it up at console.anthropic.com.'),
+        $e instanceof APIConnectionException => tr('No se ha podido contactar con el asistente. Inténtalo de nuevo en un momento.', "Couldn't reach the assistant. Try again in a moment."),
+        default => tr('El asistente ha tenido un problema. Inténtalo de nuevo en un momento.', 'The assistant ran into a problem. Try again in a moment.'),
     };
 }
 

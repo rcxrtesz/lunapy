@@ -1,3 +1,5 @@
+import { t } from '../lib/i18n.js';
+
 // Avatares del perfil: personajes en versión motera (imágenes en img/avatares/, generadas por
 // tools/kuromi_assets.py a partir de assets-src/avatares/).
 export const AVATARES = [
@@ -18,11 +20,11 @@ export function imagenAvatar(id) {
 }
 
 export const GENEROS = [
-  ['', 'Sin indicar'],
-  ['mujer', 'Mujer'],
-  ['hombre', 'Hombre'],
-  ['no-binario', 'No binario'],
-  ['otro', 'Otro'],
-  ['prefiero-no-decirlo', 'Prefiero no decirlo'],
+  ['', t('Sin indicar', 'Not specified')],
+  ['mujer', t('Mujer', 'Woman')],
+  ['hombre', t('Hombre', 'Man')],
+  ['no-binario', t('No binario', 'Non-binary')],
+  ['otro', t('Otro', 'Other')],
+  ['prefiero-no-decirlo', t('Prefiero no decirlo', 'Prefer not to say')],
 ];
 export const MAX_DESCRIPCION = 160;

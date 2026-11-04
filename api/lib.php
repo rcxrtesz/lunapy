@@ -7,6 +7,18 @@ const TAM_MAX_PETICION = 2 * 1024 * 1024; // 2 MB: el estado de una alumna ocupa
 const MAX_FALLOS_LOGIN = 5;               // intentos fallidos permitidos…
 const VENTANA_FALLOS = 15 * 60;           // …en este intervalo (segundos)
 
+/** Idioma de la petición (cabecera X-LunaPy-Lang de la app): 'en' o 'es' (por defecto). */
+function idioma(): string
+{
+    return str_starts_with(strtolower((string) ($_SERVER['HTTP_X_LUNAPY_LANG'] ?? '')), 'en') ? 'en' : 'es';
+}
+
+/** Texto en el idioma de la petición: tr('Hola', 'Hello'). */
+function tr(string $es, string $en): string
+{
+    return idioma() === 'en' ? $en : $es;
+}
+
 function config(): array
 {
     static $cfg = null;
@@ -14,7 +26,7 @@ function config(): array
         // LUNAPY_CONFIG permite que las pruebas automáticas usen su propia configuración.
         $ruta = getenv('LUNAPY_CONFIG') ?: __DIR__ . '/config.php';
         if (!is_file($ruta)) {
-            responder(500, ['error' => 'Falta api/config.php: copia config.example.php y rellénalo.']);
+            responder(500, ['error' => tr('Falta api/config.php: copia config.example.php y rellénalo.', 'api/config.php is missing: copy config.example.php and fill it in.')]);
         }
         $cfg = require $ruta;
         $cfg += ['dias_sesion' => 180, 'emails_permitidos' => [], 'registro_abierto' => false];
@@ -113,11 +125,11 @@ function leer_json(): array
 {
     $crudo = file_get_contents('php://input', false, null, 0, TAM_MAX_PETICION + 1);
     if ($crudo === false || strlen($crudo) > TAM_MAX_PETICION) {
-        responder(413, ['error' => 'La petición es demasiado grande.']);
+        responder(413, ['error' => tr('La petición es demasiado grande.', 'The request is too large.')]);
     }
     $datos = json_decode($crudo, true);
     if (!is_array($datos)) {
-        responder(400, ['error' => 'El cuerpo debe ser un objeto JSON.']);
+        responder(400, ['error' => tr('El cuerpo debe ser un objeto JSON.', 'The body must be a JSON object.')]);
     }
     return $datos;
 }
@@ -148,10 +160,10 @@ function problema_dominio(string $email): ?string
     $dominio = substr(strrchr($email, '@') ?: '', 1);
     $fiables = array_map('strtolower', config()['dominios_fiables'] ?? DOMINIOS_FIABLES);
     if (!in_array($dominio, $fiables, true)) {
-        return 'Usa un correo de un proveedor conocido (Gmail, Outlook, Hotmail, Yahoo, iCloud, Proton…).';
+        return tr('Usa un correo de un proveedor conocido (Gmail, Outlook, Hotmail, Yahoo, iCloud, Proton…).', 'Use an email from a well-known provider (Gmail, Outlook, Hotmail, Yahoo, iCloud, Proton…).');
     }
     if ((config()['comprobar_mx'] ?? true) && function_exists('checkdnsrr') && !checkdnsrr($dominio, 'MX')) {
-        return 'No hemos podido comprobar el servidor de correo de ese dominio. Revisa que esté bien escrito.';
+        return tr('No hemos podido comprobar el servidor de correo de ese dominio. Revisa que esté bien escrito.', "We couldn't verify that domain's mail server. Check that it's spelt correctly.");
     }
     return null;
 }
@@ -183,14 +195,14 @@ function usuaria_autenticada(): int
 {
     $token = token_de_la_peticion();
     if (!preg_match('/^[0-9a-f]{64}$/', $token)) {
-        responder(401, ['error' => 'Inicia sesión para sincronizar.']);
+        responder(401, ['error' => tr('Inicia sesión para sincronizar.', 'Sign in to sync.')]);
     }
     $hash = hash('sha256', $token);
     $st = db()->prepare('SELECT usuaria_id, caduca_en FROM sesiones WHERE hash_token = ?');
     $st->execute([$hash]);
     $sesion = $st->fetch();
     if (!$sesion || (int) $sesion['caduca_en'] < time()) {
-        responder(401, ['error' => 'La sesión ha caducado. Vuelve a iniciar sesión.']);
+        responder(401, ['error' => tr('La sesión ha caducado. Vuelve a iniciar sesión.', 'Your session has expired. Sign in again.')]);
     }
     db()->prepare('UPDATE sesiones SET caduca_en = ? WHERE hash_token = ?')
         ->execute([time() + config()['dias_sesion'] * 86400, $hash]);
@@ -209,7 +221,7 @@ function comprobar_limite_intentos(string $email): void
     $st = db()->prepare('SELECT COUNT(*) FROM intentos_fallidos WHERE clave = ? AND en > ?');
     $st->execute([clave_intentos($email), time() - VENTANA_FALLOS]);
     if ((int) $st->fetchColumn() >= MAX_FALLOS_LOGIN) {
-        responder(429, ['error' => 'Demasiados intentos fallidos. Espera unos minutos y vuelve a probar.']);
+        responder(429, ['error' => tr('Demasiados intentos fallidos. Espera unos minutos y vuelve a probar.', 'Too many failed attempts. Wait a few minutes and try again.')]);
     }
 }
 

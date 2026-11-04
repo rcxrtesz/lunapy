@@ -116,6 +116,7 @@ export function merge(local, remote, base = null) {
     profile: newer.profile,
     theme: newer.theme,
     palette: newer.palette,
+    lang: newer.lang,
     dayOffset: newer.dayOffset,
     lab: newer.lab,
     // Contadores

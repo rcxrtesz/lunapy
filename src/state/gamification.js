@@ -4,6 +4,7 @@ import { CONCEPTS } from '../content/curriculum.js';
 import { REVIEW_ITEMS } from '../content/review.js';
 import { LESSONS, LESSON_ORDER, lessonActivities } from '../content/lessons.js';
 import { ACTIVITIES } from '../content/activities.js';
+import { t } from '../lib/i18n.js';
 
 const CODE_ACTIVITIES = Object.values(ACTIVITIES).filter((a) => a.type === 'code').map((a) => a.id);
 const M1_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm1');
@@ -21,28 +22,28 @@ const M12_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm12');
 const M13_LESSONS = LESSON_ORDER.filter((id) => LESSONS[id].moduleId === 'm13');
 
 export const ACHIEVEMENTS = [
-  { id: 'first-run', name: 'Hola, mundo', desc: 'Ejecuta tu primer programa', icon: 'play', test: (s) => Object.values(s.daily).some((d) => (d.runs || 0) > 0 || d.labRuns > 0) },
-  { id: 'first-activity', name: 'Primer paso', desc: 'Supera tu primera actividad', icon: 'flag', test: (s) => Object.values(s.activities).some((a) => a.completed) },
-  { id: 'predictor', name: 'Mente de intérprete', desc: 'Acierta 3 predicciones a la primera', icon: 'eye', test: (s) => Object.values(s.checks).filter((c) => c.correct && c.prediction).length >= 3 },
-  { id: 'debugger', name: 'Depuradora', desc: 'Corrige tu primer programa con errores', icon: 'bug', test: (s) => ['m1p-fix', 'var-fix'].some((id) => s.activities[id]?.completed) },
-  { id: 'planner', name: 'Primero pienso', desc: 'Completa una planificación antes de programar', icon: 'brain', test: (s) => Object.keys(s.plans).length > 0 },
-  { id: 'no-hints', name: 'Por mí misma', desc: 'Resuelve un ejercicio de código sin pistas', icon: 'star', test: (s) => CODE_ACTIVITIES.some((id) => s.activities[id]?.noHints) },
-  { id: 'lesson', name: 'Primera lección', desc: 'Completa tu primera lección', icon: 'trophy', test: (s) => LESSON_ORDER.some((id) => s.lessons[id]?.completed) },
-  { id: 'module-1', name: 'Pensamiento computacional', desc: 'Completa el Módulo 1', icon: 'brain', test: (s) => M1_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-2', name: 'Dueña de los datos', desc: 'Completa las lecciones del Módulo 2', icon: 'layers', test: (s) => M2_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-3', name: 'Arquitecta de funciones', desc: 'Completa las lecciones del Módulo 3', icon: 'puzzle', test: (s) => M3_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-4', name: 'Código con estilo', desc: 'Completa las lecciones del Módulo 4', icon: 'pencil', test: (s) => M4_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-5', name: 'Toma de decisiones', desc: 'Completa las lecciones del Módulo 5', icon: 'flag', test: (s) => M5_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-6', name: 'Pieza a pieza', desc: 'Completa las lecciones del Módulo 6', icon: 'layers', test: (s) => M6_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-7', name: 'Una y otra vez', desc: 'Completa las lecciones del Módulo 7', icon: 'repeat', test: (s) => M7_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-8', name: 'Tejedora de textos', desc: 'Completa las lecciones del Módulo 8', icon: 'pencil', test: (s) => M8_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-9', name: 'Todo en su lista', desc: 'Completa las lecciones del Módulo 9', icon: 'list', test: (s) => M9_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-10', name: 'Analista de textos', desc: 'Completa las lecciones del Módulo 10', icon: 'chart', test: (s) => M10_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-11', name: 'A prueba de errores', desc: 'Completa las lecciones del Módulo 11', icon: 'save', test: (s) => M11_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-12', name: 'Diseñadora de objetos', desc: 'Completa las lecciones del Módulo 12', icon: 'layers', test: (s) => M12_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'module-13', name: 'Programadora LunaPy', desc: 'Completa el Módulo 13 y el proyecto final', icon: 'trophy', test: (s) => M13_LESSONS.every((id) => s.lessons[id]?.completed) },
-  { id: 'streak-3', name: 'Constancia', desc: 'Mantén una racha de 3 días', icon: 'flame', test: (s) => streak(s).days >= 3 },
-  { id: 'reviewer', name: 'Memoria a largo plazo', desc: 'Completa una sesión de repaso', icon: 'repeat', test: (s) => Object.values(s.daily).some((d) => (d.reviewSessions || 0) > 0) },
+  { id: 'first-run', name: t('Hola, mundo', 'Hello, world'), desc: t('Ejecuta tu primer programa', 'Run your first program'), icon: 'play', test: (s) => Object.values(s.daily).some((d) => (d.runs || 0) > 0 || d.labRuns > 0) },
+  { id: 'first-activity', name: t('Primer paso', 'First step'), desc: t('Supera tu primera actividad', 'Pass your first activity'), icon: 'flag', test: (s) => Object.values(s.activities).some((a) => a.completed) },
+  { id: 'predictor', name: t('Mente de intérprete', 'Interpreter mind'), desc: t('Acierta 3 predicciones a la primera', 'Get 3 predictions right first time'), icon: 'eye', test: (s) => Object.values(s.checks).filter((c) => c.correct && c.prediction).length >= 3 },
+  { id: 'debugger', name: t('Depuradora', 'Debugger'), desc: t('Corrige tu primer programa con errores', 'Fix your first buggy program'), icon: 'bug', test: (s) => ['m1p-fix', 'var-fix'].some((id) => s.activities[id]?.completed) },
+  { id: 'planner', name: t('Primero pienso', 'Think first'), desc: t('Completa una planificación antes de programar', 'Complete a plan before coding'), icon: 'brain', test: (s) => Object.keys(s.plans).length > 0 },
+  { id: 'no-hints', name: t('Por mí misma', 'On my own'), desc: t('Resuelve un ejercicio de código sin pistas', 'Solve a coding exercise without hints'), icon: 'star', test: (s) => CODE_ACTIVITIES.some((id) => s.activities[id]?.noHints) },
+  { id: 'lesson', name: t('Primera lección', 'First lesson'), desc: t('Completa tu primera lección', 'Complete your first lesson'), icon: 'trophy', test: (s) => LESSON_ORDER.some((id) => s.lessons[id]?.completed) },
+  { id: 'module-1', name: t('Pensamiento computacional', 'Computational thinking'), desc: t('Completa el Módulo 1', 'Complete Module 1'), icon: 'brain', test: (s) => M1_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-2', name: t('Dueña de los datos', 'Data master'), desc: t('Completa las lecciones del Módulo 2', 'Complete the lessons of Module 2'), icon: 'layers', test: (s) => M2_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-3', name: t('Arquitecta de funciones', 'Function architect'), desc: t('Completa las lecciones del Módulo 3', 'Complete the lessons of Module 3'), icon: 'puzzle', test: (s) => M3_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-4', name: t('Código con estilo', 'Code with style'), desc: t('Completa las lecciones del Módulo 4', 'Complete the lessons of Module 4'), icon: 'pencil', test: (s) => M4_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-5', name: t('Toma de decisiones', 'Decision making'), desc: t('Completa las lecciones del Módulo 5', 'Complete the lessons of Module 5'), icon: 'flag', test: (s) => M5_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-6', name: t('Pieza a pieza', 'Piece by piece'), desc: t('Completa las lecciones del Módulo 6', 'Complete the lessons of Module 6'), icon: 'layers', test: (s) => M6_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-7', name: t('Una y otra vez', 'Again and again'), desc: t('Completa las lecciones del Módulo 7', 'Complete the lessons of Module 7'), icon: 'repeat', test: (s) => M7_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-8', name: t('Tejedora de textos', 'Text weaver'), desc: t('Completa las lecciones del Módulo 8', 'Complete the lessons of Module 8'), icon: 'pencil', test: (s) => M8_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-9', name: t('Todo en su lista', 'Everything in its list'), desc: t('Completa las lecciones del Módulo 9', 'Complete the lessons of Module 9'), icon: 'list', test: (s) => M9_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-10', name: t('Analista de textos', 'Text analyst'), desc: t('Completa las lecciones del Módulo 10', 'Complete the lessons of Module 10'), icon: 'chart', test: (s) => M10_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-11', name: t('A prueba de errores', 'Error-proof'), desc: t('Completa las lecciones del Módulo 11', 'Complete the lessons of Module 11'), icon: 'save', test: (s) => M11_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-12', name: t('Diseñadora de objetos', 'Object designer'), desc: t('Completa las lecciones del Módulo 12', 'Complete the lessons of Module 12'), icon: 'layers', test: (s) => M12_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'module-13', name: t('Programadora LunaPy', 'LunaPy programmer'), desc: t('Completa el Módulo 13 y el proyecto final', 'Complete Module 13 and the final project'), icon: 'trophy', test: (s) => M13_LESSONS.every((id) => s.lessons[id]?.completed) },
+  { id: 'streak-3', name: t('Constancia', 'Consistency'), desc: t('Mantén una racha de 3 días', 'Keep a 3-day streak'), icon: 'flame', test: (s) => streak(s).days >= 3 },
+  { id: 'reviewer', name: t('Memoria a largo plazo', 'Long-term memory'), desc: t('Completa una sesión de repaso', 'Complete a review session'), icon: 'repeat', test: (s) => Object.values(s.daily).some((d) => (d.reviewSessions || 0) > 0) },
 ];
 
 export function newAchievements(s) {
@@ -50,11 +51,11 @@ export function newAchievements(s) {
 }
 
 export function dailyMissions(s) {
-  const t = s.daily[today()] || { xp: 0, activities: 0, labRuns: 0, reviews: 0 };
+  const d = s.daily[today()] || { xp: 0, activities: 0, labRuns: 0, reviews: 0 };
   return [
-    { id: 'goal', text: `Consigue ${s.profile.dailyGoal} XP`, progress: Math.min(t.xp, s.profile.dailyGoal), total: s.profile.dailyGoal, icon: 'zap' },
-    { id: 'activity', text: 'Supera 2 actividades distintas', progress: Math.min((t.activityIds || []).length, 2), total: 2, icon: 'target' },
-    { id: 'lab', text: 'Experimenta en el laboratorio', progress: Math.min(t.labRuns, 1), total: 1, icon: 'code' },
+    { id: 'goal', text: t(`Consigue ${s.profile.dailyGoal} XP`, `Earn ${s.profile.dailyGoal} XP`), progress: Math.min(d.xp, s.profile.dailyGoal), total: s.profile.dailyGoal, icon: 'zap' },
+    { id: 'activity', text: t('Supera 2 actividades distintas', 'Pass 2 different activities'), progress: Math.min((d.activityIds || []).length, 2), total: 2, icon: 'target' },
+    { id: 'lab', text: t('Experimenta en el laboratorio', 'Experiment in the lab'), progress: Math.min(d.labRuns, 1), total: 1, icon: 'code' },
   ];
 }
 

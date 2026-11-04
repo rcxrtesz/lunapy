@@ -9,6 +9,7 @@ import {
   useAsistente, conversacionActiva, preguntar, cancelarRespuesta, nuevaConversacion, cerrarAsistente,
   contextoActual, consultarAsistente, fijarBorrador, abrirAsistente,
 } from '../lib/asistente.js';
+import { t } from '../lib/i18n.js';
 
 // ---------- Texto de las respuestas (Markdown sencillo) ----------
 
@@ -41,15 +42,15 @@ function bloques(texto) {
   return out;
 }
 
-const enLinea = (t) => inlineCode(t).replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>').replace(/\n/g, '<br>');
+const enLinea = (s) => inlineCode(s).replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>').replace(/\n/g, '<br>');
 
 function BloqueCodigo({ texto }) {
   const copiar = async () => {
-    try { await navigator.clipboard.writeText(texto); toast({ icon: 'check', title: 'Código copiado' }); } catch { /* sin portapapeles */ }
+    try { await navigator.clipboard.writeText(texto); toast({ icon: 'check', title: t('Código copiado', 'Code copied') }); } catch { /* sin portapapeles */ }
   };
   return html`<div class="code-block asis-code">
     <div class="code-block-head"><${Icon} name="code" size=${13} /> Python<span class="spacer" />
-      <button class="btn sm" onClick=${copiar}>Copiar</button></div>
+      <button class="btn sm" onClick=${copiar}>${t('Copiar', 'Copy')}</button></div>
     <${CodeView} code=${texto} />
   </div>`;
 }
@@ -66,10 +67,10 @@ export function Respuesta({ texto }) {
 // ---------- Chat ----------
 
 const SUGERENCIAS = [
-  'Explícame los bucles con un ejemplo de motos 🏍️',
-  '¿Qué diferencia hay entre una lista y una tupla?',
-  '¿Cuándo uso for y cuándo while?',
-  'Explícame qué hace return con un ejemplo',
+  t('Explícame los bucles con un ejemplo de motos 🏍️', 'Explain loops to me with a motorbike example 🏍️'),
+  t('¿Qué diferencia hay entre una lista y una tupla?', "What's the difference between a list and a tuple?"),
+  t('¿Cuándo uso for y cuándo while?', 'When do I use for and when do I use while?'),
+  t('Explícame qué hace return con un ejemplo', 'Explain what return does with an example'),
 ];
 
 /** Carita de Lunakiri (Kuromi con casco y luna) que acompaña sus mensajes. */
@@ -98,24 +99,24 @@ export function Chat() {
   useEffect(() => { if (lista.current) lista.current.scrollTop = lista.current.scrollHeight; }, [conv?.mensajes]);
   useEffect(() => { if (entrada.current && matchMedia('(pointer: fine)').matches) entrada.current.focus({ preventScroll: true }); }, [conv?.id]);
   useEffect(() => {
-    const t = entrada.current;
-    if (!t) return;
-    t.style.height = 'auto';
-    t.style.height = `${Math.min(t.scrollHeight + 3, 160)}px`; // + borde
-    t.style.overflowY = t.scrollHeight > 160 ? 'auto' : 'hidden';
+    const ta = entrada.current;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = `${Math.min(ta.scrollHeight + 3, 160)}px`; // + borde
+    ta.style.overflowY = ta.scrollHeight > 160 ? 'auto' : 'hidden';
   }, [texto]);
 
   if (sync.status === 'off') {
     return html`<${Aviso} icono="lock">
-      <b>Inicia sesión para hablar con Lunakiri.</b>
-      <p class="small muted">Lunakiri funciona a través de tu servidor de LunaPy. Entra con tu cuenta en el Perfil.</p>
-      <a class="btn sm primary" href="#/perfil" onClick=${cerrarAsistente}>Ir al Perfil</a>
+      <b>${t('Inicia sesión para hablar con Lunakiri.', 'Sign in to talk to Lunakiri.')}</b>
+      <p class="small muted">${t('Lunakiri funciona a través de tu servidor de LunaPy. Entra con tu cuenta en el Perfil.', 'Lunakiri works through your LunaPy server. Sign in with your account in your Profile.')}</p>
+      <a class="btn sm primary" href="#/perfil" onClick=${cerrarAsistente}>${t('Ir al Perfil', 'Go to Profile')}</a>
     </${Aviso}>`;
   }
   if (estado.disponible === false) {
     return html`<${Aviso} icono="info">
-      <b>El asistente no está activado en el servidor.</b>
-      <p class="small muted">Falta la clave de Anthropic en <code>api/config.php</code>.</p>
+      <b>${t('El asistente no está activado en el servidor.', 'The assistant is not enabled on the server.')}</b>
+      <p class="small muted">${t('Falta la clave de Anthropic en', 'The Anthropic key is missing in')} <code>api/config.php</code>.</p>
     </${Aviso}>`;
   }
 
@@ -135,33 +136,33 @@ export function Chat() {
     <div class="asis-mensajes" ref=${lista} aria-live="polite">
       ${!mensajes.length && html`<div class="asis-bienvenida">
         <img class="asis-motera" src="./img/kuromi_motera.png" alt="Lunakiri" width="120" height="173" />
-        <b>¡Hola! Soy Lunakiri. ¿En qué te ayudo?</b>
-        <p class="small muted">Pregúntame cualquier duda de Python: conceptos, errores, ejercicios… Te explico el porqué y te doy pistas sin destriparte las soluciones.</p>
+        <b>${t('¡Hola! Soy Lunakiri. ¿En qué te ayudo?', "Hi! I'm Lunakiri. How can I help?")}</b>
+        <p class="small muted">${t('Pregúntame cualquier duda de Python: conceptos, errores, ejercicios… Te explico el porqué y te doy pistas sin destriparte las soluciones.', "Ask me anything about Python: concepts, errors, exercises… I'll explain the why and give you hints without spoiling the solutions.")}</p>
         <div class="asis-sugerencias">${SUGERENCIAS.map((s) => html`<button class="btn sm" onClick=${() => preguntar(s, { conContexto })} disabled=${estado.enviando || !pwa.online}>${s}</button>`)}</div>
       </div>`}
       ${mensajes.map((m, i) => (m.role === 'user'
         ? html`<div class="asis-msg yo" key=${i}>${m.content}</div>`
         : html`<div class="asis-msg ella" key=${i}>
             <${AvatarLunakiri} />
-            ${m.content ? html`<${Respuesta} texto=${m.content} />` : html`<div class="asis-pensando" aria-label="Pensando"><span /><span /><span /></div>`}
+            ${m.content ? html`<${Respuesta} texto=${m.content} />` : html`<div class="asis-pensando" aria-label=${t('Pensando', 'Thinking')}><span /><span /><span /></div>`}
           </div>`))}
       ${estado.error && html`<div class="asis-error" role="alert"><${Icon} name="alert" size=${16} /> ${estado.error}</div>`}
     </div>
     <form class="asis-entrada" onSubmit=${enviar}>
-      ${contexto && html`<label class="asis-contexto" title="Envía al asistente la lección, tu último código y su error para que entienda tu pregunta">
+      ${contexto && html`<label class="asis-contexto" title=${t('Envía al asistente la lección, tu último código y su error para que entienda tu pregunta', 'Sends the assistant the lesson, your last code and its error so it understands your question')}>
         <input type="checkbox" checked=${conContexto} onChange=${(e) => setConContexto(e.target.checked)} />
-        <span>Incluir lo que tengo en pantalla: <b>${contexto.leccion || 'mi código'}</b>${contexto.codigo ? ' · código' : ''}${contexto.error ? ' · error' : ''}</span>
+        <span>${t('Incluir lo que tengo en pantalla', "Include what's on my screen")}: <b>${contexto.leccion || t('mi código', 'my code')}</b>${contexto.codigo ? t(' · código', ' · code') : ''}${contexto.error ? ' · error' : ''}</span>
       </label>`}
       <div class="asis-caja">
         <textarea ref=${entrada} class="asis-texto-entrada" rows="1" value=${texto} onInput=${cambiar} onKeyDown=${teclas}
-          placeholder=${pwa.online ? 'Escribe tu duda…' : 'Sin conexión: el asistente necesita internet'} disabled=${!pwa.online} maxlength="8000" aria-label="Tu pregunta" />
+          placeholder=${pwa.online ? t('Escribe tu duda…', 'Type your question…') : t('Sin conexión: el asistente necesita internet', 'Offline: the assistant needs internet')} disabled=${!pwa.online} maxlength="8000" aria-label=${t('Tu pregunta', 'Your question')} />
         ${estado.enviando
-          ? html`<button type="button" class="icon-btn asis-enviar" onClick=${cancelarRespuesta} aria-label="Detener la respuesta" title="Detener"><${Icon} name="x" size=${17} /></button>`
-          : html`<button type="submit" class="icon-btn asis-enviar primary" disabled=${!texto.trim() || !pwa.online} aria-label="Enviar" title="Enviar (Intro)"><${Icon} name="send" size=${17} /></button>`}
+          ? html`<button type="button" class="icon-btn asis-enviar" onClick=${cancelarRespuesta} aria-label=${t('Detener la respuesta', 'Stop the answer')} title=${t('Detener', 'Stop')}><${Icon} name="x" size=${17} /></button>`
+          : html`<button type="submit" class="icon-btn asis-enviar primary" disabled=${!texto.trim() || !pwa.online} aria-label=${t('Enviar', 'Send')} title=${t('Enviar (Intro)', 'Send (Enter)')}><${Icon} name="send" size=${17} /></button>`}
       </div>
       <div class="tiny muted asis-pie">
-        <span>Intro para enviar · Mayús+Intro, nueva línea</span>
-        ${estado.restantes != null && html`<span>${estado.restantes} preguntas más hoy</span>`}
+        <span>${t('Intro para enviar · Mayús+Intro, nueva línea', 'Enter to send · Shift+Enter, new line')}</span>
+        ${estado.restantes != null && html`<span>${t(`${estado.restantes} preguntas más hoy`, `${estado.restantes} more questions today`)}</span>`}
       </div>
     </form>
   </div>`;
@@ -178,8 +179,8 @@ export function AsistenteFlotante({ oculto, saludar }) {
     if (saludado || oculto || !saludar || estado.abierto) return undefined;
     saludado = true;
     setSaludo(true);
-    const t = setTimeout(() => setSaludo(false), 3000);
-    return () => clearTimeout(t);
+    const tm = setTimeout(() => setSaludo(false), 3000);
+    return () => clearTimeout(tm);
   }, [oculto, saludar]);
   useEffect(() => {
     if (!estado.abierto) return undefined;
@@ -191,20 +192,20 @@ export function AsistenteFlotante({ oculto, saludar }) {
 
   if (!estado.abierto) {
     return html`<div class="asis-fab-wrap">
-      ${saludo && html`<div class="asis-saludo" role="status">¡Hola! Soy <b>Lunakiri</b> 🌙<br />¿Te ayudo con Python?</div>`}
+      ${saludo && html`<div class="asis-saludo" role="status">${t(html`¡Hola! Soy <b>Lunakiri</b> 🌙<br />¿Te ayudo con Python?`, html`Hi! I'm <b>Lunakiri</b> 🌙<br />Can I help you with Python?`)}</div>`}
       <button class="asis-fab" onClick=${() => { setSaludo(false); abrirAsistente(); }}
-        aria-label="Abrir a Lunakiri, la asistente" title="Pregunta tus dudas a Lunakiri">
+        aria-label=${t('Abrir a Lunakiri, la asistente', 'Open Lunakiri, the assistant')} title=${t('Pregunta tus dudas a Lunakiri', 'Ask Lunakiri your questions')}>
         <img src="./img/kuromi_vespa.png" alt="" width="79" height="102" draggable="false" /></button>
     </div>`;
   }
-  return html`<section class="asis-panel" role="dialog" aria-label="Lunakiri, la asistente">
+  return html`<section class="asis-panel" role="dialog" aria-label=${t('Lunakiri, la asistente', 'Lunakiri, the assistant')}>
     <header class="asis-cabecera">
       <${AvatarLunakiri} />
       <b>Lunakiri</b>
       <span class="spacer" />
-      <button class="icon-btn" onClick=${nuevaConversacion} disabled=${estado.enviando} aria-label="Conversación nueva" title="Conversación nueva"><${Icon} name="plus" size=${16} /></button>
-      <a class="icon-btn" href="#/asistente" onClick=${cerrarAsistente} aria-label="Abrir en pantalla completa" title="Ver todas las conversaciones"><${Icon} name="expand" size=${16} /></a>
-      <button class="icon-btn" onClick=${cerrarAsistente} aria-label="Cerrar el asistente" title="Cerrar"><${Icon} name="x" size=${16} /></button>
+      <button class="icon-btn" onClick=${nuevaConversacion} disabled=${estado.enviando} aria-label=${t('Conversación nueva', 'New conversation')} title=${t('Conversación nueva', 'New conversation')}><${Icon} name="plus" size=${16} /></button>
+      <a class="icon-btn" href="#/asistente" onClick=${cerrarAsistente} aria-label=${t('Abrir en pantalla completa', 'Open full screen')} title=${t('Ver todas las conversaciones', 'See all conversations')}><${Icon} name="expand" size=${16} /></a>
+      <button class="icon-btn" onClick=${cerrarAsistente} aria-label=${t('Cerrar el asistente', 'Close the assistant')} title=${t('Cerrar', 'Close')}><${Icon} name="x" size=${16} /></button>
     </header>
     <${Chat} />
   </section>`;

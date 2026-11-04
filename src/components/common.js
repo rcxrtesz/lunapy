@@ -2,6 +2,7 @@ import { html, useEffect, useRef, useState } from '../lib/ui.js';
 import { Icon } from '../lib/icons.js';
 import { inlineCode } from '../lib/highlight.js';
 import { engine } from '../engine/python.js';
+import { t } from '../lib/i18n.js';
 
 /** Texto de contenido con `código` y **negrita**. */
 export function Rich({ text, tag = 'span', className = '' }) {
@@ -14,8 +15,8 @@ export function Paragraphs({ text }) {
 }
 
 export function Difficulty({ level }) {
-  const names = ['', 'Básico', 'Intermedio', 'Avanzado'];
-  return html`<span class="tag" title=${`Dificultad: ${names[level]}`}>
+  const names = ['', t('Básico', 'Basic'), t('Intermedio', 'Intermediate'), t('Avanzado', 'Advanced')];
+  return html`<span class="tag" title=${`${t('Dificultad', 'Difficulty')}: ${names[level]}`}>
     <span class="difficulty">${[1, 2, 3].map((i) => html`<i class=${i <= level ? 'on' : ''} />`)}</span>
     ${names[level]}
   </span>`;
@@ -48,7 +49,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), selec
  * Ventana modal accesible: al abrirse enfoca su primer control, Tab no sale de ella,
  * Esc la cierra (si se puede cerrar) y al cerrarse el foco vuelve a donde estaba.
  */
-export function Modal({ onClose, children, label = 'Diálogo' }) {
+export function Modal({ onClose, children, label = t('Diálogo', 'Dialog') }) {
   const ref = useRef(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -84,22 +85,22 @@ export function Modal({ onClose, children, label = 'Diálogo' }) {
 let toastId = 0;
 const toastListeners = new Set();
 let toasts = [];
-export function toast(t) {
+export function toast(aviso) {
   const id = ++toastId;
-  toasts = [...toasts, { id, ...t }];
+  toasts = [...toasts, { id, ...aviso }];
   toastListeners.forEach((l) => l(toasts));
   setTimeout(() => {
     toasts = toasts.filter((x) => x.id !== id);
     toastListeners.forEach((l) => l(toasts));
-  }, t.duration || 3800);
+  }, aviso.duration || 3800);
 }
 export function Toasts() {
   const [list, set] = useState(toasts);
   useEffect(() => { toastListeners.add(set); return () => toastListeners.delete(set); }, []);
   return html`<div class="toasts" aria-live="polite">
-    ${list.map((t) => html`<div class="toast" key=${t.id}>
-      <div class="t-icon"><${Icon} name=${t.icon || 'zap'} /></div>
-      <div><strong>${t.title}</strong>${t.text && html`<span class="muted small">${t.text}</span>`}</div>
+    ${list.map((a) => html`<div class="toast" key=${a.id}>
+      <div class="t-icon"><${Icon} name=${a.icon || 'zap'} /></div>
+      <div><strong>${a.title}</strong>${a.text && html`<span class="muted small">${a.text}</span>`}</div>
     </div>`)}
   </div>`;
 }
@@ -114,22 +115,22 @@ export function EngineLoading() {
   const eng = useEngine();
   if (eng.state === 'ready') return null;
   if (eng.state === 'error') {
-    return html`<div class="error-card"><h4><${Icon} name="alert" /> No se pudo cargar Python</h4>
-      <div>Comprueba tu conexión a internet: la primera vez se descargan unos 10 MB (Pyodide). Detalle: ${eng.error}</div></div>`;
+    return html`<div class="error-card"><h4><${Icon} name="alert" /> ${t('No se pudo cargar Python', 'Python could not be loaded')}</h4>
+      <div>${t('Comprueba tu conexión a internet: la primera vez se descargan unos 10 MB (Pyodide). Detalle:', 'Check your internet connection: the first time, about 10 MB are downloaded (Pyodide). Details:')} ${eng.error}</div></div>`;
   }
-  return html`<div class="loading-line"><span class="spinner" /> Preparando Python en tu navegador… (solo tarda la primera vez)</div>`;
+  return html`<div class="loading-line"><span class="spinner" /> ${t('Preparando Python en tu navegador… (solo tarda la primera vez)', 'Getting Python ready in your browser… (only slow the first time)')}</div>`;
 }
 
 export const CATEGORY = {
-  sintaxis: { label: 'Error de sintaxis', tone: 'syntax', icon: 'pencil' },
-  ejecucion: { label: 'Error de ejecución', tone: 'fail', icon: 'bug' },
-  logica: { label: 'Error de lógica', tone: 'fail', icon: 'brain' },
-  comprension: { label: 'Comprensión del enunciado', tone: 'comprension', icon: 'book' },
-  planificacion: { label: 'Planificación', tone: 'planificacion', icon: 'list' },
-  concepto: { label: 'Concepto por afianzar', tone: 'comprension', icon: 'brain' },
-  manipulacion: { label: 'Entorno modificado', tone: 'syntax', icon: 'alert' },
-  incompleto: { label: 'Incompleto', tone: 'incompleto', icon: 'pencil' },
-  mejorable: { label: 'Correcto, pero mejorable', tone: 'pass', icon: 'sparkle' },
-  correcto: { label: 'Correcto', tone: 'pass', icon: 'check' },
-  repaso: { label: 'Repaso', tone: 'fail', icon: 'repeat' },
+  sintaxis: { label: t('Error de sintaxis', 'Syntax error'), tone: 'syntax', icon: 'pencil' },
+  ejecucion: { label: t('Error de ejecución', 'Runtime error'), tone: 'fail', icon: 'bug' },
+  logica: { label: t('Error de lógica', 'Logic error'), tone: 'fail', icon: 'brain' },
+  comprension: { label: t('Comprensión del enunciado', 'Understanding the task'), tone: 'comprension', icon: 'book' },
+  planificacion: { label: t('Planificación', 'Planning'), tone: 'planificacion', icon: 'list' },
+  concepto: { label: t('Concepto por afianzar', 'Concept to reinforce'), tone: 'comprension', icon: 'brain' },
+  manipulacion: { label: t('Entorno modificado', 'Environment modified'), tone: 'syntax', icon: 'alert' },
+  incompleto: { label: t('Incompleto', 'Incomplete'), tone: 'incompleto', icon: 'pencil' },
+  mejorable: { label: t('Correcto, pero mejorable', 'Correct, but could be better'), tone: 'pass', icon: 'sparkle' },
+  correcto: { label: t('Correcto', 'Correct'), tone: 'pass', icon: 'check' },
+  repaso: { label: t('Repaso', 'Review'), tone: 'fail', icon: 'repeat' },
 };

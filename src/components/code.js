@@ -4,6 +4,7 @@ import { highlightLine } from '../lib/highlight.js';
 import { engine, newSeed } from '../engine/python.js';
 import { actions } from '../state/store.js';
 import { registrarEjecucion, abrirAsistente } from '../lib/asistente.js';
+import { t } from '../lib/i18n.js';
 
 /** Código de solo lectura con resaltado y marcas de línea. */
 export function CodeView({ code, next = null, prev = null, errLine = null }) {
@@ -22,7 +23,7 @@ export function CodeView({ code, next = null, prev = null, errLine = null }) {
 /** Editor real (CodeMirror 5): resaltado, sangría automática, números de línea. */
 const LONG_PROGRAM = 300; // líneas a partir de las cuales el editor deja de dibujar todo el documento
 
-export function Editor({ value, onChange, onRun, errorLine = null, minLines = 5, label = 'Editor de código' }) {
+export function Editor({ value, onChange, onRun, errorLine = null, minLines = 5, label = t('Editor de código', 'Code editor') }) {
   const host = useRef(null);
   const cm = useRef(null);
   const cbs = useRef({});
@@ -100,7 +101,7 @@ export function useRunner({ onRun } = {}) {
 
   const exec = useCallback(async (code, stdin) => {
     set((s) => ({ ...s, status: 'running', stdin }));
-    const res = await engine.run(code, stdin, ctx.current.seed).catch((e) => ({ status: 'error', segs: [], error: { title: 'Error interno', explanation: String(e.message), suggestion: '', kind: 'ejecucion', original: '' } }));
+    const res = await engine.run(code, stdin, ctx.current.seed).catch((e) => ({ status: 'error', segs: [], error: { title: t('Error interno', 'Internal error'), explanation: String(e.message), suggestion: '', kind: 'ejecucion', original: '' } }));
     set({ status: res.status === 'need_input' ? 'input' : res.status === 'error' ? 'error' : 'done', segs: res.segs || [], error: res.error, prompt: res.prompt, stdin });
     registrarEjecucion(code, res.status === 'error' ? res.error : null); // contexto para el asistente
     return res;
@@ -118,7 +119,7 @@ export function useRunner({ onRun } = {}) {
   return { ...st, run, submit, clear };
 }
 
-export function Console({ runner, title = 'Consola', placeholder = 'Pulsa Ejecutar para ver aquí la salida del programa.' }) {
+export function Console({ runner, title = t('Consola', 'Console'), placeholder = t('Pulsa Ejecutar para ver aquí la salida del programa.', "Press Run to see the program's output here.") }) {
   const [val, setVal] = useState('');
   const inputRef = useRef(null);
   const bodyRef = useRef(null);
@@ -131,22 +132,22 @@ export function Console({ runner, title = 'Consola', placeholder = 'Pulsa Ejecut
   return html`<div class="console">
     <div class="console-head"><${Icon} name="terminal" size=${14} /> ${title}
       <span class="spacer" />
-      ${runner.status === 'running' && html`<span>Ejecutando…</span>`}
-      ${runner.status === 'done' && html`<span style="color:#3ccf8e">✓ Programa terminado</span>`}
-      ${runner.status === 'error' && html`<span style="color:#ff8a8e">✗ Terminado con error</span>`}
-      ${runner.status === 'input' && html`<span style="color:#ffcf5c">Esperando un dato…</span>`}
+      ${runner.status === 'running' && html`<span>${t('Ejecutando…', 'Running…')}</span>`}
+      ${runner.status === 'done' && html`<span style="color:#3ccf8e">✓ ${t('Programa terminado', 'Program finished')}</span>`}
+      ${runner.status === 'error' && html`<span style="color:#ff8a8e">✗ ${t('Terminado con error', 'Finished with an error')}</span>`}
+      ${runner.status === 'input' && html`<span style="color:#ffcf5c">${t('Esperando un dato…', 'Waiting for input…')}</span>`}
     </div>
     <div class="console-body" ref=${bodyRef} aria-live="polite">
       ${empty && runner.status !== 'input' ? html`<span class="placeholder">${{
-          running: 'Ejecutando…',
-          done: '(El programa ha terminado sin mostrar nada. ¿Falta un print?)',
-          error: '(El programa se ha detenido por un error antes de mostrar nada.)',
+          running: t('Ejecutando…', 'Running…'),
+          done: t('(El programa ha terminado sin mostrar nada. ¿Falta un print?)', '(The program finished without showing anything. Missing a print?)'),
+          error: t('(El programa se ha detenido por un error antes de mostrar nada.)', '(The program stopped with an error before showing anything.)'),
         }[runner.status] || placeholder}</span>`
         : runner.segs.map(([k, s]) => html`<span class=${`seg-${k}`}>${s}</span>`)}
     </div>
     ${runner.status === 'input' && html`<form class="console-input" onSubmit=${send}>
-      <input ref=${inputRef} value=${val} onInput=${(e) => setVal(e.target.value)} aria-label=${`Dato para input(): ${runner.prompt || ''}`} placeholder="Escribe y pulsa Intro" />
-      <button class="btn sm" type="submit">Enviar</button>
+      <input ref=${inputRef} value=${val} onInput=${(e) => setVal(e.target.value)} aria-label=${`${t('Dato para input()', 'Value for input()')}: ${runner.prompt || ''}`} placeholder=${t('Escribe y pulsa Intro', 'Type and press Enter')} />
+      <button class="btn sm" type="submit">${t('Enviar', 'Send')}</button>
     </form>`}
   </div>`;
 }
@@ -157,15 +158,15 @@ export function ErrorCard({ error, compact = false }) {
   return html`<div class=${`error-card ${syntax ? 'syntax' : ''}`} role="alert">
     <h4><${Icon} name=${syntax ? 'pencil' : 'bug'} />
       ${error.title}
-      ${error.line && html`<span class="tag">${`Línea ${error.line}`}</span>`}
-      <span class=${`tag ${syntax ? 'warn' : 'err'}`}>${syntax ? 'Error de sintaxis' : 'Error de ejecución'}</span>
+      ${error.line && html`<span class="tag">${`${t('Línea', 'Line')} ${error.line}`}</span>`}
+      <span class=${`tag ${syntax ? 'warn' : 'err'}`}>${syntax ? t('Error de sintaxis', 'Syntax error') : t('Error de ejecución', 'Runtime error')}</span>
     </h4>
     ${error.code_line && html`<code style="display:inline-block;margin-bottom:6px">${error.code_line.trim()}</code>`}
     <div>${error.explanation}</div>
-    ${error.suggestion && html`<div class="sug"><strong>Qué probar:</strong> ${error.suggestion}</div>`}
-    ${!compact && error.original && html`<div class="orig">Mensaje original de Python → ${error.original}</div>`}
-    ${!compact && html`<button class="btn sm asis-preguntar" onClick=${() => abrirAsistente('No entiendo este error. ¿Qué significa y por qué me sale?')}>
-      <${Icon} name="chat" size=${14} /> Pregúntale al asistente</button>`}
+    ${error.suggestion && html`<div class="sug"><strong>${t('Qué probar:', 'What to try:')}</strong> ${error.suggestion}</div>`}
+    ${!compact && error.original && html`<div class="orig">${t('Mensaje original de Python', 'Original Python message')} → ${error.original}</div>`}
+    ${!compact && html`<button class="btn sm asis-preguntar" onClick=${() => abrirAsistente(t('No entiendo este error. ¿Qué significa y por qué me sale?', "I don't understand this error. What does it mean and why am I getting it?"))}>
+      <${Icon} name="chat" size=${14} /> ${t('Pregúntale al asistente', 'Ask the assistant')}</button>`}
   </div>`;
 }
 
@@ -176,9 +177,9 @@ export function RunnableCode({ code: initial, title, caption }) {
   return html`<div class="stack" style="gap:10px">
     <div class="editor-wrap">
       <div class="editor-toolbar">
-        <span class="label"><${Icon} name="code" size=${14} /> ${title || 'Pruébalo'} · <span class="tiny">editable</span></span>
-        ${code !== initial && html`<button class="btn sm" onClick=${() => { setCode(initial); runner.clear(); }} title="Restaurar el código original"><${Icon} name="rotate" size=${14} /> Restaurar</button>`}
-        <button class="btn sm run" onClick=${() => runner.run(code)} disabled=${runner.status === 'running'}><${Icon} name="play" size=${14} /> Ejecutar</button>
+        <span class="label"><${Icon} name="code" size=${14} /> ${title || t('Pruébalo', 'Try it')} · <span class="tiny">${t('editable', 'editable')}</span></span>
+        ${code !== initial && html`<button class="btn sm" onClick=${() => { setCode(initial); runner.clear(); }} title=${t('Restaurar el código original', 'Restore the original code')}><${Icon} name="rotate" size=${14} /> ${t('Restaurar', 'Restore')}</button>`}
+        <button class="btn sm run" onClick=${() => runner.run(code)} disabled=${runner.status === 'running'}><${Icon} name="play" size=${14} /> ${t('Ejecutar', 'Run')}</button>
       </div>
       <${Editor} value=${code} onChange=${setCode} onRun=${() => runner.run(code)} minLines=${1} errorLine=${runner.error && runner.error.line} />
     </div>
