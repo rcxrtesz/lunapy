@@ -22,11 +22,15 @@ import * as refactorizar from './lesson-refactorizar.js';
 import * as booleanas from './lesson-booleanas.js';
 import * as condicionales from './lesson-condicionales.js';
 import * as recursion from './lesson-recursion.js';
+import * as retorno from './lesson-retorno.js';
+import * as incremental from './lesson-incremental.js';
+import * as composicion from './lesson-composicion.js';
 
 const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   llamarFunciones, definirFunciones, parametros,
   encapsular, interfaces, refactorizar,
-  booleanas, condicionales, recursion];
+  booleanas, condicionales, recursion,
+  retorno, incremental, composicion];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))
