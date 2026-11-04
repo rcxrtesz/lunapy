@@ -1,5 +1,5 @@
 // Generado por tools/build_sw.py — no editar a mano.
-self.LUNAPY_VERSION = "530edd466da2";
+self.LUNAPY_VERSION = "b76157f5089b";
 self.LUNAPY_ASSETS = [
   "./",
   "./icons/apple-touch-icon.png",

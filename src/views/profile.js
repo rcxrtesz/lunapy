@@ -97,12 +97,16 @@ export function ProfileView() {
           <label class="small" style="font-weight:700" for="pf-name">Nombre</label>
           <input id="pf-name" class="input" style="width:100%;margin:6px 0 12px" value=${name} onInput=${(e) => setName(e.target.value)} maxlength="30" placeholder="¿Cómo quieres que te llamemos?" />
           <div class="datos-grid">
-            <label for="pf-cumple">Cumpleaños</label>
-            <label for="pf-genero">Género</label>
-            <input id="pf-cumple" class="input" type="date" value=${birthday} max=${new Date().toISOString().slice(0, 10)} onInput=${(e) => setBirthday(e.target.value)} />
-            <select id="pf-genero" class="input" value=${gender} onChange=${(e) => setGender(e.target.value)}>
-              ${GENEROS.map(([v, l]) => html`<option value=${v}>${l}</option>`)}
-            </select>
+            <div class="dato">
+              <label for="pf-cumple">Cumpleaños</label>
+              <input id="pf-cumple" class="input" type="date" value=${birthday} max=${new Date().toISOString().slice(0, 10)} onInput=${(e) => setBirthday(e.target.value)} />
+            </div>
+            <div class="dato">
+              <label for="pf-genero">Género</label>
+              <select id="pf-genero" class="input" value=${gender} onChange=${(e) => setGender(e.target.value)}>
+                ${GENEROS.map(([v, l]) => html`<option value=${v}>${l}</option>`)}
+              </select>
+            </div>
           </div>
           <label class="small" style="font-weight:700" for="pf-bio">Descripción breve</label>
           <textarea id="pf-bio" class="input" style="margin-top:6px" rows="2" maxlength=${MAX_DESCRIPCION} value=${bio} onInput=${(e) => setBio(e.target.value)}

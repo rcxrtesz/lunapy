@@ -794,7 +794,9 @@ select.input { flex: none; min-width: 0; cursor: pointer; }
 .avatar-opt:hover { border-color: var(--accent); transform: translateY(-2px); }
 .avatar-opt.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
 .avatar-opt.on span { color: var(--accent); }
-.datos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 6px 0 12px; }
+.datos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 6px 0 12px; }
+.datos-grid .dato { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.datos-grid .input { width: 100%; }
 .datos-grid label { font-size: .85rem; font-weight: 700; }
 @media (max-width: 520px) { .datos-grid { grid-template-columns: 1fr; } }
 textarea.input { width: 100%; resize: vertical; min-height: 64px; font: inherit; line-height: 1.45; }
