@@ -1,6 +1,6 @@
 # Página «en construcción» de lunadev.es
 
-Portada temporal de lunadev.es con el estilo de LunaPy (cielo lila con estrellas, Kuromi motera, carretera animada) y un botón a LunaPy.
+Portada temporal de lunadev.es: estudio de diseño y desarrollo web, con la tipografía (Inter) y el lila de LunaPy, fondo claro y un enlace a LunaPy como proyecto.
 
 **No toca WordPress.** En el servidor, `index.html` tiene prioridad sobre el `index.php` de WordPress, así que solo cambia la portada; el resto de WordPress (`/wp-admin`, `/wp-login.php`…) sigue igual.
 
