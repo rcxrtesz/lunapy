@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Lunita lila de la página «en construcción» de lunadev.es -->
+  <defs>
+    <mask id="creciente">
+      <rect width="64" height="64" fill="#fff"/>
+      <circle cx="41" cy="22" r="22" fill="#000"/>
+    </mask>
+  </defs>
+  <circle cx="30" cy="34" r="25" fill="#e2cbfb" mask="url(#creciente)"/>
+</svg>
