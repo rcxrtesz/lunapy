@@ -1,5 +1,6 @@
 // Registro de lecciones disponibles, en el orden del curso.
 import { LESSONS_M1 } from './module1.js';
+import { PAQUETE, traducir } from './traduccion.js';
 import { LESSON_VARIABLES } from './lesson-variables.js';
 import { LESSON_EXPRESIONES } from './lesson-expresiones.js';
 import { LESSON_ENTRADA } from './lesson-entrada.js';
@@ -37,7 +38,7 @@ import { LESSON_DEPURACION } from './lesson-depuracion.js';
 import { LESSON_ESTILO } from './lesson-estilo.js';
 import { LESSON_PROYECTO_FINAL } from './lesson-proyecto-final.js';
 
-const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA, LESSON_LLAMAR_FUNCIONES, LESSON_DEFINIR_FUNCIONES, LESSON_PARAMETROS,
+const ORIGINAL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA, LESSON_LLAMAR_FUNCIONES, LESSON_DEFINIR_FUNCIONES, LESSON_PARAMETROS,
   LESSON_ENCAPSULAR, LESSON_INTERFACES, LESSON_REFACTORIZAR,
   LESSON_BOOLEANAS, LESSON_CONDICIONALES, LESSON_RECURSION,
   LESSON_RETORNO, LESSON_INCREMENTAL, LESSON_COMPOSICION,
@@ -48,6 +49,10 @@ const ALL = [...LESSONS_M1, LESSON_VARIABLES, LESSON_EXPRESIONES, LESSON_ENTRADA
   LESSON_ARCHIVOS, LESSON_PROCESAR, LESSON_EXCEPCIONES,
   LESSON_CLASES, LESSON_METODOS_CLASE, LESSON_HERENCIA,
   LESSON_DEPURACION, LESSON_ESTILO, LESSON_PROYECTO_FINAL];
+
+// Con la app en inglés, las lecciones ya traducidas sustituyen a las originales (mismo id).
+export const LESSONS_ORIGINAL = Object.fromEntries(ORIGINAL.map((l) => [l.id, l]));
+const ALL = ORIGINAL.map((l) => traducir(l, PAQUETE?.LESSONS_EN));
 
 export const LESSONS = Object.fromEntries(ALL.map((l) => [l.id, l]));
 export const LESSON_ORDER = ALL.map((l) => l.id);

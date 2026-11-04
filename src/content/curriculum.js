@@ -1,6 +1,7 @@
 // Currículo. Correspondencia con «Piensa en Python» (libropython.es, versión
 // española de Think Python 3.ª ed.) y con Cisco Python Essentials 1 (PE1).
 import { t } from '../lib/i18n.js';
+import { PAQUETE, traducir } from './traduccion.js';
 
 export const CONCEPTS = {
   asignacion: { name: t('Asignación de variables', 'Assigning variables'), short: t('Asignación', 'Assignment') },
@@ -40,7 +41,7 @@ export const CONCEPTS = {
   estilo: { name: t('Estilo y buenas prácticas', 'Style and good practices'), short: t('Estilo', 'Style') },
 };
 
-export const MODULES = [
+const ORIGINAL = [
   {
     id: 'm1', num: 1, title: 'Pensamiento computacional y Python',
     book: ['Cap. 1 · Bienvenida (la programación como forma de pensar)'], cisco: 'PE1 · Módulo 1',
@@ -142,3 +143,7 @@ export const MODULES = [
     lessons: [{ id: 'depuracion', title: 'Estrategias de depuración' }, { id: 'estilo', title: 'Estilo y buenas prácticas' }, { id: 'proyecto-final', title: 'Proyecto final: gestor de gastos' }],
   },
 ];
+
+// Con la app en inglés, los módulos ya traducidos sustituyen a los originales (mismo id).
+export const MODULES_ORIGINAL = ORIGINAL;
+export const MODULES = ORIGINAL.map((m) => traducir(m, PAQUETE?.MODULES_EN));

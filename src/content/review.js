@@ -1,7 +1,9 @@
 // Banco de preguntas breves para las sesiones de repaso espaciado.
 // La salida esperada de cada fragmento se verifica con Python real en tests.html.
 
-export const REVIEW_ITEMS = [
+import { PAQUETE, traducir } from './traduccion.js';
+
+const ORIGINAL = [
   // ---- Módulo 1 · algoritmos y operadores
   {
     id: 'r-algoritmo', concept: 'algoritmo', mode: 'choice',
@@ -590,3 +592,7 @@ export const REVIEW_ITEMS = [
     explain: 'Antes de operar hay que tener los datos: dividir o mostrar depende de pasos anteriores.',
   },
 ];
+
+// Con la app en inglés, las preguntas ya traducidas sustituyen a las originales (mismo id).
+export const REVIEW_ORIGINAL = ORIGINAL;
+export const REVIEW_ITEMS = ORIGINAL.map((r) => traducir(r, PAQUETE?.REVIEW_EN));

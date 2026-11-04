@@ -1,0 +1,105 @@
+// Módulos del curso en inglés (traducción de src/content/curriculum.js, mismos ids).
+// Los capítulos son los de «Think Python» (3.ª ed.), el original en inglés de «Piensa en Python».
+
+export const MODULES_EN_LIST = [
+  {
+    id: 'm1', num: 1, title: 'Computational thinking and Python',
+    book: ['Ch. 1 · Programming as a way of thinking'], cisco: 'PE1 · Module 1',
+    objectives: ['Understand what a program is and how Python runs it', 'Break everyday problems down into steps', 'Write and run your first instructions'],
+    prerequisites: ['None'],
+    lessons: [
+      { id: 'algoritmos', title: 'What is programming: from recipe to algorithm' },
+      { id: 'calculadora', title: 'Python as a calculator' },
+      { id: 'primer-programa', title: 'Your first program with print()' },
+    ],
+  },
+  {
+    id: 'm2', num: 2, title: 'Variables, data types, expressions and operators',
+    book: ['Ch. 2 · Variables and statements'], cisco: 'PE1 · Module 2',
+    objectives: ['Store and change data with variables', 'Tell text and numbers apart and convert between them', 'Build expressions with operators'],
+    prerequisites: ['Module 1 (recommended)'],
+    lessons: [
+      { id: 'variables', title: 'Variables: giving data a name' },
+      { id: 'expresiones', title: 'Expressions and arithmetic operators' },
+      { id: 'entrada', title: 'Types, conversions and data input' },
+      { title: 'Module challenge: shopping receipt', challenge: 'ch-iva' },
+    ],
+  },
+  {
+    id: 'm3', num: 3, title: 'Functions, parameters and arguments',
+    book: ['Ch. 3 · Functions'], cisco: 'PE1 · Module 4',
+    objectives: ['Define your own functions', 'Pass information through parameters', 'Understand variable scope'],
+    prerequisites: ['Module 2'],
+    lessons: [{ id: 'llamar-funciones', title: 'Calling functions' }, { id: 'definir-funciones', title: 'Defining your own functions' }, { id: 'parametros', title: 'Parameters and local variables' }],
+  },
+  {
+    id: 'm4', num: 4, title: 'Functions, interfaces and organising programs',
+    book: ['Ch. 4 · Functions and interfaces'], cisco: 'PE1 · Module 4',
+    objectives: ['Design functions with clear interfaces', 'Encapsulate and generalise', 'Refactor repeated code'],
+    prerequisites: ['Module 3'],
+    lessons: [{ id: 'encapsular', title: 'Encapsulation and generalisation' }, { id: 'interfaces', title: 'Interface design' }, { id: 'refactorizar', title: 'Refactoring' }],
+  },
+  {
+    id: 'm5', num: 5, title: 'Conditionals, boolean logic and recursion',
+    book: ['Ch. 5 · Conditionals and recursion'], cisco: 'PE1 · Module 3',
+    objectives: ['Make decisions with if / elif / else', 'Combine conditions with and, or, not', 'Understand recursion'],
+    prerequisites: ['Module 3'],
+    lessons: [{ id: 'booleanas', title: 'Boolean expressions' }, { id: 'condicionales', title: 'if, elif and else' }, { id: 'recursion', title: 'Recursion' }],
+  },
+  {
+    id: 'm6', num: 6, title: 'Return values and composition',
+    book: ['Ch. 6 · Return values'], cisco: 'PE1 · Module 4',
+    objectives: ['Give back results with return', 'Incremental development', 'Compose functions'],
+    prerequisites: ['Modules 3 and 5'],
+    lessons: [{ id: 'retorno', title: 'return in depth' }, { id: 'incremental', title: 'Incremental development' }, { id: 'composicion', title: 'Composition and boolean functions' }],
+  },
+  {
+    id: 'm7', num: 7, title: 'Loops, iteration and search',
+    book: ['Ch. 7 · Iteration and search'], cisco: 'PE1 · Module 3',
+    objectives: ['Repeat with for and while', 'Accumulators and counters', 'Search for items'],
+    prerequisites: ['Module 5'],
+    lessons: [{ id: 'bucle-for', title: 'for loops' }, { id: 'bucle-while', title: 'while loops' }, { id: 'busqueda', title: 'Search patterns' }],
+  },
+  {
+    id: 'm8', num: 8, title: 'Strings',
+    book: ['Ch. 8 · Strings and regular expressions'], cisco: 'PE2 · Module 2',
+    objectives: ['Index and slice strings', 'String methods', 'Introduction to regular expressions'],
+    prerequisites: ['Module 7'],
+    lessons: [{ id: 'indices', title: 'Indexes and slices' }, { id: 'metodos', title: 'String methods' }, { id: 'regex', title: 'Basic regular expressions' }],
+  },
+  {
+    id: 'm9', num: 9, title: 'Lists',
+    book: ['Ch. 9 · Lists'], cisco: 'PE1 · Module 3',
+    objectives: ['Create and change lists', 'Loop over lists', 'Aliasing and mutability'],
+    prerequisites: ['Module 7'],
+    lessons: [{ id: 'listas', title: 'Lists and operations' }, { id: 'recorrer-listas', title: 'Looping over lists' }, { id: 'alias', title: 'Mutability and aliasing' }],
+  },
+  {
+    id: 'm10', num: 10, title: 'Dictionaries and tuples',
+    book: ['Ch. 10 · Dictionaries', 'Ch. 11 · Tuples', 'Ch. 12 · Text analysis and generation (project)'], cisco: 'PE1 · Module 4',
+    objectives: ['Associate keys and values', 'Use tuples', 'Count and analyse text'],
+    prerequisites: ['Module 9'],
+    lessons: [{ id: 'diccionarios', title: 'Dictionaries' }, { id: 'tuplas', title: 'Tuples' }, { id: 'proyecto-texto', title: 'Project: text analysis' }],
+  },
+  {
+    id: 'm11', num: 11, title: 'Files and data processing',
+    book: ['Ch. 13 · Files and databases'], cisco: 'PE2 · Module 4',
+    objectives: ['Read and write files', 'Process table data', 'Handle errors with try / except'],
+    prerequisites: ['Module 10'],
+    lessons: [{ id: 'archivos', title: 'Reading and writing files' }, { id: 'procesar', title: 'Processing data' }, { id: 'excepciones', title: 'Exceptions' }],
+  },
+  {
+    id: 'm12', num: 12, title: 'Classes, objects and object-oriented programming',
+    book: ['Ch. 14 · Classes and functions', 'Ch. 15 · Classes and methods', 'Ch. 16 · Classes and objects', 'Ch. 17 · Inheritance'], cisco: 'PE2 · Module 3',
+    objectives: ['Define classes and create objects', 'Methods and attributes', 'Inheritance'],
+    prerequisites: ['Module 10'],
+    lessons: [{ id: 'clases', title: 'Classes and objects' }, { id: 'metodos-clase', title: 'Methods' }, { id: 'herencia', title: 'Inheritance' }],
+  },
+  {
+    id: 'm13', num: 13, title: 'Debugging, good practices and projects',
+    book: ['Ch. 18 · Python extras', 'Ch. 19 · Final thoughts', 'Debugging sections of every chapter'], cisco: 'PE1/PE2 · Projects',
+    objectives: ['Debug systematically', 'Write readable code', 'Build a complete project'],
+    prerequisites: ['Previous modules'],
+    lessons: [{ id: 'depuracion', title: 'Debugging strategies' }, { id: 'estilo', title: 'Style and good practices' }, { id: 'proyecto-final', title: 'Final project: expense tracker' }],
+  },
+];

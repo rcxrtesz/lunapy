@@ -26,7 +26,7 @@ export function Challenges() {
       ${EN && html`<p class="small muted">The challenges are still in Spanish for now.</p>`}
     </div>
     <div class="filters" role="group" aria-label=${t('Filtrar por tema', 'Filter by topic')}>
-      ${['', ...TOPICS].map((tp) => html`<button class=${`chip ${topic === tp ? 'on' : ''}`} onClick=${() => setTopic(tp)} aria-pressed=${topic === tp}>${tp === 'Motos' ? t('🏍️ Motos', '🏍️ Motorbikes') : tp || t('Todos los temas', 'All topics')}</button>`)}
+      ${['', ...TOPICS].map((tp) => html`<button class=${`chip ${topic === tp ? 'on' : ''}`} onClick=${() => setTopic(tp)} aria-pressed=${topic === tp}>${tp === 'Motos' || tp === 'Motorbikes' ? `🏍️ ${tp === 'Motos' ? t('Motos', 'Motorbikes') : tp}` : tp || t('Todos los temas', 'All topics')}</button>`)}
       ${UPCOMING.map((tp) => html`<span class="tag" title=${t('Llegará con los siguientes módulos', 'Coming with the next modules')}>${tp} · ${t('próximamente', 'coming soon')}</span>`)}
     </div>
     <div class="filters" role="group" aria-label=${t('Filtrar por dificultad', 'Filter by difficulty')}>

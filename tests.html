@@ -65,6 +65,43 @@
       log(merge(local, null, base) === local, 'fusión · sin datos en el servidor se queda el local');
     }
 
+    // ---------- Traducción (app en inglés): misma estructura que el original ----------
+    // Las traducciones conservan ids, conceptos, XP y estructura para que el progreso sea el mismo
+    // en los dos idiomas. Solo cambian los textos, el código de ejemplo y sus salidas.
+    {
+      const { LESSONS_ORIGINAL } = await import('./src/content/lessons.js');
+      const { ACTIVITIES_ORIGINAL } = await import('./src/content/activities.js');
+      const { REVIEW_ORIGINAL } = await import('./src/content/review.js');
+      const { MODULES, MODULES_ORIGINAL } = await import('./src/content/curriculum.js');
+      const sameJSON = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+      const blockShape = (b) => ({ type: b.type, id: b.id, concept: b.concept, mode: b.mode, run: !!b.run, nOpts: (b.options || []).length,
+        correct: (b.options || []).map((o) => !!o.correct), nItems: b.items ? (Array.isArray(b.items) ? b.items.length : Object.keys(b.items).length) : 0,
+        valid: Array.isArray(b.items) ? b.items.map((it) => it.valid) : undefined, err: b.expectError });
+      const lessonShape = (l) => ({ id: l.id, moduleId: l.moduleId, code: l.code, minutes: l.minutes, bonusXp: l.bonusXp, nObj: l.objectives.length, nSum: l.summary.length,
+        steps: l.steps.map((st) => ({ id: st.id, concepts: st.concepts, activity: st.activity, summary: !!st.summary, blocks: (st.blocks || []).map(blockShape) })) });
+      const actShape = (a) => ({ id: a.id, type: a.type, variant: a.variant, difficulty: a.difficulty, xp: a.xp, concepts: a.concepts,
+        unlock: a.unlock && { ...a.unlock, text: undefined }, nOpts: (a.options || []).length, correct: (a.options || []).map((o) => !!o.correct),
+        optConcepts: (a.options || []).map((o) => o.concept), nHints: (a.hints || []).length, hintPre: (a.hints || []).map((h) => !!h.pre),
+        nPlan: (a.plan || []).map((q) => [q.multi, q.options.map((o) => !!o.correct)]), nRefs: (a.reference || []).length,
+        wrongs: (a.wrongs || []).map((w) => w.category), stages: (a.stages || []).map((s) => s.items.map((it) => [it.id, it.after])),
+        cases: a.spec ? (a.spec.cases || []).length : 0, rules: a.spec ? (a.spec.rules || []).map((r) => r.type) : [],
+        miscon: a.spec ? (a.spec.misconceptions || []).length : 0, variants: a.spec ? (a.spec.variants || []).length : 0,
+        fns: a.spec && a.spec.functions, blanks: a.spec && a.spec.blanks, hasPlanScaffold: !!a.planScaffold });
+      for (const l of Object.values(LESSONS).filter((x) => x.en)) {
+        log(sameJSON(lessonShape(l), lessonShape(LESSONS_ORIGINAL[l.id])), `traducción · lección ${l.code} con la misma estructura`);
+      }
+      for (const a of Object.values(ACTIVITIES).filter((x) => x.en)) {
+        log(sameJSON(actShape(a), actShape(ACTIVITIES_ORIGINAL[a.id])), `traducción · actividad ${a.id} con la misma estructura`);
+      }
+      const revOrig = Object.fromEntries(REVIEW_ORIGINAL.map((r) => [r.id, r]));
+      for (const r of REVIEW_ITEMS.filter((x) => x.en)) {
+        log(sameJSON(blockShape(r), blockShape(revOrig[r.id])) && r.concept === revOrig[r.id].concept, `traducción · repaso ${r.id} con la misma estructura`);
+      }
+      for (const m of MODULES.filter((x) => x.en)) {
+        log(sameJSON(m.lessons.map((x) => [x.id, x.challenge]), MODULES_ORIGINAL.find((y) => y.id === m.id).lessons.map((x) => [x.id, x.challenge])), `traducción · módulo ${m.num} con las mismas lecciones`);
+      }
+    }
+
     async function expectOutput(name, code, expected, expectError) {
       const r = await engine.run(code, []);
       if (expectError) return log(r.status === 'error' && r.error.type === expectError, name, `error=${r.error && r.error.type}`);
@@ -90,7 +127,7 @@
         for (const st of a.stages.filter((x) => x.code)) {
           const code = st.items.map((i) => i.text).join('\n');
           const r = await engine.run(code, ['100', '20']);
-          log(r.status === 'ok' && text(r.segs).endsWith('Precio final: 80.0'), `${a.id} · el código ordenado funciona`, text(r.segs));
+          log(r.status === 'ok' && text(r.segs).endsWith(st.expectEnd || 'Precio final: 80.0'), `${a.id} · el código ordenado funciona`, text(r.segs));
         }
       }
     }

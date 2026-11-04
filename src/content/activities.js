@@ -42,6 +42,7 @@ import { ACTIVITIES_DEPURACION } from './lesson-depuracion.js';
 import { ACTIVITIES_ESTILO } from './lesson-estilo.js';
 import { ACTIVITIES_PROYECTO_FINAL } from './lesson-proyecto-final.js';
 import { ACTIVITIES_MOTOS } from './desafios-motos.js';
+import { PAQUETE, traducir } from './traduccion.js';
 
 const ACTIVITIES_M2 = {
   // ------------------------------------------------------------------ 1
@@ -450,7 +451,7 @@ print("Precio con IVA:", round(total, 2))`,
 
 for (const a of Object.values(ACTIVITIES_M2)) a.topic ||= 'Variables';
 
-export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS,
+const ORIGINAL = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EXPRESIONES, ...ACTIVITIES_ENTRADA, ...ACTIVITIES_LLAMAR_FUNCIONES, ...ACTIVITIES_DEFINIR_FUNCIONES, ...ACTIVITIES_PARAMETROS,
   ...ACTIVITIES_ENCAPSULAR, ...ACTIVITIES_INTERFACES, ...ACTIVITIES_REFACTORIZAR,
   ...ACTIVITIES_BOOLEANAS, ...ACTIVITIES_CONDICIONALES, ...ACTIVITIES_RECURSION,
   ...ACTIVITIES_RETORNO, ...ACTIVITIES_INCREMENTAL, ...ACTIVITIES_COMPOSICION,
@@ -462,6 +463,10 @@ export const ACTIVITIES = { ...ACTIVITIES_M1, ...ACTIVITIES_M2, ...ACTIVITIES_EX
   ...ACTIVITIES_CLASES, ...ACTIVITIES_METODOS_CLASE, ...ACTIVITIES_HERENCIA,
   ...ACTIVITIES_DEPURACION, ...ACTIVITIES_ESTILO, ...ACTIVITIES_PROYECTO_FINAL,
   ...ACTIVITIES_MOTOS }; // desafíos de motos: solo en la zona de desafíos
+
+// Con la app en inglés, las actividades ya traducidas sustituyen a las originales (mismo id).
+export const ACTIVITIES_ORIGINAL = ORIGINAL;
+export const ACTIVITIES = Object.fromEntries(Object.entries(ORIGINAL).map(([id, a]) => [id, traducir(a, PAQUETE?.ACTIVITIES_EN)]));
 
 // Zona de desafíos: todas las actividades, en el orden del curso.
 export const CHALLENGES = Object.keys(ACTIVITIES);

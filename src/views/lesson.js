@@ -116,7 +116,7 @@ export function LessonView({ lessonId, step: stepParam }) {
 
       <div class="card step-card" key=${idx}>
         ${idx === 0 && html`<div class="card flat" style="background:var(--surface-2);margin-bottom:22px;padding:18px">
-          ${EN && html`<p class="small muted" style="margin:0 0 10px">This lesson is still in Spanish; the English version is on its way.</p>`}
+          ${EN && !L.en && html`<p class="small muted" style="margin:0 0 10px">This lesson is still in Spanish; the English version is on its way.</p>`}
           <div class="eyebrow">${t('Lección', 'Lesson')} ${L.code}</div>
           <h1 style="margin-bottom:10px">${L.title}</h1>
           <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
