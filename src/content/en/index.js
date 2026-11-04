@@ -34,6 +34,9 @@ import * as regex from './lesson-regex.js';
 import * as listas from './lesson-listas.js';
 import * as recorrerListas from './lesson-recorrer-listas.js';
 import * as alias from './lesson-alias.js';
+import * as diccionarios from './lesson-diccionarios.js';
+import * as tuplas from './lesson-tuplas.js';
+import * as proyectoTexto from './lesson-proyecto-texto.js';
 
 const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   llamarFunciones, definirFunciones, parametros,
@@ -42,7 +45,8 @@ const PAQUETES = [curriculo, m1, m2Actividades, variables, expresiones, entrada,
   retorno, incremental, composicion,
   bucleFor, bucleWhile, busqueda,
   indices, metodos, regex,
-  listas, recorrerListas, alias];
+  listas, recorrerListas, alias,
+  diccionarios, tuplas, proyectoTexto];
 
 const recoger = (sufijo) => PAQUETES.flatMap((p) => Object.entries(p)
   .filter(([nombre]) => nombre.startsWith(sufijo))
